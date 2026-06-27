@@ -1,6 +1,6 @@
 const NOTION_API = 'https://api.notion.com/v1';
 
-async function queryAllTasks(dbId, token) {
+async function queryAllTasks(dbId, token, includeDone = false) {
   const headers = {
     'Authorization': `Bearer ${token}`,
     'Notion-Version': '2022-06-28',
@@ -9,10 +9,12 @@ async function queryAllTasks(dbId, token) {
   let tasks = [], cursor = undefined;
   do {
     const body = {
-      filter: { property: 'Estado', select: { does_not_equal: 'Realizado' } },
       sorts: [{ property: 'Fin', direction: 'ascending' }],
       page_size: 100,
     };
+    if (!includeDone) {
+      body.filter = { property: 'Estado', select: { does_not_equal: 'Realizado' } };
+    }
     if (cursor) body.start_cursor = cursor;
     const res = await fetch(`${NOTION_API}/databases/${dbId}/query`, {
       method: 'POST', headers, body: JSON.stringify(body),
@@ -36,7 +38,7 @@ async function queryAllTasks(dbId, token) {
 
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
-  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PATCH,OPTIONS');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PATCH,DELETE,OPTIONS');
   res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
   if (req.method === 'OPTIONS') return res.status(200).end();
 
@@ -51,12 +53,13 @@ module.exports = async (req, res) => {
 
   try {
     if (req.method === 'GET') {
-      const tasks = await queryAllTasks(DB_ID, TOKEN);
+      const includeDone = req.query?.include_done === 'true';
+      const tasks = await queryAllTasks(DB_ID, TOKEN, includeDone);
       return res.json({ tasks });
     }
 
     if (req.method === 'POST') {
-      const { nombre, cliente, responsable, inicio, fin } = req.body;
+      const { nombre, cliente, responsable, inicio, fin, sub } = req.body;
       if (!nombre || !cliente) return res.status(400).json({ error: 'Faltan campos requeridos' });
       const props = {
         Tarea: { title: [{ text: { content: nombre } }] },
@@ -66,6 +69,7 @@ module.exports = async (req, res) => {
       if (inicio) props.Inicio = { date: { start: inicio } };
       if (fin) props.Fin = { date: { start: fin } };
       if (responsable) props.Responsable = { select: { name: responsable } };
+      if (sub) props.Subtarea = { rich_text: [{ text: { content: sub } }] };
       const r = await fetch(`${NOTION_API}/pages`, {
         method: 'POST', headers: notionHeaders,
         body: JSON.stringify({ parent: { database_id: DB_ID }, properties: props }),
@@ -76,14 +80,28 @@ module.exports = async (req, res) => {
     }
 
     if (req.method === 'PATCH') {
-      const { id, estado, fin } = req.body;
+      const { id, estado, inicio, fin, sub } = req.body;
       if (!id) return res.status(400).json({ error: 'Falta id' });
       const props = {};
       if (estado) props.Estado = { select: { name: estado } };
-      if (fin) props.Fin = { date: { start: fin } };
+      if (inicio !== undefined) props.Inicio = inicio ? { date: { start: inicio } } : { date: null };
+      if (fin !== undefined) props.Fin = fin ? { date: { start: fin } } : { date: null };
+      if (sub !== undefined) props.Subtarea = { rich_text: sub ? [{ text: { content: sub } }] : [] };
       const r = await fetch(`${NOTION_API}/pages/${id}`, {
         method: 'PATCH', headers: notionHeaders,
         body: JSON.stringify({ properties: props }),
+      });
+      const result = await r.json();
+      if (result.object === 'error') return res.status(400).json({ error: result.message });
+      return res.json({ ok: true });
+    }
+
+    if (req.method === 'DELETE') {
+      const { id } = req.body;
+      if (!id) return res.status(400).json({ error: 'Falta id' });
+      const r = await fetch(`${NOTION_API}/pages/${id}`, {
+        method: 'PATCH', headers: notionHeaders,
+        body: JSON.stringify({ archived: true }),
       });
       const result = await r.json();
       if (result.object === 'error') return res.status(400).json({ error: result.message });
