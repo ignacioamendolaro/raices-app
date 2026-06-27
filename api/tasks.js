@@ -6,8 +6,7 @@ async function queryAllTasks(dbId, token) {
     'Notion-Version': '2022-06-28',
     'Content-Type': 'application/json',
   };
-  let tasks = [];
-  let cursor = undefined;
+  let tasks = [], cursor = undefined;
   do {
     const body = {
       filter: { property: 'Estado', select: { does_not_equal: 'Realizado' } },
@@ -19,8 +18,8 @@ async function queryAllTasks(dbId, token) {
       method: 'POST', headers, body: JSON.stringify(body),
     });
     const data = await res.json();
-    if (!data.results) break;
-    tasks = tasks.concat(data.results.map(page => ({
+    if (data.object === 'error') throw new Error(data.message);
+    tasks = tasks.concat((data.results || []).map(page => ({
       id: page.id,
       nombre: page.properties.Tarea?.title?.[0]?.plain_text || '',
       cliente: page.properties.Cliente?.select?.name || 'General',
@@ -43,6 +42,7 @@ module.exports = async (req, res) => {
 
   const DB_ID = process.env.NOTION_DATABASE_ID;
   const TOKEN = process.env.NOTION_API_KEY;
+
   const notionHeaders = {
     'Authorization': `Bearer ${TOKEN}`,
     'Notion-Version': '2022-06-28',
