@@ -10,7 +10,6 @@ async function queryAllTasks(dbId, token) {
   let cursor = undefined;
   do {
     const body = {
-      filter: { property: 'Estado', select: { does_not_equal: 'Realizado' } },
       sorts: [{ property: 'Fin', direction: 'ascending' }],
       page_size: 100,
     };
