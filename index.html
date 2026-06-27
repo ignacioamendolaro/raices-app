@@ -189,4 +189,218 @@ let editingId = null;
 
 loadTasks();
 
-async
+async function loadTasks() {
+  document.getElementById('loading').style.display = 'block';
+  document.getElementById('tasklist').innerHTML = '';
+  try {
+    const r = await fetch('/api/tasks');
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    const d = await r.json();
+    allTasks = d.tasks || [];
+    render();
+  } catch(e) {
+    document.getElementById('loading').textContent = '⚠️ Error al cargar: ' + e.message;
+  }
+}
+
+function setFilter(f) {
+  filter = f; editingId = null;
+  document.querySelectorAll('.fbtn').forEach(b => b.classList.toggle('active', b.dataset.f === f));
+  const showTime = (f !== 'urgente' && f !== 'todos');
+  document.getElementById('tbar').style.display = showTime ? 'flex' : 'none';
+  if (!showTime) { timeFilter = 'all'; document.querySelectorAll('.tbtn').forEach(b => b.classList.toggle('active', b.dataset.t === 'all')); }
+  render();
+}
+
+function setTime(t) {
+  timeFilter = t;
+  document.querySelectorAll('.tbtn').forEach(b => b.classList.toggle('active', b.dataset.t === t));
+  render();
+}
+
+function filtered() {
+  const today = new Date(); today.setHours(0,0,0,0);
+  const wkEnd = new Date(today); wkEnd.setDate(wkEnd.getDate() + 7);
+  let list = [...allTasks];
+
+  if (filter === 'urgente') {
+    list = list.filter(t => {
+      if (t.estado === 'En Progreso') return true;
+      const d = parseDate(t.fin);
+      return d && d <= today;
+    });
+    if (timeFilter === 'esta-semana') list = list.filter(t => { const d = parseDate(t.fin); return d && d >= today && d <= wkEnd; });
+    return list;
+  }
+
+  if (filter !== 'todos') {
+    list = list.filter(t => t.cliente === filter);
+    if (timeFilter === 'esta-semana') list = list.filter(t => { const d = parseDate(t.inicio); return d && d >= today && d <= wkEnd; });
+    else if (timeFilter === 'vigentes') list = list.filter(t => { const d = parseDate(t.inicio); return !d || d <= today; });
+  }
+  return list;
+}
+
+function render() {
+  document.getElementById('loading').style.display = 'none';
+  const list = filtered();
+  const el = document.getElementById('tasklist');
+  if (!list.length) { el.innerHTML = '<div class="empty">Sin tareas para mostrar 🎉</div>'; return; }
+
+  const today = new Date(); today.setHours(0,0,0,0);
+
+  if (filter === 'urgente' || filter === 'todos') {
+    const byClient = {};
+    CLIENT_ORDER.forEach(c => { byClient[c] = []; });
+    list.forEach(t => { (byClient[t.cliente] || (byClient['General'] = byClient['General'] || [])).push(t); });
+    el.innerHTML = CLIENT_ORDER.filter(c => byClient[c]?.length)
+      .map(c => `<div class="cs-mb">
+        <div class="cs-header">
+          <div class="cs-dot" style="background:${CLIENT_COLORS[c]||'#64748b'}"></div>
+          <span class="cs-name">${c}</span>
+          <span class="cs-count">${byClient[c].length}</span>
+        </div>
+        ${byClient[c].map(t => cardHTML(t, today)).join('')}
+      </div>`).join('');
+  } else {
+    el.innerHTML = list.map(t => cardHTML(t, today)).join('');
+  }
+}
+
+function parseDate(iso) {
+  if (!iso) return null;
+  const [y, m, d] = iso.split('-').map(Number);
+  return new Date(y, m-1, d);
+}
+
+function fmtDate(iso) {
+  if (!iso) return null;
+  return parseDate(iso).toLocaleDateString('es-AR',{day:'numeric',month:'short'});
+}
+
+function cardHTML(t, today) {
+  const fin = parseDate(t.fin);
+  const isLate = fin && fin < today;
+  const isWip = t.estado === 'En Progreso';
+  const color = CLIENT_COLORS[t.cliente] || '#64748b';
+  const borderColor = isLate ? '#f87171' : isWip ? '#fb923c' : color;
+  const isEditing = editingId === t.id;
+
+  return `<div class="card" id="card-${t.id}" style="border-left-color:${borderColor}">
+    <div class="card-info">
+      <div class="card-nombre">${esc(t.nombre)}</div>
+      <div class="card-meta">
+        ${t.fin ? `<span class="tag tag-date${isLate?' late':''}">📅 ${fmtDate(t.fin)}</span>` : ''}
+        ${t.inicio ? `<span class="tag tag-date">▶ ${fmtDate(t.inicio)}</span>` : ''}
+        ${t.responsable ? `<span class="tag tag-resp">${esc(t.responsable)}</span>` : ''}
+        ${isWip ? `<span class="tag tag-prog">En progreso</span>` : ''}
+        ${t.sub ? `<span class="tag tag-sub">${esc(t.sub)}</span>` : ''}
+      </div>
+      ${isEditing ? `
+        <div class="date-row">
+          <input type="date" class="date-inp" id="di-${t.id}" value="${t.fin||''}">
+          <button class="btn-sm save" onclick="saveDate('${t.id}')">Guardar</button>
+          <button class="btn-sm cancel" onclick="cancelEdit()">✕</button>
+        </div>` : ''}
+    </div>
+    <div class="card-btns">
+      <button class="icobtn reprogram" onclick="startEdit('${t.id}')" title="Reprogramar">📅</button>
+      <button class="icobtn done" onclick="markDone('${t.id}')" title="Realizada">✓</button>
+    </div>
+  </div>`;
+}
+
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+async function markDone(id) {
+  const card = document.getElementById('card-'+id);
+  if (card) card.style.opacity = '.4';
+  try {
+    const r = await fetch('/api/tasks',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,estado:'Realizado'})});
+    if (!r.ok) throw new Error(await r.text());
+    allTasks = allTasks.filter(t => t.id !== id);
+    render();
+    toast('Tarea completada ✅','#10b981');
+  } catch(e) {
+    if (card) card.style.opacity = '1';
+    toast('Error: '+e.message,'#ef4444');
+  }
+}
+
+function startEdit(id) { editingId = id; render(); setTimeout(()=>document.getElementById('di-'+id)?.focus(),50); }
+function cancelEdit() { editingId = null; render(); }
+
+async function saveDate(id) {
+  const inp = document.getElementById('di-'+id);
+  if (!inp?.value) return;
+  try {
+    const r = await fetch('/api/tasks',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,fin:inp.value})});
+    if (!r.ok) throw new Error(await r.text());
+    const t = allTasks.find(x => x.id === id);
+    if (t) t.fin = inp.value;
+    editingId = null; render();
+    toast('Fecha actualizada en Notion','#6366f1');
+  } catch(e) { toast('Error: '+e.message,'#ef4444'); }
+}
+
+function openNewTask() {
+  ['nt-nombre','nt-inicio','nt-fin'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('nt-cliente').value = '';
+  document.getElementById('nt-resp').value = 'Nacho';
+  document.getElementById('modal-new').classList.add('open');
+  setTimeout(()=>document.getElementById('nt-nombre').focus(),80);
+}
+function closeNewTask() { document.getElementById('modal-new').classList.remove('open'); }
+
+async function saveNewTask() {
+  const nombre = document.getElementById('nt-nombre').value.trim();
+  const cliente = document.getElementById('nt-cliente').value;
+  if (!nombre || !cliente) { toast('Falta nombre o cliente','#ef4444'); return; }
+  const btn = document.getElementById('btn-save');
+  btn.disabled = true; btn.textContent = 'Guardando...';
+  try {
+    const body = {
+      nombre, cliente,
+      responsable: document.getElementById('nt-resp').value,
+      inicio: document.getElementById('nt-inicio').value || null,
+      fin: document.getElementById('nt-fin').value || null,
+    };
+    const r = await fetch('/api/tasks',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    if (!r.ok) throw new Error(await r.text());
+    const d = await r.json();
+    allTasks.push({id:d.id,nombre,cliente,estado:'Pendiente',inicio:body.inicio,fin:body.fin,responsable:body.responsable,sub:''});
+    closeNewTask(); render();
+    toast('Tarea creada en Notion ✅','#10b981');
+  } catch(e) { toast('Error: '+e.message,'#ef4444'); }
+  finally { btn.disabled=false; btn.textContent='Guardar en Notion'; }
+}
+
+async function syncSheet() {
+  const btn = document.getElementById('btn-sync');
+  btn.disabled = true; btn.textContent = 'Sincronizando...';
+  try {
+    const r = await fetch('/api/sheet',{method:'POST'});
+    if (!r.ok) throw new Error(await r.text());
+    const d = await r.json();
+    if (d.synced > 0) {
+      toast(`${d.synced} tarea${d.synced>1?'s':''} nueva${d.synced>1?'s':''} importada${d.synced>1?'s':''} ✅`,'#10b981');
+      await loadTasks();
+    } else {
+      toast('Todo sincronizado, nada nuevo','#6366f1');
+    }
+  } catch(e) { toast('Error sync: '+e.message,'#ef4444'); }
+  finally { btn.disabled=false; btn.textContent='↻ Sync Sheet'; }
+}
+
+function toast(msg, bg='#10b981') {
+  document.querySelectorAll('.toast').forEach(x=>x.remove());
+  const el = document.createElement('div');
+  el.className = 'toast'; el.textContent = msg; el.style.background = bg;
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),3500);
+}
+
+document.getElementById('modal-new').addEventListener('click',e=>{if(e.target===e.currentTarget)closeNewTask();});
+</script>
+</body>
+</html>
