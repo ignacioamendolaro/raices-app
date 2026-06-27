@@ -22,51 +22,51 @@ function parseCSV(text) {
 
 function parseDate(str) {
   if (!str) return null;
-  // DD/MM/YYYY o DD-MM-YYYY
   let m = str.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})$/);
   if (m) {
     const y = m[3].length === 2 ? '20' + m[3] : m[3];
     return `${y}-${m[1].padStart(2,'0')}-${m[2].padStart(2,'0')}`;
   }
-  // YYYY-MM-DD (ya está bien)
   m = str.match(/^(\d{4})-(\d{2})-(\d{2})$/);
   if (m) return str;
   return null;
 }
 
 function isClientHeader(row) {
-  const b = row[1]?.trim(); // col B
-  const c = row[2]?.trim(); // col C (inicio)
-  const d = row[3]?.trim(); // col D (fin)
+  const b = row[1]?.trim();
+  const c = row[2]?.trim();
+  const d = row[3]?.trim();
   if (!b) return false;
-  // Si C y D están vacíos y B coincide (parcial, sin importar mayúsculas) con algún cliente
   const isEmpty = !c && !d;
   const matchesClient = KNOWN_CLIENTS.some(cl => b.toLowerCase().includes(cl.toLowerCase()) || cl.toLowerCase().includes(b.toLowerCase()));
   return isEmpty && matchesClient;
 }
 
 async function getSheetTasks(sheetId) {
+  if (!sheetId) throw new Error('GOOGLE_SHEET_ID no configurado en Vercel');
   const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv&sheet=Empresas%20Gantt`;
   const res = await fetch(url);
-  if (!res.ok) throw new Error(`No se pudo leer el Sheet (${res.status}). ¿Está publicado?`);
-  const csv = await res.text();
-  const rows = parseCSV(csv);
+  const text = await res.text();
 
+  // Detectar respuesta de error de Google (no es CSV real)
+  if (!res.ok || text.startsWith('<!') || text.includes('google.visualization.Query.setResponse')) {
+    throw new Error('No se pudo leer el Sheet. Verificá que esté compartido como "Cualquiera con el enlace".');
+  }
+
+  const rows = parseCSV(text);
   const tasks = [];
   let currentClient = null;
 
   for (const row of rows) {
-    const b = row[1]?.trim(); // nombre tarea
-    const c = row[2]?.trim(); // inicio
-    const d = row[3]?.trim(); // fin
-    const e = row[4]?.trim(); // responsable
-    const g = row[6]?.trim(); // estado
+    const b = row[1]?.trim();
+    const c = row[2]?.trim();
+    const d = row[3]?.trim();
+    const e = row[4]?.trim();
+    const g = row[6]?.trim();
 
     if (!b) continue;
 
-    // Detectar fila de encabezado de cliente
     if (isClientHeader(row)) {
-      // Buscar cuál cliente coincide
       const matched = KNOWN_CLIENTS.find(cl =>
         b.toLowerCase().includes(cl.toLowerCase()) || cl.toLowerCase().includes(b.toLowerCase())
       );
@@ -74,7 +74,6 @@ async function getSheetTasks(sheetId) {
       continue;
     }
 
-    // Fila de tarea
     if (currentClient) {
       const estadoMap = { 'realizado': 'Realizado', 'en progreso': 'En Progreso', 'pendiente': 'Pendiente' };
       const estadoNorm = estadoMap[g?.toLowerCase()] || 'Pendiente';
@@ -104,12 +103,10 @@ module.exports = async (req, res) => {
   try {
     const sheetTasks = await getSheetTasks(SHEET_ID);
 
-    // GET: solo devolver las tareas del sheet (preview)
     if (req.method === 'GET') {
       return res.json({ tasks: sheetTasks, total: sheetTasks.length });
     }
 
-    // POST: sincronizar a Notion
     if (req.method === 'POST') {
       const notionHeaders = {
         'Authorization': `Bearer ${TOKEN}`,
@@ -117,7 +114,7 @@ module.exports = async (req, res) => {
         'Content-Type': 'application/json',
       };
 
-      // Traer todas las tareas existentes en Notion (incluyendo Realizadas)
+      // Traer todas las tareas de Notion
       let allExisting = [];
       let cursor = undefined;
       do {
@@ -127,6 +124,7 @@ module.exports = async (req, res) => {
           method: 'POST', headers: notionHeaders, body: JSON.stringify(body),
         });
         const data = await r.json();
+        if (data.object === 'error') throw new Error(`Notion: ${data.message}`);
         if (!data.results) break;
         allExisting = allExisting.concat(
           data.results.map(p => p.properties.Tarea?.title?.[0]?.plain_text?.trim().toLowerCase())
@@ -135,8 +133,6 @@ module.exports = async (req, res) => {
       } while (cursor);
 
       const existingSet = new Set(allExisting.filter(Boolean));
-
-      // Filtrar tareas nuevas (no en Notion)
       const toCreate = sheetTasks.filter(t => !existingSet.has(t.nombre.toLowerCase()));
 
       let created = 0;
@@ -163,7 +159,6 @@ module.exports = async (req, res) => {
 
     res.status(405).json({ error: 'Método no permitido' });
   } catch (err) {
-    console.error(err);
     res.status(500).json({ error: err.message });
   }
 };
