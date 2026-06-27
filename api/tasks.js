@@ -1,5 +1,39 @@
 const NOTION_API = 'https://api.notion.com/v1';
 
+async function queryAllTasks(dbId, token) {
+  const headers = {
+    'Authorization': `Bearer ${token}`,
+    'Notion-Version': '2022-06-28',
+    'Content-Type': 'application/json',
+  };
+  let tasks = [];
+  let cursor = undefined;
+  do {
+    const body = {
+      sorts: [{ property: 'Fin', direction: 'ascending' }],
+      page_size: 100,
+    };
+    if (cursor) body.start_cursor = cursor;
+    const res = await fetch(`${NOTION_API}/databases/${dbId}/query`, {
+      method: 'POST', headers, body: JSON.stringify(body),
+    });
+    const data = await res.json();
+    if (!data.results) break;
+    tasks = tasks.concat(data.results.map(page => ({
+      id: page.id,
+      nombre: page.properties.Tarea?.title?.[0]?.plain_text || '',
+      cliente: page.properties.Cliente?.select?.name || 'General',
+      estado: page.properties.Estado?.select?.name || 'Pendiente',
+      inicio: page.properties.Inicio?.date?.start || null,
+      fin: page.properties.Fin?.date?.start || null,
+      responsable: page.properties.Responsable?.select?.name || '',
+      sub: page.properties.Subtarea?.rich_text?.[0]?.plain_text || '',
+    })));
+    cursor = data.has_more ? data.next_cursor : undefined;
+  } while (cursor);
+  return tasks;
+}
+
 module.exports = async (req, res) => {
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PATCH,OPTIONS');
@@ -8,7 +42,6 @@ module.exports = async (req, res) => {
 
   const DB_ID = process.env.NOTION_DATABASE_ID;
   const TOKEN = process.env.NOTION_API_KEY;
-
   const notionHeaders = {
     'Authorization': `Bearer ${TOKEN}`,
     'Notion-Version': '2022-06-28',
@@ -17,29 +50,8 @@ module.exports = async (req, res) => {
 
   try {
     if (req.method === 'GET') {
-      const r = await fetch(`${NOTION_API}/databases/${DB_ID}/query`, {
-        method: 'POST',
-        headers: notionHeaders,
-        body: JSON.stringify({ page_size: 5 }),
-      });
-      const raw = await r.json();
-
-      if (raw.object === 'error') {
-        return res.json({ debug: 'NOTION_ERROR', status: raw.status, message: raw.message, code: raw.code, db_id: DB_ID, token_starts: TOKEN ? TOKEN.substring(0, 12) + '...' : 'MISSING' });
-      }
-
-      const tasks = (raw.results || []).map(page => ({
-        id: page.id,
-        nombre: page.properties.Tarea?.title?.[0]?.plain_text || '',
-        cliente: page.properties.Cliente?.select?.name || 'General',
-        estado: page.properties.Estado?.select?.name || 'Pendiente',
-        inicio: page.properties.Inicio?.date?.start || null,
-        fin: page.properties.Fin?.date?.start || null,
-        responsable: page.properties.Responsable?.select?.name || '',
-        sub: page.properties.Subtarea?.rich_text?.[0]?.plain_text || '',
-      }));
-
-      return res.json({ debug: 'OK', total_in_notion: raw.results?.length, has_more: raw.has_more, tasks });
+      const tasks = await queryAllTasks(DB_ID, TOKEN);
+      return res.json({ tasks });
     }
 
     if (req.method === 'POST') {
