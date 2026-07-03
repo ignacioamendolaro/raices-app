@@ -1,803 +1,203 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Agenda Raíces</title>
-<style>
-*{box-sizing:border-box;margin:0;padding:0}
-body{background:#0f172a;color:#e2e8f0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;min-height:100vh}
+const NOTION_API = 'https://api.notion.com/v1';
 
-.hdr{background:#1e293b;border-bottom:1px solid #334155;padding:13px 18px;position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:10px}
-.hdr-title{font-size:17px;font-weight:700;color:#fff;white-space:nowrap}
-.hdr-actions{display:flex;gap:8px;flex-shrink:0}
-
-.fbar{background:#1e293b;border-bottom:1px solid #334155;padding:10px 14px;display:flex;gap:7px;overflow-x:auto;scrollbar-width:none}
-.fbar::-webkit-scrollbar{display:none}
-.fbtn{padding:5px 14px;border-radius:20px;border:1.5px solid #334155;background:transparent;color:#64748b;font-size:13px;cursor:pointer;white-space:nowrap;transition:all .15s;flex-shrink:0}
-.fbtn:hover{border-color:#64748b;color:#cbd5e1}
-.fbtn.active{color:#fff;font-weight:600;border-color:currentColor}
-.fbtn.active[data-f="urgente"]{color:#f87171;border-color:#f87171}
-.fbtn.active[data-f="dashboard"]{color:#a78bfa;border-color:#a78bfa}
-.fbtn.active[data-f="todos"]{color:#94a3b8;border-color:#94a3b8}
-.fbtn.active[data-f="agenda"]{color:#34d399;border-color:#34d399}
-.fbtn.active[data-f="OCD"]{color:#818cf8}
-.fbtn.active[data-f="Suralnor"]{color:#fbbf24}
-.fbtn.active[data-f="Cafaratti"]{color:#a78bfa}
-.fbtn.active[data-f="Pagani"]{color:#34d399}
-.fbtn.active[data-f="Conexxo"]{color:#60a5fa}
-.fbtn.active[data-f="Artico"]{color:#22d3ee}
-.fbtn.active[data-f="Lactosur"]{color:#fb923c}
-.fbtn.active[data-f="Alianzas"]{color:#f472b6}
-.fbtn.active[data-f="ADIA"]{color:#a3e635}
-.fbtn.active[data-f="Raíces"]{color:#2dd4bf}
-.fbtn.active[data-f="Marca Personal"]{color:#c084fc}
-.fbtn.active[data-f="General"]{color:#94a3b8}
-
-.tbar{background:#0f172a;padding:7px 14px;display:flex;gap:7px;border-bottom:1px solid #1e293b}
-.tbtn{padding:3px 12px;border-radius:12px;border:1px solid #334155;background:transparent;color:#475569;font-size:12px;cursor:pointer;transition:all .15s}
-.tbtn.active{background:#1e293b;color:#cbd5e1;border-color:#475569}
-
-.wrap{padding:14px 16px;max-width:860px;margin:0 auto}
-
-.cs-header{display:flex;align-items:center;gap:8px;margin-bottom:8px;margin-top:4px;padding:0 2px}
-.cs-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0}
-.cs-name{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#64748b}
-.cs-count{font-size:11px;color:#334155;margin-left:2px}
-
-.card{background:#1e293b;border:1px solid #334155;border-left:3px solid transparent;border-radius:11px;padding:12px 14px;margin-bottom:7px;transition:border-color .15s}
-.card:hover{border-color:#475569}
-.card-top{display:flex;align-items:flex-start;gap:10px}
-.card-info{flex:1;min-width:0}
-.card-nombre{font-size:14px;font-weight:500;color:#e2e8f0;line-height:1.3;margin-bottom:5px}
-.card-meta{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
-.tag{font-size:11px;padding:2px 8px;border-radius:9px}
-.tag-date{color:#64748b;cursor:pointer}.tag-date:hover{color:#94a3b8}.tag-date.late{color:#f87171}
-.tag-resp{background:#1e3a5f30;color:#60a5fa;border:1px solid #1e3a5f}
-.tag-prog{background:#451a0330;color:#fb923c;border:1px solid #78350f}
-.tag-sub{color:#475569;font-style:italic}
-.tag-serie{color:#7c3aed;background:#1e0a4030;border:1px solid #4c1d95;font-size:10px}
-
-.edit-row{display:flex;gap:5px;align-items:center;margin-top:8px;flex-wrap:wrap}
-.edit-row label{font-size:11px;color:#64748b;font-weight:600;text-transform:uppercase}
-.date-inp{background:#0f172a;border:1px solid #475569;border-radius:6px;padding:4px 8px;color:#e2e8f0;font-size:12px}
-.date-inp:focus{outline:none;border-color:#6366f1}
-.btn-sm{padding:4px 10px;border:none;border-radius:6px;font-size:12px;cursor:pointer;font-weight:500}
-.btn-sm.save{background:#4f46e5;color:#fff}.btn-sm.cancel{background:#334155;color:#94a3b8}
-
-.notes-row{margin-top:8px}
-.notes-inp{width:100%;background:#0f172a;border:1px solid #334155;border-radius:7px;padding:7px 10px;color:#e2e8f0;font-size:13px;resize:vertical;min-height:60px;font-family:inherit}
-.notes-inp:focus{outline:none;border-color:#6366f1}
-.notes-save{margin-top:5px;padding:4px 12px;background:#4f46e5;color:#fff;border:none;border-radius:6px;font-size:12px;cursor:pointer}
-
-.card-btns{display:flex;gap:5px;flex-shrink:0;margin-top:1px}
-.icobtn{width:30px;height:30px;border-radius:50%;border:1.5px solid #334155;background:transparent;color:#475569;font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;flex-shrink:0}
-.icobtn:hover{border-color:#64748b;color:#cbd5e1}
-.icobtn.done:hover{background:#10b981;border-color:#10b981;color:#fff}
-.icobtn.del:hover{background:#ef4444;border-color:#ef4444;color:#fff}
-.icobtn.notes-btn:hover{background:#6366f1;border-color:#6366f1;color:#fff}
-.icobtn.notes-btn.has-notes{color:#818cf8;border-color:#4f46e5}
-
-.btn-primary{padding:8px 15px;background:#4f46e5;color:#fff;border:none;border-radius:8px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap}
-.btn-primary:hover{background:#4338ca}
-.btn-secondary{padding:8px 14px;background:transparent;color:#64748b;border:1px solid #334155;border-radius:8px;font-size:13px;cursor:pointer;white-space:nowrap}
-.btn-secondary:hover{color:#cbd5e1;border-color:#475569}
-.btn-secondary:disabled{opacity:.5;cursor:not-allowed}
-
-/* Modal base */
-.modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:100;align-items:center;justify-content:center;padding:16px}
-.modal-bg.open{display:flex}
-.modal{background:#1e293b;border:1px solid #334155;border-radius:14px;padding:22px;width:100%;max-width:440px;max-height:92vh;overflow-y:auto}
-.modal-title{font-size:15px;font-weight:700;color:#fff;margin-bottom:16px}
-.fg{margin-bottom:13px}
-.fg label{display:block;font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.07em;margin-bottom:4px}
-.finput,.fselect,.ftextarea{width:100%;padding:9px 11px;background:#0f172a;border:1.5px solid #334155;border-radius:8px;color:#e2e8f0;font-size:14px;outline:none;font-family:inherit}
-.finput:focus,.fselect:focus,.ftextarea:focus{border-color:#6366f1}
-.ftextarea{resize:vertical;min-height:60px}
-.fselect option{background:#1e293b}
-.modal-btns{display:flex;gap:8px;margin-top:18px}
-.btn-cancel{padding:9px 15px;background:#334155;color:#64748b;border:none;border-radius:8px;font-size:14px;cursor:pointer}
-.btn-save{flex:1;padding:9px;background:#4f46e5;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer}
-.btn-save:disabled{opacity:.5;cursor:not-allowed}
-
-/* Módulo periódico */
-.periodic-toggle{display:flex;align-items:center;gap:9px;cursor:pointer;padding:10px 12px;background:#0f172a;border:1.5px solid #334155;border-radius:8px;margin-bottom:13px;transition:border-color .15s}
-.periodic-toggle:hover{border-color:#475569}
-.periodic-toggle.active{border-color:#7c3aed;background:#1e0a4030}
-.periodic-toggle input[type=checkbox]{width:15px;height:15px;accent-color:#7c3aed;cursor:pointer}
-.periodic-toggle span{font-size:13px;color:#94a3b8;font-weight:500}
-.periodic-toggle.active span{color:#c4b5fd}
-.periodic-section{background:#0d1525;border:1px solid #1e1045;border-radius:10px;padding:14px;margin-bottom:13px}
-.periodic-section .fg{margin-bottom:10px}
-.periodic-section .fg:last-child{margin-bottom:0}
-.rec-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-.rec-mini{padding:5px 8px;background:#1e293b;border:1px solid #334155;border-radius:6px;color:#e2e8f0;font-size:13px;outline:none;font-family:inherit}
-.rec-mini:focus{border-color:#7c3aed}
-.rec-mini-num{width:65px}
-.radio-opt{display:flex;align-items:center;gap:7px;cursor:pointer;padding:6px 0;font-size:13px;color:#94a3b8}
-.radio-opt input{accent-color:#7c3aed;width:14px;height:14px;cursor:pointer}
-.rec-end-inline{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
-.end-num{width:55px;padding:4px 8px;background:#1e293b;border:1px solid #334155;border-radius:6px;color:#e2e8f0;font-size:13px;outline:none}
-.end-date{padding:4px 8px;background:#1e293b;border:1px solid #334155;border-radius:6px;color:#e2e8f0;font-size:13px;outline:none}
-.occ-preview{font-size:11px;color:#7c3aed;margin-top:6px;font-style:italic}
-
-/* Toast */
-.toast{position:fixed;bottom:20px;right:20px;padding:11px 18px;border-radius:10px;color:#fff;font-size:13px;font-weight:500;z-index:300;animation:ti .2s ease;pointer-events:none;max-width:calc(100vw - 40px)}
-@keyframes ti{from{transform:translateY(16px);opacity:0}to{transform:translateY(0);opacity:1}}
-
-.loading,.empty{text-align:center;padding:50px 16px;color:#334155;font-size:15px}
-.cs-mb{margin-bottom:20px}
-
-/* Dashboard */
-.kpi-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:20px}
-@media(min-width:500px){.kpi-grid{grid-template-columns:repeat(4,1fr)}}
-.kpi-card{background:#1e293b;border:1px solid #334155;border-radius:11px;padding:14px;text-align:center}
-.kpi-num{font-size:26px;font-weight:700;margin-bottom:3px}
-.kpi-label{font-size:11px;color:#64748b;text-transform:uppercase;letter-spacing:.05em}
-.kpi-total{color:#e2e8f0}.kpi-done{color:#10b981}.kpi-late{color:#f87171}.kpi-vig{color:#60a5fa}
-.client-kpi-table{background:#1e293b;border:1px solid #334155;border-radius:11px;overflow:hidden}
-.ckt-header{display:grid;grid-template-columns:1fr 55px 65px 65px 75px;padding:8px 14px;font-size:11px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid #334155}
-.ckt-row{display:grid;grid-template-columns:1fr 55px 65px 65px 75px;padding:9px 14px;font-size:13px;border-bottom:1px solid #1e293b}
-.ckt-row:last-child{border-bottom:none}.ckt-row:hover{background:#263044}
-.ckt-num{text-align:center;color:#64748b}.ckt-late{color:#f87171;text-align:center}.ckt-vig{color:#60a5fa;text-align:center}.ckt-done{color:#10b981;text-align:center}
-
-/* Agenda */
-.agenda-day{margin-bottom:16px}
-.agenda-day-header{font-size:12px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.07em;padding:4px 2px;margin-bottom:6px;border-bottom:1px solid #1e293b}
-.agenda-day-header.today{color:#818cf8}
-.agenda-item{background:#1e293b;border:1px solid #334155;border-left:3px solid transparent;border-radius:9px;padding:9px 12px;margin-bottom:5px}
-.agenda-item-name{font-size:13px;font-weight:500;color:#e2e8f0}
-.agenda-item-client{font-size:11px;color:#64748b;margin-top:2px}
-</style>
-</head>
-<body>
-
-<div class="hdr">
-  <div class="hdr-title">🌱 Agenda Raíces</div>
-  <div class="hdr-actions">
-    <button class="btn-secondary" id="btn-sync" onclick="syncSheet()">↻ Sync</button>
-    <button class="btn-primary" onclick="openNewTask()">+ Nueva</button>
-  </div>
-</div>
-
-<div class="fbar">
-  <button class="fbtn" data-f="dashboard" onclick="setFilter('dashboard')">📊 Dashboard</button>
-  <button class="fbtn active" data-f="urgente" onclick="setFilter('urgente')">🔴 Urgente</button>
-  <button class="fbtn" data-f="todos" onclick="setFilter('todos')">Todos</button>
-  <button class="fbtn" data-f="agenda" onclick="setFilter('agenda')">📅 Agenda</button>
-  <button class="fbtn" data-f="OCD" onclick="setFilter('OCD')">📊 OCD</button>
-  <button class="fbtn" data-f="Suralnor" onclick="setFilter('Suralnor')">🏗️ Suralnor</button>
-  <button class="fbtn" data-f="Cafaratti" onclick="setFilter('Cafaratti')">👔 Cafaratti</button>
-  <button class="fbtn" data-f="Pagani" onclick="setFilter('Pagani')">🏭 Pagani</button>
-  <button class="fbtn" data-f="Conexxo" onclick="setFilter('Conexxo')">🔗 Conexxo</button>
-  <button class="fbtn" data-f="Artico" onclick="setFilter('Artico')">❄️ Artico</button>
-  <button class="fbtn" data-f="Lactosur" onclick="setFilter('Lactosur')">🥛 Lactosur</button>
-  <button class="fbtn" data-f="Alianzas" onclick="setFilter('Alianzas')">🤝 Alianzas</button>
-  <button class="fbtn" data-f="ADIA" onclick="setFilter('ADIA')">🏛️ ADIA</button>
-  <button class="fbtn" data-f="Raíces" onclick="setFilter('Raíces')">🌱 Raíces</button>
-  <button class="fbtn" data-f="Marca Personal" onclick="setFilter('Marca Personal')">⭐ Marca</button>
-  <button class="fbtn" data-f="General" onclick="setFilter('General')">📁 General</button>
-</div>
-
-<div class="tbar" id="tbar" style="display:none">
-  <button class="tbtn active" data-t="todas" onclick="setTime('todas')">Todas</button>
-  <button class="tbtn" data-t="vigentes" onclick="setTime('vigentes')">Vigentes</button>
-</div>
-
-<div class="wrap">
-  <div class="loading" id="loading">Cargando tareas desde Notion...</div>
-  <div id="tasklist"></div>
-</div>
-
-<!-- ══ Modal Nueva Tarea ══ -->
-<div class="modal-bg" id="modal-new">
-  <div class="modal">
-    <div class="modal-title">+ Nueva tarea</div>
-
-    <div class="fg"><label>Nombre *</label><input class="finput" id="nt-nombre" placeholder="Nombre de la tarea..."></div>
-    <div class="fg">
-      <label>Cliente *</label>
-      <select class="fselect" id="nt-cliente">
-        <option value="">Seleccioná...</option>
-        <option>OCD</option><option>Suralnor</option><option>Cafaratti</option>
-        <option>Pagani</option><option>Conexxo</option><option>Artico</option>
-        <option>Lactosur</option><option>Alianzas</option><option>ADIA</option>
-        <option>Raíces</option><option>Marca Personal</option><option>General</option>
-      </select>
-    </div>
-    <div class="fg">
-      <label>Responsable</label>
-      <select class="fselect" id="nt-resp"><option>Nacho</option><option>Vicky</option></select>
-    </div>
-    <div class="fg"><label>Fecha inicio</label><input class="finput" id="nt-inicio" type="date" oninput="updatePreview()"></div>
-    <div class="fg"><label>Fecha fin</label><input class="finput" id="nt-fin" type="date" oninput="updatePreview()"></div>
-    <div class="fg"><label>Notas</label><textarea class="ftextarea" id="nt-sub" placeholder="Notas opcionales..."></textarea></div>
-
-    <!-- Toggle periódica -->
-    <label class="periodic-toggle" id="periodic-toggle" onclick="togglePeriodic()">
-      <input type="checkbox" id="nt-periodic" onclick="event.stopPropagation();togglePeriodic()">
-      <span>🔁 Tarea periódica</span>
-    </label>
-
-    <!-- Módulo periódico -->
-    <div class="periodic-section" id="periodic-section" style="display:none">
-
-      <!-- Tipo -->
-      <div class="fg">
-        <label>Tipo de repetición</label>
-        <div style="margin-top:4px">
-          <label class="radio-opt">
-            <input type="radio" name="rec-type" value="interval" checked onchange="updatePeriodicUI()">
-            Cada X tiempo
-          </label>
-          <label class="radio-opt">
-            <input type="radio" name="rec-type" value="monthly_day" onchange="updatePeriodicUI()">
-            Día específico del mes
-          </label>
-        </div>
-      </div>
-
-      <!-- Intervalo -->
-      <div class="fg" id="rec-interval-opts">
-        <label>Repetir cada</label>
-        <div class="rec-row" style="margin-top:5px">
-          <input type="number" class="rec-mini rec-mini-num" id="rec-interval" value="1" min="1" max="30" oninput="updatePreview()">
-          <select class="rec-mini" id="rec-unit" style="flex:1" onchange="updatePreview()">
-            <option value="day">Días</option>
-            <option value="week" selected>Semanas</option>
-            <option value="month">Meses</option>
-          </select>
-        </div>
-      </div>
-
-      <!-- Día del mes -->
-      <div class="fg" id="rec-monthly-opts" style="display:none">
-        <label>Día del mes</label>
-        <div class="rec-row" style="margin-top:5px">
-          <select class="rec-mini" id="rec-weeknum" style="flex:1" onchange="updatePreview()">
-            <option value="1">1°</option>
-            <option value="2">2°</option>
-            <option value="3">3°</option>
-            <option value="4">4°</option>
-            <option value="-1">Último</option>
-          </select>
-          <select class="rec-mini" id="rec-weekday" style="flex:1" onchange="updatePreview()">
-            <option value="1">Lunes</option>
-            <option value="2">Martes</option>
-            <option value="3">Miércoles</option>
-            <option value="4">Jueves</option>
-            <option value="5">Viernes</option>
-            <option value="6">Sábado</option>
-            <option value="0">Domingo</option>
-          </select>
-          <span style="color:#64748b;font-size:12px;white-space:nowrap;align-self:center">de cada mes</span>
-        </div>
-      </div>
-
-      <!-- Fin de la serie -->
-      <div class="fg">
-        <label>Termina</label>
-        <div style="margin-top:4px">
-          <label class="radio-opt">
-            <input type="radio" name="rec-end" value="count" checked onchange="updatePreview()">
-            <div class="rec-end-inline">
-              Después de
-              <input type="number" class="end-num" id="rec-count" value="5" min="1" max="52" oninput="updatePreview()">
-              repeticiones
-            </div>
-          </label>
-          <label class="radio-opt">
-            <input type="radio" name="rec-end" value="date" onchange="updatePreview()">
-            <div class="rec-end-inline">
-              Hasta el
-              <input type="date" class="end-date" id="rec-end-date" oninput="updatePreview()">
-            </div>
-          </label>
-        </div>
-      </div>
-
-      <div class="occ-preview" id="occ-preview"></div>
-    </div>
-
-    <div class="modal-btns">
-      <button class="btn-cancel" onclick="closeNewTask()">Cancelar</button>
-      <button class="btn-save" id="btn-save" onclick="saveNewTask()">Guardar en Notion</button>
-    </div>
-  </div>
-</div>
-
-<!-- ══ Modal Eliminar Serie ══ -->
-<div class="modal-bg" id="modal-delete">
-  <div class="modal" style="max-width:320px">
-    <div class="modal-title">Eliminar tarea</div>
-    <p id="del-msg" style="color:#94a3b8;font-size:13px;line-height:1.5;margin-bottom:20px"></p>
-    <div style="display:flex;flex-direction:column;gap:8px">
-      <button class="btn-save" onclick="execDeleteThis()">Solo esta ocurrencia</button>
-      <button class="btn-save" style="background:#dc2626" onclick="execDeleteSeries()">Toda la serie</button>
-      <button class="btn-cancel" onclick="closeDeleteModal()" style="text-align:center">Cancelar</button>
-    </div>
-  </div>
-</div>
-
-<script>
-const CLIENT_COLORS = {
-  'OCD':'#818cf8','Suralnor':'#fbbf24','Cafaratti':'#a78bfa','Pagani':'#34d399',
-  'Conexxo':'#60a5fa','Artico':'#22d3ee','Lactosur':'#fb923c','Alianzas':'#f472b6',
-  'ADIA':'#a3e635','Raíces':'#2dd4bf','Marca Personal':'#c084fc','General':'#64748b'
-};
-const CLIENT_ORDER = ['OCD','Suralnor','Cafaratti','Pagani','Conexxo','Artico','Lactosur','Alianzas','ADIA','Raíces','Marca Personal','General'];
-
-let allTasks = [];
-let filter = 'urgente';
-let timeFilter = 'todas';
-let editingId = null;
-let notesOpenId = null;
-let deletePending = null;
-
-loadTasks();
-
-async function loadTasks() {
-  document.getElementById('loading').style.display = 'block';
-  document.getElementById('tasklist').innerHTML = '';
-  try {
-    const r = await fetch('/api/tasks');
-    if (!r.ok) throw new Error('HTTP ' + r.status);
-    const d = await r.json();
-    allTasks = d.tasks || [];
-    render();
-  } catch(e) {
-    document.getElementById('loading').textContent = 'Error al cargar: ' + e.message;
-  }
-}
-
-// ── Helpers de serie ──
-function getSID(sub) {
-  const m = (sub||'').match(/^\[SID:([a-z0-9]{8})\]/);
-  return m ? m[1] : null;
-}
-function getNotesText(sub) {
-  return (sub||'').replace(/^\[SID:[a-z0-9]{8}\]\s?/, '').trim();
-}
-function makeSID() {
-  return (Math.random().toString(36).substr(2,8)+'00000000').substr(0,8);
-}
-
-// ── Fechas ──
-function parseDate(iso) {
-  if (!iso) return null;
-  const p = iso.split('-').map(Number);
-  return new Date(p[0], p[1]-1, p[2]);
-}
-function fmtDate(iso) {
-  if (!iso) return null;
-  return parseDate(iso).toLocaleDateString('es-AR',{day:'numeric',month:'short'});
-}
-function fmtDateFull(iso) {
-  if (!iso) return null;
-  return parseDate(iso).toLocaleDateString('es-AR',{weekday:'short',day:'numeric',month:'long'});
-}
-function toISO(d) {
-  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-}
-function todayISO() {
-  return toISO(new Date());
-}
-
-// ── Filtros ──
-function setFilter(f) {
-  filter = f; editingId = null; notesOpenId = null;
-  document.querySelectorAll('.fbtn').forEach(b => b.classList.toggle('active', b.dataset.f === f));
-  const showTime = !['urgente','todos','dashboard','agenda'].includes(f);
-  document.getElementById('tbar').style.display = showTime ? 'flex' : 'none';
-  if (!showTime) { timeFilter='todas'; document.querySelectorAll('.tbtn').forEach(b=>b.classList.toggle('active',b.dataset.t==='todas')); }
-  render();
-}
-function setTime(t) {
-  timeFilter = t;
-  document.querySelectorAll('.tbtn').forEach(b => b.classList.toggle('active', b.dataset.t === t));
-  render();
-}
-
-function filtered() {
-  const today = new Date(); today.setHours(0,0,0,0);
-  const in7 = new Date(today); in7.setDate(in7.getDate()+7);
-  let list = [...allTasks];
-  if (filter === 'urgente') {
-    return list.filter(t => {
-      const ini = parseDate(t.inicio), fin = parseDate(t.fin);
-      return (!ini || ini <= today) || (fin && fin < today);
-    });
-  }
-  if (filter === 'todos') return list;
-  if (!['dashboard','agenda'].includes(filter)) {
-    list = list.filter(t => t.cliente === filter);
-    if (timeFilter === 'vigentes') list = list.filter(t => { const ini = parseDate(t.inicio); return !ini || ini <= in7; });
-  }
-  return list;
-}
-
-// ── Render ──
-function render() {
-  document.getElementById('loading').style.display = 'none';
-  const el = document.getElementById('tasklist');
-  if (filter === 'dashboard') { renderDashboard(el); return; }
-  if (filter === 'agenda') { renderAgenda(el); return; }
-  const list = filtered();
-  if (!list.length) { el.innerHTML = '<div class="empty">Sin tareas para mostrar 🎉</div>'; return; }
-  const today = new Date(); today.setHours(0,0,0,0);
-  if (filter === 'urgente' || filter === 'todos') {
-    const byClient = {};
-    CLIENT_ORDER.forEach(c => { byClient[c] = []; });
-    list.forEach(t => { if (byClient[t.cliente]) byClient[t.cliente].push(t); else byClient['General'].push(t); });
-    el.innerHTML = CLIENT_ORDER.filter(c => byClient[c]?.length)
-      .map(c => '<div class="cs-mb"><div class="cs-header"><div class="cs-dot" style="background:'+(CLIENT_COLORS[c]||'#64748b')+'"></div><span class="cs-name">'+c+'</span><span class="cs-count">'+byClient[c].length+'</span></div>'+byClient[c].map(t=>cardHTML(t,today)).join('')+'</div>').join('');
-  } else {
-    el.innerHTML = list.map(t => cardHTML(t, today)).join('');
-  }
-}
-
-function cardHTML(t, today) {
-  const fin = parseDate(t.fin);
-  const isLate = fin && fin < today;
-  const isWip = t.estado === 'En Progreso';
-  const color = CLIENT_COLORS[t.cliente] || '#64748b';
-  const bc = isLate ? '#f87171' : isWip ? '#fb923c' : color;
-  const isEditing = editingId === t.id;
-  const notesOpen = notesOpenId === t.id;
-  const sid = getSID(t.sub);
-  const notes = getNotesText(t.sub);
-
-  return '<div class="card" id="card-'+t.id+'" style="border-left-color:'+bc+'">'+
-    '<div class="card-top">'+
-    '<div class="card-info">'+
-    '<div class="card-nombre">'+esc(t.nombre)+'</div>'+
-    '<div class="card-meta">'+
-    (t.fin ? '<span class="tag tag-date'+(isLate?' late':'')+'" onclick="startEdit(\''+t.id+'\')" title="Editar fechas">📅 '+fmtDate(t.fin)+'</span>' : '<span class="tag tag-date" onclick="startEdit(\''+t.id+'\')" title="Agregar fechas">📅 —</span>')+
-    (t.inicio ? '<span class="tag tag-date" onclick="startEdit(\''+t.id+'\')" title="Editar fechas">▶ '+fmtDate(t.inicio)+'</span>' : '')+
-    (t.responsable ? '<span class="tag tag-resp">'+esc(t.responsable)+'</span>' : '')+
-    (isWip ? '<span class="tag tag-prog">En progreso</span>' : '')+
-    (sid ? '<span class="tag tag-serie">🔁 Serie</span>' : '')+
-    (notes ? '<span class="tag tag-sub">'+esc(notes.substring(0,40))+(notes.length>40?'…':'')+'</span>' : '')+
-    '</div>'+
-    (isEditing ? '<div class="edit-row"><label>Inicio</label><input type="date" class="date-inp" id="di-ini-'+t.id+'" value="'+(t.inicio||'')+'"><label>Fin</label><input type="date" class="date-inp" id="di-fin-'+t.id+'" value="'+(t.fin||'')+'"><button class="btn-sm save" onclick="saveDate(\''+t.id+'\')">Guardar</button><button class="btn-sm cancel" onclick="cancelEdit()">✕</button></div>' : '')+
-    (notesOpen ? '<div class="notes-row"><textarea class="notes-inp" id="notes-'+t.id+'" placeholder="Notas sobre esta tarea...">'+esc(notes)+'</textarea><button class="notes-save" onclick="saveNotes(\''+t.id+'\')">Guardar nota</button></div>' : '')+
-    '</div>'+
-    '<div class="card-btns">'+
-    '<button class="icobtn notes-btn'+(notes?' has-notes':'')+'" onclick="toggleNotes(\''+t.id+'\')" title="Notas">📝</button>'+
-    '<button class="icobtn done" onclick="markDone(\''+t.id+'\')" title="Realizada">✓</button>'+
-    '<button class="icobtn del" onclick="deleteTask(\''+t.id+'\')" title="Eliminar">✕</button>'+
-    '</div></div></div>';
-}
-
-function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
-// ── Dashboard ──
-function renderDashboard(el) {
-  el.innerHTML = '<div class="loading">Calculando KPIs...</div>';
-  fetch('/api/tasks?include_done=true').then(r=>r.json()).then(d => {
-    const all = d.tasks || [];
-    const today = new Date(); today.setHours(0,0,0,0);
-    const active = all.filter(t=>t.estado!=='Realizado');
-    const done = all.filter(t=>t.estado==='Realizado');
-    const late = active.filter(t=>{const f=parseDate(t.fin);return f&&f<today;});
-    const vig = active.filter(t=>{const i=parseDate(t.inicio),f=parseDate(t.fin);return(!i||i<=today)&&(!f||f>=today);});
-    let html = '<div class="kpi-grid">'+
-      '<div class="kpi-card"><div class="kpi-num kpi-total">'+all.length+'</div><div class="kpi-label">Total</div></div>'+
-      '<div class="kpi-card"><div class="kpi-num kpi-vig">'+vig.length+'</div><div class="kpi-label">Vigentes</div></div>'+
-      '<div class="kpi-card"><div class="kpi-num kpi-late">'+late.length+'</div><div class="kpi-label">Vencidas</div></div>'+
-      '<div class="kpi-card"><div class="kpi-num kpi-done">'+done.length+'</div><div class="kpi-label">Realizadas</div></div>'+
-      '</div><div class="client-kpi-table"><div class="ckt-header"><span>Cliente</span><span style="text-align:center">Total</span><span style="text-align:center">Vigentes</span><span style="text-align:center">Vencidas</span><span style="text-align:center">Realizadas</span></div>';
-    CLIENT_ORDER.forEach(c=>{
-      const ct=all.filter(t=>t.cliente===c); if(!ct.length)return;
-      const ca=ct.filter(t=>t.estado!=='Realizado'), cd=ct.filter(t=>t.estado==='Realizado');
-      const cl=ca.filter(t=>{const f=parseDate(t.fin);return f&&f<today;});
-      const cv=ca.filter(t=>{const i=parseDate(t.inicio),f=parseDate(t.fin);return(!i||i<=today)&&(!f||f>=today);});
-      const col=CLIENT_COLORS[c]||'#64748b';
-      html+='<div class="ckt-row"><span style="display:flex;align-items:center;gap:7px"><span style="width:7px;height:7px;border-radius:50%;background:'+col+';flex-shrink:0;display:inline-block"></span>'+c+'</span><span class="ckt-num">'+ct.length+'</span><span class="ckt-vig">'+cv.length+'</span><span class="ckt-late">'+cl.length+'</span><span class="ckt-done">'+cd.length+'</span></div>';
-    });
-    html+='</div>';
-    el.innerHTML = html;
-  }).catch(e=>{el.innerHTML='<div class="empty">Error: '+e.message+'</div>';});
-}
-
-// ── Agenda ──
-function renderAgenda(el) {
-  const today = new Date(); today.setHours(0,0,0,0);
-  const in30 = new Date(today); in30.setDate(in30.getDate()+30);
-  const overdue=[], byDay={};
-  allTasks.forEach(t=>{
-    const fin=parseDate(t.fin); if(!fin)return;
-    if(fin<today){overdue.push(t);return;}
-    if(fin>in30)return;
-    if(!byDay[t.fin])byDay[t.fin]=[];
-    byDay[t.fin].push(t);
-  });
-  let html='';
-  if(overdue.length) html+='<div class="agenda-day"><div class="agenda-day-header" style="color:#f87171">Vencidas ('+overdue.length+')</div>'+overdue.map(agendaItem).join('')+'</div>';
-  Object.keys(byDay).sort().forEach(k=>{
-    const isToday=k===todayISO();
-    html+='<div class="agenda-day"><div class="agenda-day-header'+(isToday?' today':'')+'">'+fmtDateFull(k)+(isToday?' · HOY':'')+'</div>'+byDay[k].map(agendaItem).join('')+'</div>';
-  });
-  if(!html)html='<div class="empty">Sin tareas con fecha en los próximos 30 días 🎉</div>';
-  el.innerHTML=html;
-}
-function agendaItem(t){
-  const col=CLIENT_COLORS[t.cliente]||'#64748b';
-  return '<div class="agenda-item" style="border-left-color:'+col+'"><div class="agenda-item-name">'+esc(t.nombre)+'</div><div class="agenda-item-client" style="color:'+col+'">'+t.cliente+(t.responsable?' · '+t.responsable:'')+'</div></div>';
-}
-
-// ── Acciones de tarjeta ──
-async function markDone(id) {
-  const card=document.getElementById('card-'+id); if(card)card.style.opacity='.4';
-  try {
-    const r=await fetch('/api/tasks',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,estado:'Realizado'})});
-    if(!r.ok)throw new Error(await r.text());
-    allTasks=allTasks.filter(t=>t.id!==id); render(); toast('Tarea completada ✅','#10b981');
-  } catch(e){if(card)card.style.opacity='1';toast('Error: '+e.message,'#ef4444');}
-}
-
-function deleteTask(id) {
-  const t = allTasks.find(x=>x.id===id);
-  const sid = t ? getSID(t.sub) : null;
-  if (sid) {
-    deletePending = { id, sid };
-    document.getElementById('del-msg').textContent = '"'+esc(t?.nombre||'')+'" es parte de una serie periódica. ¿Qué querés eliminar?';
-    document.getElementById('modal-delete').classList.add('open');
-  } else {
-    if (!confirm('¿Eliminar esta tarea?')) return;
-    execDeleteSingle(id);
-  }
-}
-function closeDeleteModal() {
-  document.getElementById('modal-delete').classList.remove('open');
-  deletePending = null;
-}
-async function execDeleteThis() {
-  const id = deletePending?.id; closeDeleteModal();
-  if (id) await execDeleteSingle(id);
-}
-async function execDeleteSeries() {
-  if (!deletePending) return;
-  const { sid } = deletePending; closeDeleteModal();
-  const seriesCount = allTasks.filter(t=>getSID(t.sub)===sid).length;
-  try {
-    const r=await fetch('/api/tasks',{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({serie_id:sid})});
-    if(!r.ok)throw new Error(await r.text());
-    allTasks=allTasks.filter(t=>getSID(t.sub)!==sid);
-    render(); toast('Serie eliminada ('+seriesCount+' tareas)','#64748b');
-  } catch(e){toast('Error: '+e.message,'#ef4444');}
-}
-async function execDeleteSingle(id) {
-  const card=document.getElementById('card-'+id); if(card)card.style.opacity='.4';
-  try {
-    const r=await fetch('/api/tasks',{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({id})});
-    if(!r.ok)throw new Error(await r.text());
-    allTasks=allTasks.filter(t=>t.id!==id); render(); toast('Tarea eliminada','#64748b');
-  } catch(e){if(card)card.style.opacity='1';toast('Error: '+e.message,'#ef4444');}
-}
-
-function startEdit(id){editingId=id;notesOpenId=null;render();setTimeout(()=>document.getElementById('di-fin-'+id)?.focus(),50);}
-function cancelEdit(){editingId=null;render();}
-
-async function saveDate(id) {
-  const ini=document.getElementById('di-ini-'+id)?.value||null;
-  const fin=document.getElementById('di-fin-'+id)?.value||null;
-  try {
-    const r=await fetch('/api/tasks',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,inicio:ini,fin})});
-    if(!r.ok)throw new Error(await r.text());
-    const t=allTasks.find(x=>x.id===id); if(t){t.inicio=ini;t.fin=fin;}
-    editingId=null; render(); toast('Fechas actualizadas ✅','#6366f1');
-  } catch(e){toast('Error: '+e.message,'#ef4444');}
-}
-
-function toggleNotes(id){notesOpenId=notesOpenId===id?null:id;editingId=null;render();if(notesOpenId)setTimeout(()=>document.getElementById('notes-'+id)?.focus(),50);}
-
-async function saveNotes(id) {
-  const notes=document.getElementById('notes-'+id)?.value||'';
-  const t=allTasks.find(x=>x.id===id);
-  const sid=t?getSID(t.sub):null;
-  const fullSub=sid?('[SID:'+sid+']'+(notes?' '+notes:'')):(notes);
-  try {
-    const r=await fetch('/api/tasks',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({id,sub:fullSub})});
-    if(!r.ok)throw new Error(await r.text());
-    if(t)t.sub=fullSub; notesOpenId=null; render(); toast('Nota guardada ✅','#6366f1');
-  } catch(e){toast('Error: '+e.message,'#ef4444');}
-}
-
-// ══ Módulo periódico ══
-
-function togglePeriodic() {
-  const cb = document.getElementById('nt-periodic');
-  // If clicked from label, checkbox toggled already; if from checkbox directly, use its value
-  const on = cb.checked;
-  const section = document.getElementById('periodic-section');
-  const toggle = document.getElementById('periodic-toggle');
-  section.style.display = on ? 'block' : 'none';
-  toggle.classList.toggle('active', on);
-  updatePreview();
-}
-
-function updatePeriodicUI() {
-  const type = document.querySelector('input[name="rec-type"]:checked')?.value;
-  document.getElementById('rec-interval-opts').style.display = type==='interval' ? 'block' : 'none';
-  document.getElementById('rec-monthly-opts').style.display = type==='monthly_day' ? 'block' : 'none';
-  updatePreview();
-}
-
-function updatePreview() {
-  const cb = document.getElementById('nt-periodic');
-  if (!cb?.checked) return;
-  const occs = generateOccurrences(buildRule());
-  const el = document.getElementById('occ-preview');
-  if (!el) return;
-  if (!occs.length) { el.textContent = ''; return; }
-  const first = fmtDate(occs[0].fin || occs[0].inicio);
-  const last = fmtDate(occs[occs.length-1].fin || occs[occs.length-1].inicio);
-  el.textContent = occs.length + ' ocurrencias · ' + first + (occs.length>1?' → '+last:'');
-}
-
-function getNthWeekdayOfMonth(year, month, weekday, n) {
-  if (n === -1) {
-    let d = new Date(year, month+1, 0);
-    while (d.getDay() !== weekday) d.setDate(d.getDate()-1);
-    return d;
-  }
-  let d = new Date(year, month, 1);
-  while (d.getDay() !== weekday) d.setDate(d.getDate()+1);
-  d.setDate(d.getDate()+(n-1)*7);
-  return d;
-}
-
-function buildRule() {
-  const recType = document.querySelector('input[name="rec-type"]:checked')?.value || 'interval';
-  const recEndType = document.querySelector('input[name="rec-end"]:checked')?.value || 'count';
-  const inicio = document.getElementById('nt-inicio')?.value;
-  const fin = document.getElementById('nt-fin')?.value;
-  const rule = {
-    type: recType,
-    startDate: inicio || todayISO(),
-    endType: recEndType,
+async function queryAllTasks(dbId, token, includeDone = false) {
+  const headers = {
+    'Authorization': `Bearer ${token}`,
+    'Notion-Version': '2022-06-28',
+    'Content-Type': 'application/json',
   };
-  if (recType === 'interval') {
-    rule.interval = parseInt(document.getElementById('rec-interval')?.value)||1;
-    rule.unit = document.getElementById('rec-unit')?.value||'week';
-  } else {
-    rule.weekday = parseInt(document.getElementById('rec-weekday')?.value)||1;
-    rule.weeknum = parseInt(document.getElementById('rec-weeknum')?.value)||1;
-  }
-  if (recEndType === 'count') {
-    rule.count = Math.min(parseInt(document.getElementById('rec-count')?.value)||5, 52);
-  } else {
-    rule.endDate = document.getElementById('rec-end-date')?.value||'';
-  }
-  if (inicio && fin) {
-    const d1=new Date(inicio+'T12:00:00'), d2=new Date(fin+'T12:00:00');
-    rule.duration = Math.max(0, Math.round((d2-d1)/86400000));
-  } else {
-    rule.duration = 0;
-  }
-  return rule;
-}
-
-function generateOccurrences(rule) {
-  const MAX = 52;
-  const occs = [];
-  let cur;
-
-  if (rule.type === 'monthly_day') {
-    const sd = new Date(rule.startDate+'T12:00:00');
-    cur = getNthWeekdayOfMonth(sd.getFullYear(), sd.getMonth(), rule.weekday, rule.weeknum);
-    if (cur < sd) {
-      const nm = new Date(cur.getTime()); nm.setMonth(nm.getMonth()+1);
-      cur = getNthWeekdayOfMonth(nm.getFullYear(), nm.getMonth(), rule.weekday, rule.weeknum);
+  let tasks = [], cursor = undefined;
+  do {
+    const body = {
+      sorts: [{ property: 'Fin', direction: 'ascending' }],
+      page_size: 100,
+    };
+    if (!includeDone) {
+      body.filter = { property: 'Estado', select: { does_not_equal: 'Realizado' } };
     }
-  } else {
-    cur = new Date(rule.startDate+'T12:00:00');
-  }
-
-  const endDate = (rule.endType==='date' && rule.endDate) ? new Date(rule.endDate+'T23:59:59') : null;
-  const maxCount = rule.endType==='count' ? Math.min(rule.count, MAX) : MAX;
-
-  for (let i=0; i<maxCount && occs.length<MAX; i++) {
-    if (endDate && cur > endDate) break;
-    const inicio = toISO(cur);
-    const fin = rule.duration>0 ? toISO(new Date(cur.getTime()+rule.duration*86400000)) : inicio;
-    occs.push({inicio, fin});
-
-    // Avanzar
-    if (rule.type==='interval') {
-      if (rule.unit==='day') cur.setDate(cur.getDate()+rule.interval);
-      else if (rule.unit==='week') cur.setDate(cur.getDate()+rule.interval*7);
-      else { cur.setMonth(cur.getMonth()+rule.interval); }
-    } else {
-      const nm = new Date(cur.getTime()); nm.setMonth(nm.getMonth()+1); nm.setDate(1);
-      cur = getNthWeekdayOfMonth(nm.getFullYear(), nm.getMonth(), rule.weekday, rule.weeknum);
-    }
-  }
-  return occs;
+    if (cursor) body.start_cursor = cursor;
+    const res = await fetch(`${NOTION_API}/databases/${dbId}/query`, {
+      method: 'POST', headers, body: JSON.stringify(body),
+    });
+    const data = await res.json();
+    if (data.object === 'error') throw new Error(data.message);
+    tasks = tasks.concat((data.results || []).map(page => ({
+      id: page.id,
+      nombre: page.properties.Tarea?.title?.[0]?.plain_text || '',
+      cliente: page.properties.Cliente?.select?.name || 'General',
+      estado: page.properties.Estado?.select?.name || 'Pendiente',
+      inicio: page.properties.Inicio?.date?.start || null,
+      fin: page.properties.Fin?.date?.start || null,
+      responsable: page.properties.Responsable?.select?.name || '',
+      sub: page.properties.Subtarea?.rich_text?.[0]?.plain_text || '',
+    })));
+    cursor = data.has_more ? data.next_cursor : undefined;
+  } while (cursor);
+  return tasks;
 }
 
-// ── Nueva tarea ──
-function openNewTask() {
-  ['nt-nombre','nt-inicio','nt-fin','nt-sub'].forEach(id=>{const e=document.getElementById(id);if(e)e.value='';});
-  document.getElementById('nt-cliente').value='';
-  document.getElementById('nt-resp').value='Nacho';
-  document.getElementById('nt-periodic').checked=false;
-  document.getElementById('periodic-section').style.display='none';
-  document.getElementById('periodic-toggle').classList.remove('active');
-  document.getElementById('occ-preview').textContent='';
-  document.querySelector('input[name="rec-type"][value="interval"]').checked=true;
-  document.querySelector('input[name="rec-end"][value="count"]').checked=true;
-  document.getElementById('rec-count').value='5';
-  document.getElementById('rec-interval').value='1';
-  document.getElementById('rec-unit').value='week';
-  updatePeriodicUI();
-  document.getElementById('modal-new').classList.add('open');
-  setTimeout(()=>document.getElementById('nt-nombre').focus(),80);
+async function notionFetch(url, options) {
+  const r = await fetch(url, options);
+  return r.json();
 }
-function closeNewTask(){document.getElementById('modal-new').classList.remove('open');}
 
-async function saveNewTask() {
-  const nombre=document.getElementById('nt-nombre').value.trim();
-  const cliente=document.getElementById('nt-cliente').value;
-  if(!nombre||!cliente){toast('Falta nombre o cliente','#ef4444');return;}
-  const isPeriodic=document.getElementById('nt-periodic').checked;
-  const btn=document.getElementById('btn-save');
-  btn.disabled=true; btn.textContent=isPeriodic?'Creando serie...':'Guardando...';
-  const responsable=document.getElementById('nt-resp').value;
-  const inicio=document.getElementById('nt-inicio').value||null;
-  const fin=document.getElementById('nt-fin').value||null;
-  const userNotes=document.getElementById('nt-sub').value||'';
+// Intenta crear/patchear con Subtarea; si Notion dice que no existe, reintenta sin ella
+async function safeNotionWrite(url, method, headers, props) {
+  const body = JSON.stringify(
+    url.includes('/pages') && method === 'POST'
+      ? { parent: { database_id: props.__dbId }, properties: props.__props }
+      : { properties: props.__props }
+  );
+
+  // Armamos el body real
+  const realProps = props.__props;
+  const dbId = props.__dbId;
+
+  const makeBody = (p) => method === 'POST'
+    ? JSON.stringify({ parent: { database_id: dbId }, properties: p })
+    : JSON.stringify({ properties: p });
+
+  let result = await notionFetch(url, { method, headers, body: makeBody(realProps) });
+
+  // Si Subtarea no existe, reintenta sin ella
+  if (result.object === 'error' && result.message && result.message.includes('Subtarea')) {
+    const withoutSub = { ...realProps };
+    delete withoutSub.Subtarea;
+    result = await notionFetch(url, { method, headers, body: makeBody(withoutSub) });
+  }
+
+  return result;
+}
+
+module.exports = async (req, res) => {
+  res.setHeader('Access-Control-Allow-Origin', '*');
+  res.setHeader('Access-Control-Allow-Methods', 'GET,POST,PATCH,DELETE,OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type');
+  if (req.method === 'OPTIONS') return res.status(200).end();
+
+  const DB_ID = process.env.NOTION_DATABASE_ID;
+  const TOKEN = process.env.NOTION_API_KEY;
+
+  const notionHeaders = {
+    'Authorization': `Bearer ${TOKEN}`,
+    'Notion-Version': '2022-06-28',
+    'Content-Type': 'application/json',
+  };
+
+  const buildCreateProps = (task) => {
+    const props = {
+      Tarea: { title: [{ text: { content: task.nombre } }] },
+      Cliente: { select: { name: task.cliente } },
+      Estado: { select: { name: task.estado || 'Pendiente' } },
+    };
+    if (task.inicio) props.Inicio = { date: { start: task.inicio } };
+    if (task.fin) props.Fin = { date: { start: task.fin } };
+    if (task.responsable) props.Responsable = { select: { name: task.responsable } };
+    if (task.sub) props.Subtarea = { rich_text: [{ text: { content: task.sub } }] };
+    return props;
+  };
+
   try {
-    if (!isPeriodic) {
-      const body={nombre,cliente,responsable,inicio,fin,sub:userNotes};
-      const r=await fetch('/api/tasks',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
-      if(!r.ok)throw new Error(await r.text());
-      const d=await r.json();
-      allTasks.push({id:d.id,nombre,cliente,estado:'Pendiente',inicio,fin,responsable,sub:userNotes});
-      closeNewTask(); render(); toast('Tarea creada ✅','#10b981');
-    } else {
-      const rule=buildRule();
-      const occs=generateOccurrences(rule);
-      if(!occs.length){toast('No se generaron ocurrencias con esas fechas','#ef4444');return;}
-      if(rule.endType==='date'&&!rule.endDate){toast('Ingresá una fecha de fin para la serie','#ef4444');return;}
-      const sid=makeSID();
-      const subWithSID='[SID:'+sid+']'+(userNotes?' '+userNotes:'');
-      const instances=occs.map(occ=>({nombre,cliente,responsable,estado:'Pendiente',inicio:occ.inicio,fin:occ.fin,sub:subWithSID}));
-      const r=await fetch('/api/tasks',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({instances})});
-      if(!r.ok)throw new Error(await r.text());
-      const d=await r.json();
-      d.ids.forEach((id,i)=>{allTasks.push({id,nombre,cliente,estado:'Pendiente',inicio:occs[i].inicio,fin:occs[i].fin,responsable,sub:subWithSID});});
-      allTasks.sort((a,b)=>{if(!a.fin)return 1;if(!b.fin)return -1;return a.fin.localeCompare(b.fin);});
-      closeNewTask(); render(); toast(occs.length+' tareas periódicas creadas ✅','#10b981');
+    // ── GET ──
+    if (req.method === 'GET') {
+      const includeDone = req.query?.include_done === 'true';
+      const tasks = await queryAllTasks(DB_ID, TOKEN, includeDone);
+      return res.json({ tasks });
     }
-  } catch(e){toast('Error: '+e.message,'#ef4444');}
-  finally{btn.disabled=false;btn.textContent='Guardar en Notion';}
-}
 
-// ── Sync ──
-async function syncSheet() {
-  const btn=document.getElementById('btn-sync');
-  btn.disabled=true; btn.textContent='Sincronizando...';
-  try {
-    const r=await fetch('/api/sheet',{method:'POST'});
-    if(!r.ok)throw new Error(await r.text());
-    const d=await r.json();
-    if(d.synced>0){toast(d.synced+' tarea'+(d.synced>1?'s':'')+' importada'+(d.synced>1?'s':'')+' ✅','#10b981');await loadTasks();}
-    else toast('Todo al día, nada nuevo','#6366f1');
-  } catch(e){toast('Error sync: '+e.message,'#ef4444');}
-  finally{btn.disabled=false;btn.textContent='↻ Sync';}
-}
+    // ── POST ──
+    if (req.method === 'POST') {
+      // Batch (tareas periódicas)
+      if (req.body.instances) {
+        const { instances } = req.body;
+        const ids = [];
+        for (const inst of instances) {
+          const props = buildCreateProps(inst);
+          const page = await safeNotionWrite(
+            `${NOTION_API}/pages`, 'POST', notionHeaders,
+            { __dbId: DB_ID, __props: props }
+          );
+          if (page.object === 'error') throw new Error(page.message);
+          ids.push(page.id);
+        }
+        return res.json({ ids, count: ids.length });
+      }
 
-// ── Toast ──
-function toast(msg,bg='#10b981'){
-  document.querySelectorAll('.toast').forEach(x=>x.remove());
-  const el=document.createElement('div');el.className='toast';el.textContent=msg;el.style.background=bg;
-  document.body.appendChild(el);setTimeout(()=>el.remove(),3500);
-}
+      // Single
+      const { nombre, cliente, responsable, inicio, fin, sub } = req.body;
+      if (!nombre || !cliente) return res.status(400).json({ error: 'Faltan campos requeridos' });
+      const props = buildCreateProps({ nombre, cliente, responsable, inicio, fin, sub });
+      const page = await safeNotionWrite(
+        `${NOTION_API}/pages`, 'POST', notionHeaders,
+        { __dbId: DB_ID, __props: props }
+      );
+      if (page.object === 'error') return res.status(400).json({ error: page.message });
+      return res.json({ id: page.id });
+    }
 
-document.getElementById('modal-new').addEventListener('click',e=>{if(e.target===e.currentTarget)closeNewTask();});
-document.getElementById('modal-delete').addEventListener('click',e=>{if(e.target===e.currentTarget)closeDeleteModal();});
-</script>
-</body>
-</html>
+    // ── PATCH ──
+    if (req.method === 'PATCH') {
+      const { id, estado, inicio, fin, sub } = req.body;
+      if (!id) return res.status(400).json({ error: 'Falta id' });
+      const props = {};
+      if (estado) props.Estado = { select: { name: estado } };
+      if (inicio !== undefined) props.Inicio = inicio ? { date: { start: inicio } } : { date: null };
+      if (fin !== undefined) props.Fin = fin ? { date: { start: fin } } : { date: null };
+      if (sub !== undefined) props.Subtarea = { rich_text: sub ? [{ text: { content: sub } }] : [] };
+
+      const result = await safeNotionWrite(
+        `${NOTION_API}/pages/${id}`, 'PATCH', notionHeaders,
+        { __dbId: DB_ID, __props: props }
+      );
+      if (result.object === 'error') return res.status(400).json({ error: result.message });
+      return res.json({ ok: true });
+    }
+
+    // ── DELETE ──
+    if (req.method === 'DELETE') {
+      const { id, serie_id } = req.body;
+
+      // Eliminar toda la serie
+      if (serie_id) {
+        let allPages = [], cursor;
+        do {
+          const body = {
+            filter: { property: 'Subtarea', rich_text: { contains: `[SID:${serie_id}]` } },
+            page_size: 100,
+          };
+          if (cursor) body.start_cursor = cursor;
+          const r = await fetch(`${NOTION_API}/databases/${DB_ID}/query`, {
+            method: 'POST', headers: notionHeaders, body: JSON.stringify(body),
+          });
+          const data = await r.json();
+          if (data.object === 'error') throw new Error(data.message);
+          if (!data.results) break;
+          allPages = allPages.concat(data.results.map(p => p.id));
+          cursor = data.has_more ? data.next_cursor : undefined;
+        } while (cursor);
+
+        for (const pid of allPages) {
+          await fetch(`${NOTION_API}/pages/${pid}`, {
+            method: 'PATCH', headers: notionHeaders,
+            body: JSON.stringify({ archived: true }),
+          });
+        }
+        return res.json({ deleted: allPages.length });
+      }
+
+      // Eliminar una sola
+      if (!id) return res.status(400).json({ error: 'Falta id' });
+      const r = await fetch(`${NOTION_API}/pages/${id}`, {
+        method: 'PATCH', headers: notionHeaders,
+        body: JSON.stringify({ archived: true }),
+      });
+      const result = await r.json();
+      if (result.object === 'error') return res.status(400).json({ error: result.message });
+      return res.json({ ok: true });
+    }
+
+    res.status(405).json({ error: 'Método no permitido' });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
