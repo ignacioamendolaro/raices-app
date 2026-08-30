@@ -1,14 +1,17 @@
 const NOTION_API = 'https://api.notion.com/v1';
 
-// Escribe en Notion; si Subtarea no existe en la DB, reintenta sin ella
 async function notionWrite(url, method, headers, body) {
   const r = await fetch(url, { method, headers, body: JSON.stringify(body) });
   const result = await r.json();
-  if (result.object === 'error' && result.message && result.message.includes('Subtarea')) {
-    const body2 = JSON.parse(JSON.stringify(body));
-    if (body2.properties) delete body2.properties.Subtarea;
-    const r2 = await fetch(url, { method, headers, body: JSON.stringify(body2) });
-    return r2.json();
+  // Retry without missing optional properties
+  if (result.object === 'error' && result.message) {
+    const bad = ['Subtarea','Prioridad','Avance'].find(p => result.message.includes(p));
+    if (bad && body.properties) {
+      const body2 = JSON.parse(JSON.stringify(body));
+      delete body2.properties[bad];
+      const r2 = await fetch(url, { method, headers, body: JSON.stringify(body2) });
+      return r2.json();
+    }
   }
   return result;
 }
@@ -38,6 +41,8 @@ async function queryAllTasks(dbId, token, includeDone) {
       fin: p.properties.Fin?.date?.start || null,
       responsable: p.properties.Responsable?.select?.name || '',
       sub: p.properties.Subtarea?.rich_text?.[0]?.plain_text || '',
+      prioridad: p.properties.Prioridad?.select?.name || '',
+      avance: p.properties.Avance?.number ?? null,
     })));
     cursor = data.has_more ? data.next_cursor : undefined;
   } while (cursor);
@@ -58,74 +63,67 @@ module.exports = async (req, res) => {
     'Content-Type': 'application/json',
   };
 
+  const makeProps = (t) => {
+    const props = {
+      Tarea: { title: [{ text: { content: t.nombre } }] },
+      Cliente: { select: { name: t.cliente } },
+      Estado: { select: { name: t.estado || 'Pendiente' } },
+    };
+    if (t.inicio) props.Inicio = { date: { start: t.inicio } };
+    if (t.fin) props.Fin = { date: { start: t.fin } };
+    if (t.responsable) props.Responsable = { select: { name: t.responsable } };
+    if (t.sub) props.Subtarea = { rich_text: [{ text: { content: t.sub } }] };
+    if (t.prioridad) props.Prioridad = { select: { name: t.prioridad } };
+    if (t.avance != null) props.Avance = { number: t.avance };
+    return props;
+  };
+
   try {
-    // GET
     if (req.method === 'GET') {
       const includeDone = req.query?.include_done === 'true';
       const tasks = await queryAllTasks(DB_ID, TOKEN, includeDone);
       return res.json({ tasks });
     }
 
-    // POST — crear una o varias tareas
     if (req.method === 'POST') {
-      const makeProps = (t) => {
-        const props = {
-          Tarea: { title: [{ text: { content: t.nombre } }] },
-          Cliente: { select: { name: t.cliente } },
-          Estado: { select: { name: t.estado || 'Pendiente' } },
-        };
-        if (t.inicio) props.Inicio = { date: { start: t.inicio } };
-        if (t.fin) props.Fin = { date: { start: t.fin } };
-        if (t.responsable) props.Responsable = { select: { name: t.responsable } };
-        if (t.sub) props.Subtarea = { rich_text: [{ text: { content: t.sub } }] };
-        return props;
-      };
-
-      // Batch (tareas periódicas)
       if (req.body.instances) {
         const ids = [];
         for (const inst of req.body.instances) {
-          const page = await notionWrite(
-            `${NOTION_API}/pages`, 'POST', H,
-            { parent: { database_id: DB_ID }, properties: makeProps(inst) }
-          );
+          const page = await notionWrite(`${NOTION_API}/pages`, 'POST', H,
+            { parent: { database_id: DB_ID }, properties: makeProps(inst) });
           if (page.object === 'error') throw new Error(page.message);
           ids.push(page.id);
         }
         return res.json({ ids, count: ids.length });
       }
-
-      // Single
-      const { nombre, cliente, responsable, inicio, fin, sub } = req.body;
+      const { nombre, cliente, responsable, inicio, fin, sub, prioridad, avance } = req.body;
       if (!nombre || !cliente) return res.status(400).json({ error: 'Faltan campos requeridos' });
-      const page = await notionWrite(
-        `${NOTION_API}/pages`, 'POST', H,
-        { parent: { database_id: DB_ID }, properties: makeProps({ nombre, cliente, responsable, inicio, fin, sub }) }
-      );
+      const page = await notionWrite(`${NOTION_API}/pages`, 'POST', H,
+        { parent: { database_id: DB_ID }, properties: makeProps({ nombre, cliente, responsable, inicio, fin, sub, prioridad, avance }) });
       if (page.object === 'error') return res.status(400).json({ error: page.message });
       return res.json({ id: page.id });
     }
 
-    // PATCH — actualizar campos
     if (req.method === 'PATCH') {
-      const { id, estado, inicio, fin, sub } = req.body;
+      const { id, estado, inicio, fin, sub, nombre, responsable, prioridad, avance } = req.body;
       if (!id) return res.status(400).json({ error: 'Falta id' });
       const props = {};
+      if (nombre) props.Tarea = { title: [{ text: { content: nombre } }] };
       if (estado) props.Estado = { select: { name: estado } };
+      if (responsable !== undefined) props.Responsable = responsable ? { select: { name: responsable } } : { select: null };
       if (inicio !== undefined) props.Inicio = inicio ? { date: { start: inicio } } : { date: null };
       if (fin !== undefined) props.Fin = fin ? { date: { start: fin } } : { date: null };
       if (sub !== undefined) props.Subtarea = { rich_text: sub ? [{ text: { content: sub } }] : [] };
+      if (prioridad !== undefined) props.Prioridad = prioridad ? { select: { name: prioridad } } : { select: null };
+      if (avance !== undefined) props.Avance = { number: avance };
       const result = await notionWrite(`${NOTION_API}/pages/${id}`, 'PATCH', H, { properties: props });
       if (result.object === 'error') return res.status(400).json({ error: result.message });
       return res.json({ ok: true });
     }
 
-    // DELETE — una tarea o toda la serie
     if (req.method === 'DELETE') {
       const { id, serie_id } = req.body;
-
       if (serie_id) {
-        // Buscar y archivar todas las tareas de la serie
         let allPages = [], cursor;
         do {
           const body = {
@@ -142,7 +140,6 @@ module.exports = async (req, res) => {
           allPages = allPages.concat(data.results.map(p => p.id));
           cursor = data.has_more ? data.next_cursor : undefined;
         } while (cursor);
-
         for (const pid of allPages) {
           await fetch(`${NOTION_API}/pages/${pid}`, {
             method: 'PATCH', headers: H, body: JSON.stringify({ archived: true }),
@@ -150,7 +147,6 @@ module.exports = async (req, res) => {
         }
         return res.json({ deleted: allPages.length });
       }
-
       if (!id) return res.status(400).json({ error: 'Falta id' });
       const r = await fetch(`${NOTION_API}/pages/${id}`, {
         method: 'PATCH', headers: H, body: JSON.stringify({ archived: true }),
