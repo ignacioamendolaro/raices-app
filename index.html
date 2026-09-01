@@ -27,6 +27,31 @@ body{background:#0f172a;color:#e2e8f0;font-family:-apple-system,BlinkMacSystemFo
 .fbtn.active[data-f="Lactosur"]{color:#fb923c}.fbtn.active[data-f="Alianzas"]{color:#f472b6}
 .fbtn.active[data-f="ADIA"]{color:#a3e635}.fbtn.active[data-f="Raíces"]{color:#2dd4bf}
 .fbtn.active[data-f="Marca Personal"]{color:#c084fc}.fbtn.active[data-f="General"]{color:#94a3b8}
+.fbtn.active[data-f="facturacion"]{color:#fbbf24;border-color:#fbbf24}
+
+/* Facturación */
+.fact-kpi-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px}
+@media(min-width:500px){.fact-kpi-grid{grid-template-columns:repeat(4,1fr)}}
+.fact-kpi{background:#1e293b;border:1px solid #334155;border-radius:11px;padding:14px;text-align:center}
+.fact-kpi-num{font-size:22px;font-weight:700;margin-bottom:2px}
+.fact-kpi-label{font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:.05em}
+.fact-table{background:#1e293b;border:1px solid #334155;border-radius:11px;overflow:hidden;margin-bottom:14px}
+.fact-th{display:grid;grid-template-columns:1.4fr .5fr .9fr .9fr .9fr .65fr .7fr;padding:8px 12px;font-size:10px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid #334155}
+.fact-tr{display:grid;grid-template-columns:1.4fr .5fr .9fr .9fr .9fr .65fr .7fr;padding:9px 12px;font-size:12px;border-bottom:1px solid #1e293b20;align-items:center}
+.fact-tr:last-child{border-bottom:none}.fact-tr:hover{background:#263044}
+.fact-tc{text-align:right;color:#64748b}
+.fact-name{color:#e2e8f0;font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.fact-pill{display:inline-block;padding:2px 7px;border-radius:8px;font-size:10px;font-weight:600}
+.fact-pill-ok{background:#10b98120;color:#10b981;border:1px solid #10b98140}
+.fact-pill-pend{background:#f59e0b20;color:#f59e0b;border:1px solid #f59e0b40}
+.fact-pill-inact{background:#33415520;color:#475569;border:1px solid #33415540}
+.fact-insight{background:#1e293b;border:1px solid #334155;border-radius:11px;padding:14px;margin-bottom:14px}
+.fact-insight-title{font-size:11px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.05em;margin-bottom:12px}
+.fact-insight-row{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid #1e293b;font-size:13px}
+.fact-insight-row:last-child{border-bottom:none}
+.fact-insight-icon{font-size:16px;flex-shrink:0;margin-top:1px}
+.fact-insight-text{color:#94a3b8;line-height:1.4}
+.fact-insight-text strong{color:#e2e8f0}
 .fbtn-add{color:#475569;border-style:dashed}.fbtn-add:hover{color:#a78bfa;border-color:#a78bfa}
 .fbtn-sep{width:1px;background:#334155;margin:0 2px;flex-shrink:0}
 
@@ -221,6 +246,7 @@ body{background:#0f172a;color:#e2e8f0;font-family:-apple-system,BlinkMacSystemFo
 <div class="fbar" id="fbar">
   <button class="fbtn active" data-f="dashboard" onclick="setFilter('dashboard')">📊 Dashboard</button>
   <button class="fbtn" data-f="gantt" onclick="setFilter('gantt')">📅 Gantt</button>
+  <button class="fbtn" data-f="facturacion" onclick="setFilter('facturacion')">💰 Facturación</button>
   <button class="fbtn" data-f="agenda" onclick="setFilter('agenda')">🗓 Agenda</button>
   <button class="fbtn" data-f="todos" onclick="setFilter('todos')">Todos</button>
   <div class="fbtn-sep"></div>
@@ -493,7 +519,7 @@ async function loadTasks() {
 function setFilter(f) {
   filter=f; editingId=null; notesOpenId=null; agendaEditId=null;
   document.querySelectorAll('.fbtn[data-f]').forEach(b=>b.classList.toggle('active',b.dataset.f===f));
-  const showTime=!['todos','dashboard','agenda','gantt'].includes(f);
+  const showTime=!['todos','dashboard','agenda','gantt','facturacion'].includes(f);
   document.getElementById('tbar').style.display=showTime?'flex':'none';
   if(!showTime){timeFilter='todas';document.querySelectorAll('.tbtn').forEach(b=>b.classList.toggle('active',b.dataset.t==='todas'));}
   render();
@@ -505,7 +531,7 @@ function filtered() {
   const in7=new Date(today);in7.setDate(in7.getDate()+7);
   let list=[...allTasks];
   if(filter==='todos')return list;
-  if(!['dashboard','agenda','gantt'].includes(filter)){
+  if(!['dashboard','agenda','gantt','facturacion'].includes(filter)){
     list=list.filter(t=>t.cliente===filter);
     if(timeFilter==='vigentes')list=list.filter(t=>{const i=parseDate(t.inicio);return!i||i<=in7;});
   }
@@ -519,6 +545,7 @@ function render() {
   if(filter==='dashboard'){renderDashboard(el);return;}
   if(filter==='agenda'){renderAgenda(el);return;}
   if(filter==='gantt'){renderGantt(el);return;}
+  if(filter==='facturacion'){renderFact(el);return;}
   const list=filtered();
   if(!list.length){el.innerHTML='<div class="empty">Sin tareas para mostrar 🎉</div>';return;}
   const today=new Date();today.setHours(0,0,0,0);
@@ -1105,6 +1132,320 @@ document.getElementById('modal-delete').addEventListener('click',e=>{if(e.target
 document.getElementById('modal-company').addEventListener('click',e=>{if(e.target===e.currentTarget)closeAddCompany();});
 document.getElementById('modal-reprog').addEventListener('click',e=>{if(e.target===e.currentTarget)closeReprogModal();});
 document.getElementById('company-name').addEventListener('keydown',e=>{if(e.key==='Enter')saveNewCompany();});
+
+// ═══ PAGOS DATA ═══
+const PAGOS_DATA = [
+{"org":"Motorola Solutions","pilar":"Empresa","mes":6,"anio":2024,"raices":128000,"mio":128000,"ok":true,"comentario":""},
+{"org":"Distribuidora Pagani","pilar":"Empresa","mes":7,"anio":2024,"raices":450000,"mio":450000,"ok":true,"comentario":""},
+{"org":"Centro de Servicios Hospitalarios","pilar":"Empresa","mes":9,"anio":2024,"raices":125000,"mio":125000,"ok":true,"comentario":""},
+{"org":"Distribuidora Pagani","pilar":"Empresa","mes":9,"anio":2024,"raices":250000,"mio":250000,"ok":true,"comentario":""},
+{"org":"Centro de Servicios Hospitalarios","pilar":"Empresa","mes":10,"anio":2024,"raices":125000,"mio":125000,"ok":true,"comentario":""},
+{"org":"Distribuidora Pagani","pilar":"Empresa","mes":10,"anio":2024,"raices":510000,"mio":510000,"ok":true,"comentario":""},
+{"org":"Distribuidora Pagani","pilar":"Empresa","mes":11,"anio":2024,"raices":510000,"mio":510000,"ok":true,"comentario":""},
+{"org":"Distribuidora Palco","pilar":"Empresa","mes":11,"anio":2024,"raices":1650000,"mio":825000,"ok":true,"comentario":""},
+{"org":"Distribuidora Pagani","pilar":"Empresa","mes":12,"anio":2024,"raices":550000,"mio":550000,"ok":true,"comentario":""},
+{"org":"Distribuidora Palco","pilar":"Empresa","mes":12,"anio":2024,"raices":1400000,"mio":625000,"ok":true,"comentario":""},
+{"org":"Distribuidora Pagani","pilar":"Empresa","mes":1,"anio":2025,"raices":620000,"mio":620000,"ok":true,"comentario":""},
+{"org":"Distribuidora Palco","pilar":"Empresa","mes":1,"anio":2025,"raices":1960000,"mio":905000,"ok":true,"comentario":""},
+{"org":"Surcala","pilar":"Empresa","mes":1,"anio":2025,"raices":1100000,"mio":600000,"ok":true,"comentario":""},
+{"org":"Distribuidora Pagani","pilar":"Empresa","mes":2,"anio":2025,"raices":620000,"mio":620000,"ok":true,"comentario":""},
+{"org":"Distribuidora Pagani","pilar":"Empresa","mes":2,"anio":2025,"raices":400000,"mio":400000,"ok":true,"comentario":""},
+{"org":"Distribuidora Palco","pilar":"Empresa","mes":2,"anio":2025,"raices":1470000,"mio":645000,"ok":true,"comentario":""},
+{"org":"Surcala","pilar":"Empresa","mes":2,"anio":2025,"raices":1100000,"mio":600000,"ok":true,"comentario":""},
+{"org":"Distribuidora Pagani","pilar":"Empresa","mes":3,"anio":2025,"raices":650000,"mio":650000,"ok":true,"comentario":""},
+{"org":"Distribuidora Pagani","pilar":"Empresa","mes":3,"anio":2025,"raices":400000,"mio":400000,"ok":true,"comentario":""},
+{"org":"Distribuidora Palco","pilar":"Empresa","mes":3,"anio":2025,"raices":1540000,"mio":680000,"ok":true,"comentario":""},
+{"org":"Surcala","pilar":"Empresa","mes":3,"anio":2025,"raices":1100000,"mio":430000,"ok":true,"comentario":""},
+{"org":"Distribuidora Pagani","pilar":"Empresa","mes":4,"anio":2025,"raices":650000,"mio":650000,"ok":true,"comentario":""},
+{"org":"Distribuidora Pagani","pilar":"Empresa","mes":4,"anio":2025,"raices":430000,"mio":430000,"ok":true,"comentario":""},
+{"org":"Distribuidora Palco","pilar":"Empresa","mes":4,"anio":2025,"raices":1540000,"mio":680000,"ok":true,"comentario":""},
+{"org":"Surcala","pilar":"Empresa","mes":4,"anio":2025,"raices":1100000,"mio":430000,"ok":true,"comentario":""},
+{"org":"Distribuidora Pagani","pilar":"Empresa","mes":5,"anio":2025,"raices":650000,"mio":650000,"ok":true,"comentario":""},
+{"org":"Distribuidora Pagani","pilar":"Empresa","mes":5,"anio":2025,"raices":400000,"mio":400000,"ok":true,"comentario":""},
+{"org":"Distribuidora Palco","pilar":"Empresa","mes":5,"anio":2025,"raices":3900000,"mio":1950000,"ok":true,"comentario":""},
+{"org":"Surcala","pilar":"Empresa","mes":5,"anio":2025,"raices":1150000,"mio":450000,"ok":true,"comentario":""},
+{"org":"Distribuidora Pagani","pilar":"Empresa","mes":6,"anio":2025,"raices":650000,"mio":650000,"ok":true,"comentario":""},
+{"org":"Distribuidora Pagani","pilar":"Empresa","mes":6,"anio":2025,"raices":400000,"mio":400000,"ok":true,"comentario":""},
+{"org":"Surcala","pilar":"Empresa","mes":6,"anio":2025,"raices":1150000,"mio":450000,"ok":true,"comentario":""},
+{"org":"Dis-Nort","pilar":"Empresa","mes":6,"anio":2025,"raices":1300000,"mio":650000,"ok":true,"comentario":""},
+{"org":"Distribuidora Pagani","pilar":"Empresa","mes":7,"anio":2025,"raices":450000,"mio":450000,"ok":true,"comentario":""},
+{"org":"Surcala","pilar":"Empresa","mes":7,"anio":2025,"raices":1150000,"mio":450000,"ok":true,"comentario":""},
+{"org":"Distritur","pilar":"Empresa","mes":7,"anio":2025,"raices":1000000,"mio":500000,"ok":true,"comentario":""},
+{"org":"Distribuidora Pagani","pilar":"Empresa","mes":8,"anio":2025,"raices":1400000,"mio":1400000,"ok":true,"comentario":""},
+{"org":"Distribuidora Pagani","pilar":"Empresa","mes":9,"anio":2025,"raices":1400000,"mio":1160000,"ok":true,"comentario":""},
+{"org":"Distribuidora Palco","pilar":"Empresa","mes":9,"anio":2025,"raices":300000,"mio":300000,"ok":true,"comentario":""},
+{"org":"Distribuidora Pagani","pilar":"Empresa","mes":10,"anio":2025,"raices":1400000,"mio":1160000,"ok":true,"comentario":""},
+{"org":"Distribuidora Palco","pilar":"Empresa","mes":10,"anio":2025,"raices":300000,"mio":300000,"ok":true,"comentario":""},
+{"org":"Grupo Alfa","pilar":"Empresa","mes":10,"anio":2025,"raices":560000,"mio":280000,"ok":true,"comentario":""},
+{"org":"Distribuidora Pagani","pilar":"Empresa","mes":11,"anio":2025,"raices":1400000,"mio":1160000,"ok":true,"comentario":""},
+{"org":"Distribuidora Palco","pilar":"Empresa","mes":11,"anio":2025,"raices":300000,"mio":300000,"ok":true,"comentario":""},
+{"org":"Grupo Alfa","pilar":"Empresa","mes":11,"anio":2025,"raices":560000,"mio":280000,"ok":true,"comentario":""},
+{"org":"Zubillaga","pilar":"Empresa","mes":11,"anio":2025,"raices":300000,"mio":214500,"ok":true,"comentario":""},
+{"org":"Surcala","pilar":"Empresa","mes":11,"anio":2025,"raices":500000,"mio":268500,"ok":true,"comentario":""},
+{"org":"Distribuidora Pagani","pilar":"Empresa","mes":12,"anio":2025,"raices":1400000,"mio":1160000,"ok":true,"comentario":""},
+{"org":"Distribuidora Palco","pilar":"Empresa","mes":12,"anio":2025,"raices":300000,"mio":300000,"ok":true,"comentario":""},
+{"org":"Zubillaga","pilar":"Empresa","mes":12,"anio":2025,"raices":300000,"mio":215400,"ok":true,"comentario":""},
+{"org":"ADIA (Sindicato Docentes)","pilar":"Empresa","mes":12,"anio":2025,"raices":240000,"mio":120000,"ok":true,"comentario":""},
+{"org":"Districer","pilar":"Empresa","mes":12,"anio":2025,"raices":350000,"mio":260000,"ok":true,"comentario":""},
+{"org":"Lactosur","pilar":"Empresa","mes":12,"anio":2025,"raices":400000,"mio":308950,"ok":true,"comentario":""},
+{"org":"Distribuidora Pagani","pilar":"Empresa","mes":1,"anio":2026,"raices":1400000,"mio":1160000,"ok":true,"comentario":""},
+{"org":"Distribuidora Palco","pilar":"Empresa","mes":1,"anio":2026,"raices":300000,"mio":300000,"ok":true,"comentario":""},
+{"org":"Zubillaga","pilar":"Empresa","mes":1,"anio":2026,"raices":300000,"mio":210000,"ok":true,"comentario":""},
+{"org":"Districer","pilar":"Empresa","mes":1,"anio":2026,"raices":350000,"mio":260000,"ok":true,"comentario":""},
+{"org":"Julia Kozameh","pilar":"Alianza","mes":1,"anio":2026,"raices":320000,"mio":320000,"ok":true,"comentario":""},
+{"org":"Districer","pilar":"Empresa","mes":2,"anio":2026,"raices":350000,"mio":260000,"ok":true,"comentario":""},
+{"org":"Julia Kozameh","pilar":"Alianza","mes":2,"anio":2026,"raices":320000,"mio":320000,"ok":true,"comentario":""},
+{"org":"Districer","pilar":"Empresa","mes":3,"anio":2026,"raices":350000,"mio":260000,"ok":true,"comentario":""},
+{"org":"Julia Kozameh","pilar":"Alianza","mes":3,"anio":2026,"raices":320000,"mio":320000,"ok":true,"comentario":""},
+{"org":"Lactosur","pilar":"Empresa","mes":3,"anio":2026,"raices":1200000,"mio":550000,"ok":true,"comentario":""},
+{"org":"Zubillaga","pilar":"Empresa","mes":3,"anio":2026,"raices":1700000,"mio":872500,"ok":true,"comentario":""},
+{"org":"Distribuidora Pagani","pilar":"Empresa","mes":4,"anio":2026,"raices":350000,"mio":350000,"ok":true,"comentario":""},
+{"org":"Districer","pilar":"Empresa","mes":4,"anio":2026,"raices":336000,"mio":256200,"ok":true,"comentario":""},
+{"org":"Nacho Fonseca / Artico","pilar":"Alianza","mes":4,"anio":2026,"raices":1410000,"mio":1410000,"ok":true,"comentario":""},
+{"org":"Julia Kozameh","pilar":"Alianza","mes":4,"anio":2026,"raices":320000,"mio":320000,"ok":true,"comentario":""},
+{"org":"Zubillaga","pilar":"Empresa","mes":4,"anio":2026,"raices":1700000,"mio":880000,"ok":true,"comentario":""},
+{"org":"Lactosur","pilar":"Empresa","mes":4,"anio":2026,"raices":1400000,"mio":595000,"ok":true,"comentario":""},
+{"org":"Cafaratti","pilar":"Empresa","mes":4,"anio":2026,"raices":880000,"mio":528000,"ok":true,"comentario":""},
+{"org":"Distribuidora Pagani","pilar":"Empresa","mes":5,"anio":2026,"raices":350000,"mio":350000,"ok":true,"comentario":""},
+{"org":"Nacho Fonseca / Artico","pilar":"Alianza","mes":5,"anio":2026,"raices":2790000,"mio":2790000,"ok":true,"comentario":""},
+{"org":"Julia Kozameh","pilar":"Alianza","mes":5,"anio":2026,"raices":320000,"mio":320000,"ok":true,"comentario":""},
+{"org":"Zubillaga","pilar":"Empresa","mes":5,"anio":2026,"raices":1700000,"mio":887500,"ok":true,"comentario":""},
+{"org":"Cafaratti","pilar":"Empresa","mes":5,"anio":2026,"raices":880000,"mio":528000,"ok":true,"comentario":""},
+{"org":"Lactosur","pilar":"Empresa","mes":6,"anio":2026,"raices":320000,"mio":0,"ok":true,"comentario":""},
+{"org":"Distribuidora Pagani","pilar":"Empresa","mes":6,"anio":2026,"raices":350000,"mio":350000,"ok":true,"comentario":""},
+{"org":"Nacho Fonseca / Artico","pilar":"Alianza","mes":6,"anio":2026,"raices":2840000,"mio":2840000,"ok":true,"comentario":""},
+{"org":"Julia Kozameh","pilar":"Alianza","mes":6,"anio":2026,"raices":320000,"mio":320000,"ok":true,"comentario":""},
+{"org":"Zubillaga","pilar":"Empresa","mes":6,"anio":2026,"raices":1700000,"mio":887500,"ok":true,"comentario":""},
+{"org":"Cafaratti","pilar":"Empresa","mes":6,"anio":2026,"raices":880000,"mio":528000,"ok":true,"comentario":""},
+{"org":"Surcala","pilar":"Empresa","mes":6,"anio":2026,"raices":2500000,"mio":1250000,"ok":true,"comentario":""},
+{"org":"Conexxo","pilar":"Empresa","mes":6,"anio":2026,"raices":3575000,"mio":3575000,"ok":true,"comentario":""},
+{"org":"ADIA (Sindicato Docentes)","pilar":"Empresa","mes":6,"anio":2026,"raices":290000,"mio":290000,"ok":true,"comentario":""},
+{"org":"Distribuidora Pagani","pilar":"Empresa","mes":7,"anio":2026,"raices":0,"mio":0,"ok":true,"comentario":""},
+{"org":"Nacho Fonseca / Artico","pilar":"Alianza","mes":7,"anio":2026,"raices":2970000,"mio":2970000,"ok":true,"comentario":""},
+{"org":"Julia Kozameh","pilar":"Alianza","mes":7,"anio":2026,"raices":320000,"mio":320000,"ok":true,"comentario":""},
+{"org":"Zubillaga","pilar":"Empresa","mes":7,"anio":2026,"raices":1700000,"mio":887500,"ok":true,"comentario":""},
+{"org":"Cafaratti","pilar":"Empresa","mes":7,"anio":2026,"raices":880000,"mio":528000,"ok":true,"comentario":""},
+{"org":"Surcala","pilar":"Empresa","mes":7,"anio":2026,"raices":2500000,"mio":1010000,"ok":true,"comentario":""},
+{"org":"Conexxo","pilar":"Empresa","mes":7,"anio":2026,"raices":4158000,"mio":4158000,"ok":true,"comentario":""},
+{"org":"Distribuidora Pagani","pilar":"Empresa","mes":8,"anio":2026,"raices":200000,"mio":200000,"ok":true,"comentario":""},
+{"org":"Nacho Fonseca / Artico","pilar":"Alianza","mes":8,"anio":2026,"raices":2980000,"mio":2980000,"ok":true,"comentario":""},
+{"org":"Julia Kozameh","pilar":"Alianza","mes":8,"anio":2026,"raices":320000,"mio":320000,"ok":true,"comentario":""},
+{"org":"Cafaratti","pilar":"Empresa","mes":8,"anio":2026,"raices":880000,"mio":528000,"ok":true,"comentario":""},
+{"org":"Surcala","pilar":"Empresa","mes":8,"anio":2026,"raices":2500000,"mio":1010000,"ok":true,"comentario":""},
+{"org":"Conexxo","pilar":"Empresa","mes":8,"anio":2026,"raices":4256000,"mio":4256000,"ok":true,"comentario":""},
+{"org":"Zubillaga","pilar":"Empresa","mes":8,"anio":2026,"raices":1800000,"mio":842500,"ok":true,"comentario":""},
+{"org":"ADIA (Sindicato Docentes)","pilar":"Empresa","mes":8,"anio":2026,"raices":290000,"mio":290000,"ok":true,"comentario":""},
+{"org":"Nacho Fonseca / Artico","pilar":"Alianza","mes":9,"anio":2026,"raices":2970000,"mio":2970000,"ok":false,"comentario":""},
+{"org":"Distribuidora Pagani","pilar":"Empresa","mes":9,"anio":2026,"raices":200000,"mio":200000,"ok":false,"comentario":""},
+{"org":"Cafaratti","pilar":"Empresa","mes":9,"anio":2026,"raices":880000,"mio":528000,"ok":false,"comentario":""},
+{"org":"Surcala","pilar":"Empresa","mes":9,"anio":2026,"raices":2100000,"mio":690000,"ok":false,"comentario":""},
+{"org":"Conexxo","pilar":"Empresa","mes":9,"anio":2026,"raices":4284000,"mio":4284000,"ok":false,"comentario":""},
+{"org":"Zubillaga","pilar":"Empresa","mes":9,"anio":2026,"raices":1800000,"mio":810000,"ok":false,"comentario":""},
+{"org":"ADIA (Sindicato Docentes)","pilar":"Empresa","mes":9,"anio":2026,"raices":290000,"mio":290000,"ok":false,"comentario":""},
+{"org":"Distribuidora Pagani","pilar":"Empresa","mes":10,"anio":2026,"raices":200000,"mio":200000,"ok":false,"comentario":""},
+{"org":"Cafaratti","pilar":"Empresa","mes":10,"anio":2026,"raices":880000,"mio":528000,"ok":false,"comentario":""},
+{"org":"Nacho Fonseca / Artico","pilar":"Alianza","mes":10,"anio":2026,"raices":2823800,"mio":2823800,"ok":false,"comentario":""},
+{"org":"Surcala","pilar":"Empresa","mes":10,"anio":2026,"raices":2100000,"mio":690000,"ok":false,"comentario":""},
+{"org":"Zubillaga","pilar":"Empresa","mes":10,"anio":2026,"raices":1800000,"mio":810000,"ok":false,"comentario":""},
+{"org":"ADIA (Sindicato Docentes)","pilar":"Empresa","mes":10,"anio":2026,"raices":290000,"mio":290000,"ok":false,"comentario":""},
+{"org":"Distribuidora Pagani","pilar":"Empresa","mes":11,"anio":2026,"raices":200000,"mio":200000,"ok":false,"comentario":""},
+{"org":"Cafaratti","pilar":"Empresa","mes":11,"anio":2026,"raices":880000,"mio":528000,"ok":false,"comentario":""},
+{"org":"Surcala","pilar":"Empresa","mes":11,"anio":2026,"raices":2100000,"mio":690000,"ok":false,"comentario":""},
+{"org":"Zubillaga","pilar":"Empresa","mes":11,"anio":2026,"raices":1800000,"mio":810000,"ok":false,"comentario":""},
+{"org":"ADIA (Sindicato Docentes)","pilar":"Empresa","mes":11,"anio":2026,"raices":290000,"mio":290000,"ok":false,"comentario":""},
+{"org":"Distribuidora Pagani","pilar":"Empresa","mes":12,"anio":2026,"raices":200000,"mio":200000,"ok":false,"comentario":""},
+{"org":"Cafaratti","pilar":"Empresa","mes":12,"anio":2026,"raices":880000,"mio":528000,"ok":false,"comentario":""},
+{"org":"Surcala","pilar":"Empresa","mes":12,"anio":2026,"raices":2100000,"mio":690000,"ok":false,"comentario":""},
+{"org":"Zubillaga","pilar":"Empresa","mes":12,"anio":2026,"raices":1800000,"mio":810000,"ok":false,"comentario":""},
+{"org":"Surcala","pilar":"Empresa","mes":1,"anio":2027,"raices":2100000,"mio":690000,"ok":false,"comentario":""},
+{"org":"Zubillaga","pilar":"Empresa","mes":1,"anio":2027,"raices":1800000,"mio":810000,"ok":false,"comentario":""}
+];
+
+// ═══ FACTURACIÓN ═══
+let factCharts = {};
+
+function renderFact(el) {
+  // Destroy old charts
+  Object.values(factCharts).forEach(c=>{try{c.destroy();}catch(e){}});
+  factCharts = {};
+
+  const MESES_SHORT = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+
+  // Build month map
+  const monthMap = {};
+  PAGOS_DATA.forEach(r => {
+    const key = `${r.anio}-${String(r.mes).padStart(2,'0')}`;
+    if (!monthMap[key]) monthMap[key] = {raices_ok:0,mio_ok:0,raices_nok:0,mio_nok:0};
+    if (r.ok) { monthMap[key].raices_ok += r.raices; monthMap[key].mio_ok += r.mio; }
+    else      { monthMap[key].raices_nok += r.raices; monthMap[key].mio_nok += r.mio; }
+  });
+  const monthKeys = Object.keys(monthMap).sort();
+
+  // KPIs
+  const totalRaicesOk  = PAGOS_DATA.filter(r=>r.ok).reduce((s,r)=>s+r.raices,0);
+  const totalMioOk     = PAGOS_DATA.filter(r=>r.ok).reduce((s,r)=>s+r.mio,0);
+  const totalPendiente = PAGOS_DATA.filter(r=>!r.ok).reduce((s,r)=>s+r.raices,0);
+  const totalMioPend   = PAGOS_DATA.filter(r=>!r.ok).reduce((s,r)=>s+r.mio,0);
+
+  // MRR: avg last 3 months cobrado
+  const todayKey = `${new Date().getFullYear()}-${String(new Date().getMonth()+1).padStart(2,'0')}`;
+  const pastKeys = monthKeys.filter(k=>k<=todayKey && monthMap[k].raices_ok>0);
+  const last3    = pastKeys.slice(-3);
+  const mrr      = last3.length ? Math.round(last3.reduce((s,k)=>s+monthMap[k].raices_ok,0)/last3.length) : 0;
+
+  // 2025 vs 2026 YoY
+  const tot2025 = PAGOS_DATA.filter(r=>r.ok&&r.anio===2025).reduce((s,r)=>s+r.raices,0);
+  const tot2026 = PAGOS_DATA.filter(r=>r.ok&&r.anio===2026).reduce((s,r)=>s+r.raices,0);
+  const yoy = tot2025>0 ? Math.round((tot2026-tot2025)/tot2025*100) : 0;
+
+  // Client aggregates
+  const clients = {};
+  PAGOS_DATA.forEach(r => {
+    if (!clients[r.org]) clients[r.org]={org:r.org,pilar:r.pilar,total:0,cobrado:0,pendiente:0,mio_total:0,lastOkKey:''};
+    clients[r.org].total    += r.raices;
+    clients[r.org].mio_total+= r.mio;
+    if (r.ok) {
+      clients[r.org].cobrado += r.raices;
+      const k=`${r.anio}-${String(r.mes).padStart(2,'0')}`;
+      if (k>clients[r.org].lastOkKey) clients[r.org].lastOkKey=k;
+    } else { clients[r.org].pendiente += r.raices; }
+  });
+  const clientList = Object.values(clients).sort((a,b)=>b.total-a.total);
+
+  // Concentration top 3
+  const top3sum = clientList.slice(0,3).reduce((s,c)=>s+c.cobrado,0);
+  const conc = totalRaicesOk>0 ? Math.round(top3sum/totalRaicesOk*100) : 0;
+
+  // IPC alerts
+  const ipcAlerts = [...new Set(PAGOS_DATA.filter(r=>r.comentario.toLowerCase().includes('ipc')).map(r=>r.org))];
+
+  const fmt = n => n>=1000000 ? `$${(n/1000000).toFixed(1)}M` : `$${Math.round(n/1000)}K`;
+  const fmtKey = k => { if(!k)return '—'; const [y,m]=k.split('-'); return MESES_SHORT[parseInt(m)-1]+' '+y; };
+
+  // Estado per client
+  const stateOf = c => {
+    if (c.pendiente>0) return {label:'Proyectado',cls:'fact-pill-pend'};
+    if (c.lastOkKey>=last3[0]||!last3[0]) return {label:'Activo',cls:'fact-pill-ok'};
+    return {label:'Inactivo',cls:'fact-pill-inact'};
+  };
+
+  el.innerHTML = `
+<div class="wrap" style="max-width:1000px">
+
+  <!-- KPI -->
+  <div class="fact-kpi-grid">
+    <div class="fact-kpi"><div class="fact-kpi-num" style="color:#10b981">${fmt(totalRaicesOk)}</div><div class="fact-kpi-label">Total cobrado (RAICES)</div></div>
+    <div class="fact-kpi"><div class="fact-kpi-num" style="color:#3b82f6">${fmt(totalMioOk)}</div><div class="fact-kpi-label">Tu parte cobrada (MIO)</div></div>
+    <div class="fact-kpi"><div class="fact-kpi-num" style="color:#f59e0b">${fmt(totalPendiente)}</div><div class="fact-kpi-label">Proyectado pendiente</div></div>
+    <div class="fact-kpi"><div class="fact-kpi-num" style="color:#a78bfa">${fmt(mrr)}</div><div class="fact-kpi-label">MRR últimos 3 meses</div></div>
+  </div>
+
+  <!-- Chart mensual -->
+  <div class="chart-box" style="margin-bottom:14px">
+    <div class="chart-box-title">Evolución mensual — RAICES cobrado · proyectado · Nacho</div>
+    <div style="position:relative;height:240px"><canvas id="fact-monthly"></canvas></div>
+  </div>
+
+  <!-- Grid charts -->
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+    <div class="chart-box">
+      <div class="chart-box-title">Distribución — Nacho vs Resto (cobrado)</div>
+      <div style="position:relative;height:180px"><canvas id="fact-split"></canvas></div>
+    </div>
+    <div class="chart-box">
+      <div class="chart-box-title">Indicadores financieros</div>
+      <div class="mini-row"><span style="color:#94a3b8">Crecimiento 2025→2026</span><span style="color:${yoy>=0?'#10b981':'#f87171'};font-weight:700">${yoy>=0?'+':''}${yoy}%</span></div>
+      <div class="mini-row"><span style="color:#94a3b8">Concentración top 3 clientes</span><span style="color:${conc>70?'#f87171':conc>50?'#f59e0b':'#10b981'};font-weight:700">${conc}%</span></div>
+      <div class="mini-row"><span style="color:#94a3b8">Tu % sobre lo cobrado</span><span style="color:#3b82f6;font-weight:700">${totalRaicesOk>0?Math.round(totalMioOk/totalRaicesOk*100):0}%</span></div>
+      <div class="mini-row"><span style="color:#94a3b8">Proyectado MIO (resto 2026)</span><span style="color:#a78bfa;font-weight:700">${fmt(totalMioPend)}</span></div>
+      <div class="mini-row"><span style="color:#94a3b8">2025 total RAICES</span><span style="color:#64748b;font-weight:700">${fmt(tot2025)}</span></div>
+      <div class="mini-row"><span style="color:#94a3b8">2026 total cobrado</span><span style="color:#64748b;font-weight:700">${fmt(tot2026)}</span></div>
+    </div>
+  </div>
+
+  <!-- Tabla clientes -->
+  <div class="fact-table">
+    <div class="fact-th"><span>Cliente</span><span>Pilar</span><span style="text-align:right">Total</span><span style="text-align:right">Cobrado</span><span style="text-align:right">Pendiente</span><span style="text-align:right">Último pago</span><span style="text-align:center">Estado</span></div>
+    ${clientList.filter(c=>c.total>0).map(c=>{
+      const s=stateOf(c);
+      return `<div class="fact-tr">
+        <span class="fact-name" title="${esc(c.org)}">${esc(c.org)}</span>
+        <span class="fact-tc">${esc(c.pilar)}</span>
+        <span class="fact-tc">${fmt(c.total)}</span>
+        <span class="fact-tc" style="color:#10b981">${c.cobrado>0?fmt(c.cobrado):'—'}</span>
+        <span class="fact-tc" style="color:${c.pendiente>0?'#f59e0b':'#334155'}">${c.pendiente>0?fmt(c.pendiente):'—'}</span>
+        <span class="fact-tc">${fmtKey(c.lastOkKey)}</span>
+        <span style="text-align:center"><span class="fact-pill ${s.cls}">${s.label}</span></span>
+      </div>`;
+    }).join('')}
+  </div>
+
+  <!-- Ideas / Insights -->
+  <div class="fact-insight">
+    <div class="fact-insight-title">💡 Insights y oportunidades</div>
+    ${ipcAlerts.length ? `<div class="fact-insight-row"><div class="fact-insight-icon">📌</div><div class="fact-insight-text"><strong>Pendiente de ajuste IPC:</strong> ${ipcAlerts.map(o=>esc(o)).join(', ')} — tienen comentarios de ajuste pendiente en el Excel.</div></div>` : ''}
+    <div class="fact-insight-row"><div class="fact-insight-icon">⚠️</div><div class="fact-insight-text"><strong>Concentración de ingresos:</strong> el top 3 representa el ${conc}% de lo cobrado. ${conc>65?'Riesgo alto — diversificar cartera.':conc>50?'Riesgo moderado.':'Cartera bien distribuida.'}</div></div>
+    <div class="fact-insight-row"><div class="fact-insight-icon">📈</div><div class="fact-insight-text"><strong>Crecimiento 2026:</strong> ${yoy>=0?`+${yoy}% vs 2025. Tendencia positiva.`:`${yoy}% vs 2025. Revisar cartera.`} Considerar proyección anual extrapolando MRR actual.</div></div>
+    <div class="fact-insight-row"><div class="fact-insight-icon">💡</div><div class="fact-insight-text"><strong>Separación Vicky/Gastos:</strong> hoy el "Resto" (RAICES - MIO) mezcla parte de Vicky con gastos operativos. Separar en el Excel con columnas "VICKY" y "GASTOS" permitiría ver la distribución real y la rentabilidad neta.</div></div>
+    <div class="fact-insight-row"><div class="fact-insight-icon">🔮</div><div class="fact-insight-text"><strong>Registro de gastos:</strong> sin datos de egresos no se puede calcular margen neto. Incluso una hoja simple (herramientas, viáticos, inversiones) desbloquearía el P&L mensual.</div></div>
+    <div class="fact-insight-row"><div class="fact-insight-icon">📅</div><div class="fact-insight-text"><strong>Clientes inactivos:</strong> ${clientList.filter(c=>stateOf(c).label==='Inactivo').map(c=>esc(c.org)).join(', ')||'ninguno detectado'} — sin pagos recientes ni proyecciones. ¿Oportunidad de retomar?</div></div>
+  </div>
+
+</div>`;
+
+  // Chart: evolución mensual
+  setTimeout(() => {
+    const labels = monthKeys.map(k => { const [y,m]=k.split('-'); return MESES_SHORT[parseInt(m)-1]+' '+y.slice(2); });
+    const raicesOkData  = monthKeys.map(k => monthMap[k].raices_ok  || 0);
+    const raicesNokData = monthKeys.map(k => monthMap[k].raices_nok || 0);
+    const mioOkData     = monthKeys.map(k => monthMap[k].mio_ok     || null);
+    const mioNokData    = monthKeys.map(k => monthMap[k].mio_nok>0  ? monthMap[k].mio_nok : null);
+
+    const ctxM = document.getElementById('fact-monthly');
+    if (ctxM) {
+      factCharts.monthly = new Chart(ctxM, {
+        type: 'bar',
+        data: {
+          labels,
+          datasets: [
+            { label: 'RAICES cobrado', data: raicesOkData, backgroundColor: '#3b82f650', borderColor: '#3b82f6', borderWidth: 1, stack: 'raices' },
+            { label: 'RAICES proyectado', data: raicesNokData, backgroundColor: '#f59e0b30', borderColor: '#f59e0b60', borderWidth: 1, borderDash: [4,4], stack: 'raices' },
+            { label: 'Nacho cobrado', data: mioOkData, type: 'line', borderColor: '#10b981', backgroundColor: 'transparent', tension: 0.3, pointRadius: 2, borderWidth: 2, spanGaps: false },
+            { label: 'Nacho proyectado', data: mioNokData, type: 'line', borderColor: '#10b98170', backgroundColor: 'transparent', tension: 0.3, pointRadius: 2, borderWidth: 2, borderDash: [5,5], spanGaps: false }
+          ]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: { legend: { labels: { color: '#64748b', font: { size: 11 } } } },
+          scales: {
+            x: { stacked: true, ticks: { color: '#475569', font: { size: 10 }, maxRotation: 45 }, grid: { color: '#1e293b' } },
+            y: { stacked: false, ticks: { color: '#475569', font: { size: 10 }, callback: v => v>=1000000?'$'+(v/1000000).toFixed(1)+'M':'$'+(v/1000)+'K' }, grid: { color: '#1e293b' } }
+          }
+        }
+      });
+    }
+
+    // Chart: split donut
+    const restoOk = totalRaicesOk - totalMioOk;
+    const ctxS = document.getElementById('fact-split');
+    if (ctxS) {
+      factCharts.split = new Chart(ctxS, {
+        type: 'doughnut',
+        data: {
+          labels: ['Nacho (MIO)', 'Vicky + gastos'],
+          datasets: [{ data: [totalMioOk, restoOk], backgroundColor: ['#3b82f6','#f59e0b'], borderColor: '#1e293b', borderWidth: 3 }]
+        },
+        options: {
+          responsive: true, maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom', labels: { color: '#64748b', font: { size: 11 }, padding: 12 } },
+            tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${fmt(ctx.raw)} (${Math.round(ctx.raw/(totalRaicesOk)*100)}%)` } }
+          }
+        }
+      });
+    }
+  }, 50);
+}
 </script>
 </body>
 </html>
