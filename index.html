@@ -28,6 +28,26 @@ body{background:#0f172a;color:#e2e8f0;font-family:-apple-system,BlinkMacSystemFo
 .fbtn.active[data-f="ADIA"]{color:#a3e635}.fbtn.active[data-f="Raíces"]{color:#2dd4bf}
 .fbtn.active[data-f="Marca Personal"]{color:#c084fc}.fbtn.active[data-f="General"]{color:#94a3b8}
 .fbtn.active[data-f="facturacion"]{color:#fbbf24;border-color:#fbbf24}
+.fbtn.active[data-f="coaching"]{color:#a78bfa;border-color:#a78bfa}
+
+/* Coaching tab */
+.coach-toggle{display:flex;gap:6px;margin-bottom:14px}
+.coach-toggle-btn{padding:6px 18px;border-radius:20px;border:1.5px solid #334155;background:transparent;color:#64748b;font-size:13px;cursor:pointer;font-weight:500;transition:all .15s}
+.coach-toggle-btn.active{background:#1e1045;color:#a78bfa;border-color:#7c3aed}
+.coach-kpi-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px}
+@media(min-width:500px){.coach-kpi-grid{grid-template-columns:repeat(4,1fr)}}
+.coach-kpi{background:#1e293b;border:1px solid #334155;border-radius:11px;padding:14px;text-align:center}
+.coach-kpi-num{font-size:26px;font-weight:700;margin-bottom:2px}
+.coach-kpi-label{font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:.05em}
+.coach-table{background:#1e293b;border:1px solid #334155;border-radius:11px;overflow:hidden;margin-bottom:14px}
+.coach-th{display:grid;grid-template-columns:1.6fr 60px 80px 80px 80px;padding:8px 12px;font-size:10px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid #334155}
+.coach-tr{display:grid;grid-template-columns:1.6fr 60px 80px 80px 80px;padding:9px 12px;font-size:12px;border-bottom:1px solid #1e293b20;align-items:center}
+.coach-tr:last-child{border-bottom:none}.coach-tr:hover{background:#263044}
+.coach-tc{text-align:center;color:#64748b}
+.score-bar{display:flex;align-items:center;gap:5px}
+.score-fill{height:6px;border-radius:3px;background:#4f46e5}
+.coach-pill-en{background:#3b82f620;color:#60a5fa;border:1px solid #3b82f640;display:inline-block;padding:2px 7px;border-radius:8px;font-size:10px;font-weight:600}
+.coach-pill-pau{background:#33415520;color:#64748b;border:1px solid #33415540;display:inline-block;padding:2px 7px;border-radius:8px;font-size:10px;font-weight:600}
 
 /* Facturación */
 .fact-kpi-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px}
@@ -247,6 +267,7 @@ body{background:#0f172a;color:#e2e8f0;font-family:-apple-system,BlinkMacSystemFo
   <button class="fbtn active" data-f="dashboard" onclick="setFilter('dashboard')">📊 Dashboard</button>
   <button class="fbtn" data-f="gantt" onclick="setFilter('gantt')">📅 Gantt</button>
   <button class="fbtn" data-f="facturacion" onclick="setFilter('facturacion')">💰 Facturación</button>
+  <button class="fbtn" data-f="coaching" onclick="setFilter('coaching')">🎯 Coaching</button>
   <button class="fbtn" data-f="agenda" onclick="setFilter('agenda')">🗓 Agenda</button>
   <button class="fbtn" data-f="todos" onclick="setFilter('todos')">Todos</button>
   <div class="fbtn-sep"></div>
@@ -519,7 +540,7 @@ async function loadTasks() {
 function setFilter(f) {
   filter=f; editingId=null; notesOpenId=null; agendaEditId=null;
   document.querySelectorAll('.fbtn[data-f]').forEach(b=>b.classList.toggle('active',b.dataset.f===f));
-  const showTime=!['todos','dashboard','agenda','gantt','facturacion'].includes(f);
+  const showTime=!['todos','dashboard','agenda','gantt','facturacion','coaching'].includes(f);
   document.getElementById('tbar').style.display=showTime?'flex':'none';
   if(!showTime){timeFilter='todas';document.querySelectorAll('.tbtn').forEach(b=>b.classList.toggle('active',b.dataset.t==='todas'));}
   render();
@@ -531,7 +552,7 @@ function filtered() {
   const in7=new Date(today);in7.setDate(in7.getDate()+7);
   let list=[...allTasks];
   if(filter==='todos')return list;
-  if(!['dashboard','agenda','gantt','facturacion'].includes(filter)){
+  if(!['dashboard','agenda','gantt','facturacion','coaching'].includes(filter)){
     list=list.filter(t=>t.cliente===filter);
     if(timeFilter==='vigentes')list=list.filter(t=>{const i=parseDate(t.inicio);return!i||i<=in7;});
   }
@@ -546,6 +567,7 @@ function render() {
   if(filter==='agenda'){renderAgenda(el);return;}
   if(filter==='gantt'){renderGantt(el);return;}
   if(filter==='facturacion'){renderFact(el);return;}
+  if(filter==='coaching'){renderCoaching(el);return;}
   const list=filtered();
   if(!list.length){el.innerHTML='<div class="empty">Sin tareas para mostrar 🎉</div>';return;}
   const today=new Date();today.setHours(0,0,0,0);
@@ -1132,6 +1154,243 @@ document.getElementById('modal-delete').addEventListener('click',e=>{if(e.target
 document.getElementById('modal-company').addEventListener('click',e=>{if(e.target===e.currentTarget)closeAddCompany();});
 document.getElementById('modal-reprog').addEventListener('click',e=>{if(e.target===e.currentTarget)closeReprogModal();});
 document.getElementById('company-name').addEventListener('keydown',e=>{if(e.key==='Enter')saveNewCompany();});
+
+// ═══ COACHING DATA ═══
+const COACHING_PERIODS = [
+  {y:2024,m:5},{y:2024,m:6},{y:2024,m:7},{y:2024,m:8},{y:2024,m:9},{y:2024,m:10},{y:2024,m:11},{y:2024,m:12},
+  {y:2025,m:1},{y:2025,m:2},{y:2025,m:3},{y:2025,m:4},{y:2025,m:5},{y:2025,m:6},{y:2025,m:7},{y:2025,m:8},
+  {y:2025,m:9},{y:2025,m:10},{y:2025,m:11},{y:2025,m:12},
+  {y:2026,m:1},{y:2026,m:2},{y:2026,m:3},{y:2026,m:4},{y:2026,m:5},{y:2026,m:6},{y:2026,m:7},{y:2026,m:8},
+  {y:2026,m:9},{y:2026,m:10},{y:2026,m:11},{y:2026,m:12}
+];
+const COACHING_METRICS = {
+  sesiones_ag:   [5,9,25,24,29,25,18,27,16,27,27,24,19,16,20,12,19,20,20,22,14,15,10,14,10,8,10,12,13,11,9,7],
+  sesiones_re:   [5,9,25,24,29,25,18,27,16,27,27,24,19,16,20,12,19,20,20,22,14,15,10,14,10,8,10,7,2,0,0,0],
+  procesos:      [3,5,10,12,15,12,13,17,15,17,16,16,15,12,9,8,12,12,12,9,9,7,7,8,9,8,9,7,null,null,null,null],
+  comp_coach:    [0.72,0.711,0.888,0.842,0.869,0.896,0.911,0.963,0.913,0.941,0.852,0.842,0.842,0.875,0.89,0.883,0.884,0.89,0.86,0.727,0.786,0.76,0.92,0.929,0.76,0.75,0.58,0.8,0.8,null,null,null],
+  puntualidad:   [0.8,0.889,0.81,0.955,0.931,0.88,0.944,0.852,0.813,0.778,0.889,0.75,0.889,1,1,0.917,0.947,1,1,0.947,0.923,0.846,1,0.929,1,1,1,0.857,1,null,null,null],
+  conexion:      [1,1,1,1,0.889,1,1,1,0.938,0.963,1,1,0.944,1,0.947,1,1,0.95,1,1,0.923,1,1,1,1,1,1,1,1,null,null,null],
+  centrado:      [0,0,0.88,0.917,0.966,1,0.944,0.926,1,1,0.963,0.958,0.947,1,1,0.917,1,1,0.95,0.864,0.929,0.867,1,1,0.9,0.875,0.7,1,1,null,null,null],
+  bitacora:      [null,null,null,null,null,null,null,0.462,0.462,0.524,0.286,0.333,0.357,0.583,0.563,0.556,0.533,0.214,0.154,0.286,0.4,0.25,0,0.1,0,0,null,null,null,null,null,null],
+  acompanamiento:[0.8,0.889,0.64,0.5,0.448,0.48,0.611,0.963,0.625,0.741,0.37,0.417,0.526,0.375,0.5,0.667,0.474,0.45,0.5,0.182,0.357,0.4,0.6,0.714,0.2,0.25,0.1,0.143,0,null,null,null],
+  comp_coachee:  [0.933,0.944,0.903,0.965,0.863,0.855,0.934,0.787,0.817,0.751,0.768,0.716,0.718,0.861,0.847,0.894,0.84,0.778,0.768,0.788,0.788,0.782,0.736,0.686,0.711,0.743,null,null,null,null,null,null],
+  reprog:        [null,null,null,null,null,null,null,0.938,0.933,0.769,0.885,0.708,0.632,0.813,0.9,1,0.895,0.95,0.947,1,1,0.923,0.9,0.857,0.889,0.714,0.875,1,1,null,null,null],
+  accion_decl:   [1,null,0.9,0.941,0.769,0.684,0.857,0.682,0.938,0.72,0.783,0.789,0.769,0.909,0.824,1,0.824,0.778,0.737,0.706,0.692,0.889,0.778,0.545,0.667,1,1,null,null,null,null,null],
+  cal_conv:      [0.45,0.472,0.77,0.76,0.81,0.83,0.889,0.898,0.984,0.907,0.843,0.823,0.816,0.875,0.888,0.938,0.842,0.938,0.9,0.818,0.875,0.85,0.975,0.964,0.875,0.781,0.7,1,1,null,null,null],
+  cal_rel:       [1,1,1,1,0.931,0.92,0.889,0.963,1,1,1,0.958,0.947,0.938,0.95,0.917,0.947,1,0.95,0.864,0.929,0.867,1,1,0.9,0.875,0.7,1,1,null,null,null],
+  cal_art:       [0,0.111,0.8,0.708,0.828,0.88,0.889,0.926,1,0.926,0.852,0.833,0.895,0.938,0.85,1,0.789,1,0.8,0.818,0.929,0.867,1,1,0.9,0.625,0.7,1,1,null,null,null],
+  cal_ind:       [0,0,0.56,0.417,0.586,0.68,0.833,0.889,0.938,0.815,0.556,0.625,0.737,0.688,0.85,0.917,0.842,0.8,0.9,0.818,0.714,0.8,0.9,0.929,0.8,0.75,0.7,1,1,null,null,null],
+  cal_gen:       [0.8,0.778,0.72,0.917,0.897,0.84,0.944,0.815,1,0.889,0.963,0.875,0.684,0.938,0.9,0.917,0.789,0.95,0.95,0.773,0.929,0.867,1,0.929,0.9,0.875,0.7,1,1,null,null,null]
+};
+const ACTIVE_COACHEES = [
+  {nombre:'Leandro Nicolas',sesiones:12,monto:540000,coach:0.925,coachee:0.825},
+  {nombre:'Silvestre Piñero',sesiones:9,monto:405000,coach:0.971,coachee:0.661},
+  {nombre:'Maju Bacigalupo',sesiones:10,monto:0,coach:1.0,coachee:0.733},
+  {nombre:'Flor Espinoso',sesiones:5,monto:250000,coach:0.8,coachee:0.75},
+  {nombre:'Juani Marquez',sesiones:10,monto:450000,coach:0.833,coachee:0.705},
+  {nombre:'Karen Martinez',sesiones:10,monto:0,coach:1.0,coachee:0.8},
+  {nombre:'Nicolas Cafaratti',sesiones:10,monto:0,coach:null,coachee:0.8},
+  {nombre:'Ezequiel Patrignani',sesiones:10,monto:0,coach:null,coachee:0.8},
+  {nombre:'Sebastián Gimenez',sesiones:10,monto:0,coach:null,coachee:0.4}
+];
+const MENTORING_PROCESSES = [
+  {nombre:'Zechi Guzman',sesiones:10,total:12,monto:780000,coach:0.71,coachee:null,estado:'En Proceso'},
+  {nombre:'Juan Farias',sesiones:6,total:12,monto:0,coach:0.84,coachee:null,estado:'En Proceso'},
+  {nombre:'Santi Pieraccini',sesiones:8,total:12,monto:0,coach:0.771,coachee:0.794,estado:'En Proceso'},
+  {nombre:'Ana Garretón',sesiones:4,total:12,monto:300000,coach:0.933,coachee:0.875,estado:'Pausado'}
+];
+
+// ═══ COACHING VIEW ═══
+let coachingTab = 'coaching';
+let coachCharts = {};
+
+function setCoachTab(t) {
+  coachingTab = t;
+  document.querySelectorAll('.coach-toggle-btn').forEach(b => b.classList.toggle('active', b.dataset.ct===t));
+  renderCoachingContent();
+}
+
+function renderCoaching(el) {
+  Object.values(coachCharts).forEach(c=>{try{c.destroy();}catch(e){}});
+  coachCharts = {};
+  el.innerHTML = `<div class="wrap" style="max-width:1000px">
+    <div class="coach-toggle">
+      <button class="coach-toggle-btn${coachingTab==='coaching'?' active':''}" data-ct="coaching" onclick="setCoachTab('coaching')">🎯 Coaching Individual</button>
+      <button class="coach-toggle-btn${coachingTab==='mentoria'?' active':''}" data-ct="mentoria" onclick="setCoachTab('mentoria')">🤝 Mentoría</button>
+    </div>
+    <div id="coach-content"></div>
+  </div>`;
+  renderCoachingContent();
+}
+
+function renderCoachingContent() {
+  const el = document.getElementById('coach-content');
+  if (!el) return;
+  Object.values(coachCharts).forEach(c=>{try{c.destroy();}catch(e){}});
+  coachCharts = {};
+
+  const MESES = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  const pLabel = p => MESES[p.m-1]+' '+String(p.y).slice(2);
+
+  // Last 12 valid periods (with sesiones data)
+  const validIdxs = COACHING_PERIODS.map((p,i)=>i).filter(i=>COACHING_METRICS.sesiones_ag[i]!=null);
+  const last12 = validIdxs.slice(-12);
+  const labels12 = last12.map(i => pLabel(COACHING_PERIODS[i]));
+
+  const fmt = n => n>=1000000?'$'+(n/1000000).toFixed(1)+'M':n>0?'$'+Math.round(n/1000)+'K':'—';
+  const pct = v => v!=null ? Math.round(v*100)+'%' : '—';
+  const scoreColor = v => v==null?'#475569':v>=0.8?'#10b981':v>=0.6?'#f59e0b':'#ef4444';
+  const scoreBar = (v,color) => v!=null?`<div class="score-bar"><div class="score-fill" style="width:${Math.round(v*60)}px;background:${color}"></div><span style="color:${color};font-size:11px">${pct(v)}</span></div>`:'<span style="color:#334155">—</span>';
+
+  if (coachingTab === 'coaching') {
+    // KPIs
+    const lastI = validIdxs[validIdxs.length-1];
+    const avgCoach = ACTIVE_COACHEES.filter(c=>c.coach!=null).reduce((s,c)=>s+c.coach,0)/ACTIVE_COACHEES.filter(c=>c.coach!=null).length;
+    const avgCoachee = ACTIVE_COACHEES.filter(c=>c.coachee!=null).reduce((s,c)=>s+c.coachee,0)/ACTIVE_COACHEES.filter(c=>c.coachee!=null).length;
+    const sesMes = COACHING_METRICS.sesiones_re[lastI]||0;
+    const totalHist = COACHING_PERIODS.reduce((s,p,i)=>s+(COACHING_METRICS.sesiones_re[i]||0),0);
+
+    el.innerHTML = `
+    <!-- KPI -->
+    <div class="coach-kpi-grid">
+      <div class="coach-kpi"><div class="coach-kpi-num" style="color:#a78bfa">9</div><div class="coach-kpi-label">Procesos activos</div></div>
+      <div class="coach-kpi"><div class="coach-kpi-num" style="color:#60a5fa">${sesMes}</div><div class="coach-kpi-label">Sesiones último mes</div></div>
+      <div class="coach-kpi"><div class="coach-kpi-num" style="color:#10b981">${Math.round(avgCoach*100)}%</div><div class="coach-kpi-label">Score coach promedio</div></div>
+      <div class="coach-kpi"><div class="coach-kpi-num" style="color:#f59e0b">${Math.round(avgCoachee*100)}%</div><div class="coach-kpi-label">Score coachee promedio</div></div>
+    </div>
+
+    <!-- Sesiones chart -->
+    <div class="chart-box" style="margin-bottom:14px">
+      <div class="chart-box-title">Sesiones agendadas vs realizadas — últimos 12 meses</div>
+      <div style="position:relative;height:200px"><canvas id="ch-sesiones"></canvas></div>
+    </div>
+
+    <!-- Charts calidad -->
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+      <div class="chart-box">
+        <div class="chart-box-title">Presencia del Coach</div>
+        <div style="position:relative;height:180px"><canvas id="ch-coach"></canvas></div>
+      </div>
+      <div class="chart-box">
+        <div class="chart-box-title">Compromiso del Coachee</div>
+        <div style="position:relative;height:180px"><canvas id="ch-coachee"></canvas></div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+      <div class="chart-box">
+        <div class="chart-box-title">Calidad de Conversación</div>
+        <div style="position:relative;height:180px"><canvas id="ch-conv"></canvas></div>
+      </div>
+      <div class="chart-box">
+        <div class="chart-box-title">Proceso de Soporte (Bitácora · Acompañamiento)</div>
+        <div style="position:relative;height:180px"><canvas id="ch-soporte"></canvas></div>
+      </div>
+    </div>
+
+    <!-- Tabla coachees activos -->
+    <div class="chart-box-title" style="margin-bottom:8px;font-size:11px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.05em">Coachees en curso</div>
+    <div class="coach-table">
+      <div class="coach-th"><span>Coachee</span><span style="text-align:center">Ses.</span><span style="text-align:center">Monto</span><span style="text-align:center">Coach</span><span style="text-align:center">Coachee</span></div>
+      ${ACTIVE_COACHEES.map(c=>`<div class="coach-tr">
+        <span style="color:#e2e8f0;font-weight:500">${esc(c.nombre)}</span>
+        <span class="coach-tc">${c.sesiones}</span>
+        <span class="coach-tc">${fmt(c.monto)}</span>
+        <span>${scoreBar(c.coach, scoreColor(c.coach))}</span>
+        <span>${scoreBar(c.coachee, scoreColor(c.coachee))}</span>
+      </div>`).join('')}
+    </div>`;
+
+    setTimeout(() => {
+      const chartOpts = (title) => ({
+        responsive:true, maintainAspectRatio:false,
+        plugins:{legend:{labels:{color:'#64748b',font:{size:10},boxWidth:10,padding:8}}},
+        scales:{
+          x:{ticks:{color:'#475569',font:{size:9},maxRotation:45},grid:{color:'#1e293b'}},
+          y:{min:0,max:1,ticks:{color:'#475569',font:{size:9},callback:v=>Math.round(v*100)+'%'},grid:{color:'#1e293b'}}
+        }
+      });
+      const mkLine = (key,label,color) => ({label,data:last12.map(i=>COACHING_METRICS[key][i]),borderColor:color,backgroundColor:'transparent',tension:0.3,pointRadius:2,borderWidth:2,spanGaps:true});
+
+      // Sesiones
+      const ctxS = document.getElementById('ch-sesiones');
+      if(ctxS) coachCharts.ses = new Chart(ctxS,{type:'bar',data:{labels:labels12,datasets:[
+        {label:'Agendadas',data:last12.map(i=>COACHING_METRICS.sesiones_ag[i]),backgroundColor:'#3b82f630',borderColor:'#3b82f6',borderWidth:1},
+        {label:'Realizadas',data:last12.map(i=>COACHING_METRICS.sesiones_re[i]),backgroundColor:'#10b98130',borderColor:'#10b981',borderWidth:1}
+      ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#64748b',font:{size:10}}}},scales:{x:{ticks:{color:'#475569',font:{size:9},maxRotation:45},grid:{color:'#1e293b'}},y:{ticks:{color:'#475569',font:{size:9}},grid:{color:'#1e293b'}}}}});
+
+      // Coach quality
+      const ctxC = document.getElementById('ch-coach');
+      if(ctxC) coachCharts.coach = new Chart(ctxC,{type:'line',data:{labels:labels12,datasets:[
+        mkLine('comp_coach','Compromisos','#a78bfa'),
+        mkLine('puntualidad','Puntualidad','#60a5fa'),
+        mkLine('conexion','Conexión','#34d399'),
+        mkLine('centrado','Centrado','#fbbf24')
+      ]},options:chartOpts()});
+
+      // Coachee quality
+      const ctxCo = document.getElementById('ch-coachee');
+      if(ctxCo) coachCharts.coachee = new Chart(ctxCo,{type:'line',data:{labels:labels12,datasets:[
+        mkLine('comp_coachee','Compromisos','#f472b6'),
+        mkLine('reprog','Reprogramación','#fb923c'),
+        mkLine('accion_decl','Acción Declarada','#22d3ee')
+      ]},options:chartOpts()});
+
+      // Conversación
+      const ctxV = document.getElementById('ch-conv');
+      if(ctxV) coachCharts.conv = new Chart(ctxV,{type:'line',data:{labels:labels12,datasets:[
+        mkLine('cal_conv','Conversación','#a78bfa'),
+        mkLine('cal_rel','Relación','#10b981'),
+        mkLine('cal_art','Articulación','#f59e0b'),
+        mkLine('cal_ind','Indagación','#60a5fa'),
+        mkLine('cal_gen','Generación','#f87171')
+      ]},options:chartOpts()});
+
+      // Soporte
+      const ctxSo = document.getElementById('ch-soporte');
+      if(ctxSo) coachCharts.soporte = new Chart(ctxSo,{type:'line',data:{labels:labels12,datasets:[
+        mkLine('bitacora','Bitácora','#818cf8'),
+        mkLine('acompanamiento','Acompañamiento','#34d399')
+      ]},options:chartOpts()});
+    }, 50);
+
+  } else {
+    // MENTORÍA
+    const totSes = MENTORING_PROCESSES.filter(p=>p.estado!=='Pausado').reduce((s,p)=>s+p.sesiones,0);
+    const activos = MENTORING_PROCESSES.filter(p=>p.estado==='En Proceso').length;
+    const avgCoachM = MENTORING_PROCESSES.filter(p=>p.coach!=null).reduce((s,p)=>s+p.coach,0)/MENTORING_PROCESSES.filter(p=>p.coach!=null).length;
+
+    el.innerHTML = `
+    <div class="coach-kpi-grid">
+      <div class="coach-kpi"><div class="coach-kpi-num" style="color:#a78bfa">${activos}</div><div class="coach-kpi-label">Procesos activos</div></div>
+      <div class="coach-kpi"><div class="coach-kpi-num" style="color:#60a5fa">${totSes}</div><div class="coach-kpi-label">Sesiones realizadas</div></div>
+      <div class="coach-kpi"><div class="coach-kpi-num" style="color:#10b981">${Math.round(avgCoachM*100)}%</div><div class="coach-kpi-label">Score coach promedio</div></div>
+      <div class="coach-kpi"><div class="coach-kpi-num" style="color:#64748b">1</div><div class="coach-kpi-label">Pausados</div></div>
+    </div>
+
+    <div class="chart-box-title" style="margin-bottom:8px;font-size:11px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.05em">Procesos de Mentoría</div>
+    <div class="coach-table">
+      <div style="display:grid;grid-template-columns:1.6fr 80px 80px 80px 80px 70px;padding:8px 12px;font-size:10px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid #334155">
+        <span>Mentorado</span><span style="text-align:center">Ses. hechas</span><span style="text-align:center">Ses. total</span><span style="text-align:center">Monto</span><span style="text-align:center">Coach</span><span style="text-align:center">Estado</span>
+      </div>
+      ${MENTORING_PROCESSES.map(p=>`<div style="display:grid;grid-template-columns:1.6fr 80px 80px 80px 80px 70px;padding:9px 12px;font-size:12px;border-bottom:1px solid #1e293b20;align-items:center">
+        <span style="color:#e2e8f0;font-weight:500">${esc(p.nombre)}</span>
+        <span style="text-align:center;color:#60a5fa">${p.sesiones}</span>
+        <span style="text-align:center;color:#64748b">${p.total}</span>
+        <span style="text-align:center;color:#64748b">${fmt(p.monto)}</span>
+        <span>${scoreBar(p.coach, scoreColor(p.coach))}</span>
+        <span style="text-align:center"><span class="${p.estado==='En Proceso'?'coach-pill-en':'coach-pill-pau'}">${p.estado}</span></span>
+      </div>`).join('')}
+    </div>
+
+    <div class="fact-insight" style="margin-top:14px">
+      <div class="fact-insight-title">💡 Estado mentoría</div>
+      <div class="fact-insight-row"><div class="fact-insight-icon">📈</div><div class="fact-insight-text"><strong>Zechi Guzman</strong> — 10 de 12 sesiones realizadas. Score coach del 71%: el más bajo del grupo. Vale revisar la dinámica.</div></div>
+      <div class="fact-insight-row"><div class="fact-insight-icon">⭐</div><div class="fact-insight-text"><strong>Juan Farias y Santi Pieraccini</strong> — procesos pro bono en marcha. El score coachee de Santi (79%) es sólido.</div></div>
+      <div class="fact-insight-row"><div class="fact-insight-icon">⏸️</div><div class="fact-insight-text"><strong>Ana Garretón</strong> — proceso pausado con 4 sesiones. Definir si se retoma o cierra formalmente.</div></div>
+      <div class="fact-insight-row"><div class="fact-insight-icon">💡</div><div class="fact-insight-text">La base de mentoría tiene estructura para escalar. Con más procesos, el Dashboard cobrará más valor.</div></div>
+    </div>`;
+  }
+}
 
 // ═══ PAGOS DATA ═══
 const PAGOS_DATA = [
