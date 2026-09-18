@@ -671,7 +671,6 @@ function cardHTML(t, today) {
 
 // ═══ DASHBOARD ═══
 // Score = avance×40pts + (1−lateRatio)×40pts + (1−reprogRatio)×20pts → 0-100
-const dashCharts={};
 function destroyDashChart(k){if(dashCharts[k]){dashCharts[k].destroy();delete dashCharts[k];}}
 
 function calcScore(avancePct, lateRatio, reprogRatio) {
