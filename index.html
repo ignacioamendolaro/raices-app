@@ -439,6 +439,7 @@ function CLIENT_ORDER() { return [...DEFAULT_CLIENTS,...customClients.filter(c=>
 
 // ═══ ESTADO ═══
 let allTasks = [];
+let allTasksWithDone = [];
 let filter = 'dashboard';
 let timeFilter = 'todas';
 let editingId = null;
@@ -528,10 +529,10 @@ async function loadTasks() {
   document.getElementById('loading').style.display='block';
   document.getElementById('tasklist').innerHTML='';
   try {
-    const r=await fetch('/api/tasks');
+    const [r,rAll]=await Promise.all([fetch('/api/tasks'),fetch('/api/tasks?include_done=true')]);
     if(!r.ok)throw new Error('HTTP '+r.status);
-    const d=await r.json();
-    allTasks=d.tasks||[];
+    allTasks=(await r.json()).tasks||[];
+    allTasksWithDone=rAll.ok?(await rAll.json()).tasks||[]:allTasks;
     render();
   } catch(e) { document.getElementById('loading').textContent='Error al cargar: '+e.message; }
 }
@@ -577,7 +578,45 @@ function render() {
     list.forEach(t=>{if(byClient[t.cliente]!==undefined)byClient[t.cliente].push(t);else{if(!byClient['General'])byClient['General']=[];byClient['General'].push(t);}});
     el.innerHTML=co.filter(c=>byClient[c]?.length).map(c=>'<div class="cs-mb"><div class="cs-header"><div class="cs-dot" style="background:'+(CLIENT_COLORS[c]||'#64748b')+'"></div><span class="cs-name">'+c+'</span><span class="cs-count">'+byClient[c].length+'</span></div>'+byClient[c].map(t=>cardHTML(t,today)).join('')+'</div>').join('');
   } else {
-    el.innerHTML=list.map(t=>cardHTML(t,today)).join('');
+    // KPI banner para vista de empresa individual
+    const companyAll=allTasksWithDone.filter(t=>t.cliente===filter);
+    const companyActive=companyAll.filter(t=>t.estado!=='Realizado'&&t.estado!=='Cancelado');
+    const companyDone=companyAll.filter(t=>t.estado==='Realizado');
+    const companyLate=companyActive.filter(t=>{const f=parseDate(t.fin);return f&&f<today;});
+    const companyReprogAll=getCompanyReprog(companyAll);
+    const reprogC=companyReprogAll[filter]||0;
+    const avancePct=companyAll.length?Math.round(companyDone.length/companyAll.length*100):0;
+    const latePct=companyActive.length?Math.round(companyLate.length/companyActive.length*100):0;
+    const reprogPct=companyActive.length?Math.round(reprogC/companyActive.length*100):0;
+    const score=calcScore(avancePct,companyActive.length?companyLate.length/companyActive.length:0,companyActive.length?reprogC/companyActive.length:0);
+    const scoreClass=score>=70?'health-green':score>=40?'health-yellow':'health-red';
+    const color=CLIENT_COLORS[filter]||'#64748b';
+    const kpiBanner=companyAll.length?`<div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:14px;padding:12px 14px;background:#1a2535;border-radius:10px;border-left:3px solid ${color}">
+      <div style="flex:1;min-width:80px;text-align:center">
+        <div style="font-size:20px;font-weight:700;color:#10b981">${avancePct}%</div>
+        <div style="font-size:10px;color:#64748b;margin-top:2px">Avance</div>
+        <div style="font-size:9px;color:#334155">${companyDone.length}/${companyAll.length} tareas</div>
+      </div>
+      <div style="flex:1;min-width:80px;text-align:center">
+        <div style="font-size:20px;font-weight:700;color:#94a3b8">${companyActive.length}</div>
+        <div style="font-size:10px;color:#64748b;margin-top:2px">Activas</div>
+      </div>
+      <div style="flex:1;min-width:80px;text-align:center">
+        <div style="font-size:20px;font-weight:700;color:${latePct>20?'#f87171':latePct>5?'#f59e0b':'#64748b'}">${latePct}%</div>
+        <div style="font-size:10px;color:#64748b;margin-top:2px">Vencidas</div>
+        <div style="font-size:9px;color:#334155">${companyLate.length} tareas</div>
+      </div>
+      <div style="flex:1;min-width:80px;text-align:center">
+        <div style="font-size:20px;font-weight:700;color:${reprogPct>20?'#a78bfa':'#64748b'}">${reprogPct}%</div>
+        <div style="font-size:10px;color:#64748b;margin-top:2px">Reprog.</div>
+        <div style="font-size:9px;color:#334155">${reprogC} tareas</div>
+      </div>
+      <div style="flex:1;min-width:80px;text-align:center">
+        <div style="font-size:22px;font-weight:700"><span class="health-pill ${scoreClass}" style="font-size:15px;padding:4px 12px">${score}</span></div>
+        <div style="font-size:10px;color:#64748b;margin-top:4px">Score</div>
+      </div>
+    </div>`:'';
+    el.innerHTML=kpiBanner+list.map(t=>cardHTML(t,today)).join('');
   }
 }
 
@@ -631,7 +670,16 @@ function cardHTML(t, today) {
 }
 
 // ═══ DASHBOARD ═══
+// Score = avance×40pts + (1−lateRatio)×40pts + (1−reprogRatio)×20pts → 0-100
+const dashCharts={};
+function destroyDashChart(k){if(dashCharts[k]){dashCharts[k].destroy();delete dashCharts[k];}}
+
+function calcScore(avancePct, lateRatio, reprogRatio) {
+  return Math.max(0,Math.round(avancePct*0.4 + (1-lateRatio)*40 + (1-Math.min(1,reprogRatio))*20));
+}
+
 function renderDashboard(el) {
+  Object.keys(dashCharts).forEach(k=>destroyDashChart(k));
   el.innerHTML='<div class="loading">Calculando métricas...</div>';
   fetch('/api/tasks?include_done=true').then(r=>r.json()).then(d=>{
     const all=d.tasks||[];
@@ -639,101 +687,184 @@ function renderDashboard(el) {
     const active=all.filter(t=>t.estado!=='Realizado'&&t.estado!=='Cancelado');
     const done=all.filter(t=>t.estado==='Realizado');
     const late=active.filter(t=>{const f=parseDate(t.fin);return f&&f<today;});
-    const vig=active.filter(t=>{const i=parseDate(t.inicio),f=parseDate(t.fin);return(!i||i<=today)&&(!f||f>=today);});
 
-    // Velocidad últimos 30 días (tareas realizadas recientemente)
-    const in30back=new Date(today);in30back.setDate(in30back.getDate()-30);
-
-    // Reprogramaciones
     const reprogData=getReprog();
     const companyReprog=getCompanyReprog(all);
+    const totalReprogTasks=Object.keys(reprogData).length;
 
+    // Global KPIs
+    const avanceTotalPct=all.length?Math.round(done.length/all.length*100):0;
+    const lateRatioTotal=active.length?Math.round(late.length/active.length*100):0;
+    const reprogRatioTotal=active.length?Math.round(totalReprogTasks/active.length*100):0;
+    const globalScore=calcScore(avanceTotalPct, active.length?late.length/active.length:0, active.length?totalReprogTasks/active.length:0);
+    const globalScoreClass=globalScore>=70?'health-green':globalScore>=40?'health-yellow':'health-red';
+
+    // Monthly evolution: group tasks by fin month
+    const MESES_ES=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+    const monthMap={};
+    all.filter(t=>t.fin).forEach(t=>{
+      const f=parseDate(t.fin);
+      const key=`${f.getFullYear()}-${String(f.getMonth()+1).padStart(2,'0')}`;
+      if(!monthMap[key])monthMap[key]={label:MESES_ES[f.getMonth()]+' '+String(f.getFullYear()).slice(2),total:0,real:0,late:0,reprog:0};
+      monthMap[key].total++;
+      if(t.estado==='Realizado')monthMap[key].real++;
+      else if(parseDate(t.fin)<today)monthMap[key].late++;
+      if(reprogData[t.id]?.count)monthMap[key].reprog++;
+    });
+    const mKeys=Object.keys(monthMap).sort().slice(-9);
+    const mLabels=mKeys.map(k=>monthMap[k].label);
+    const mReal=mKeys.map(k=>monthMap[k].real);
+    const mLate=mKeys.map(k=>monthMap[k].late);
+    const mAvPct=mKeys.map(k=>monthMap[k].total?Math.round(monthMap[k].real/monthMap[k].total*100):0);
+    const mRepPct=mKeys.map(k=>monthMap[k].total?Math.round(monthMap[k].reprog/monthMap[k].total*100):0);
+
+    // YTD
+    const curYear=today.getFullYear();
+    const ytdKeys=mKeys.filter(k=>k.startsWith(String(curYear)));
+    const ytdReal=ytdKeys.reduce((s,k)=>s+monthMap[k].real,0);
+    const ytdTotal=ytdKeys.reduce((s,k)=>s+monthMap[k].total,0);
+    const ytdLate=ytdKeys.reduce((s,k)=>s+monthMap[k].late,0);
+
+    // Client stats
     const co=CLIENT_ORDER();
+    const INTERNAL=['Raíces','Marca Personal','General'];
     const clientStats=co.map(c=>{
       const ct=all.filter(t=>t.cliente===c);if(!ct.length)return null;
       const ca=ct.filter(t=>t.estado!=='Realizado'&&t.estado!=='Cancelado');
       const cd=ct.filter(t=>t.estado==='Realizado');
       const cl=ca.filter(t=>{const f=parseDate(t.fin);return f&&f<today;});
-      const cv=ca.filter(t=>{const i=parseDate(t.inicio),f=parseDate(t.fin);return(!i||i<=today)&&(!f||f>=today);});
       const avancePct=ct.length?Math.round(cd.length/ct.length*100):0;
       const reprogC=companyReprog[c]||0;
       const lateRatio=ca.length?cl.length/ca.length:0;
-      const reprogRatio=ct.length?reprogC/ct.length:0;
-      // Salud: base avance, penalizar vencidas y reprogramaciones
-      const healthScore=Math.max(0,Math.min(100,avancePct-lateRatio*60-reprogRatio*40));
-      const healthLabel=healthScore>=60?'🟢':healthScore>=30?'🟡':'🔴';
-      const healthClass=healthScore>=60?'health-green':healthScore>=30?'health-yellow':'health-red';
-      // Aging: promedio días que llevan pendientes (con fecha de inicio)
-      const withInicio=ca.filter(t=>t.inicio);
-      const avgAging=withInicio.length?Math.round(withInicio.reduce((s,t)=>s+daysSince(t.inicio),0)/withInicio.length):null;
-      return {c,ct,ca,cd,cl,cv,avancePct,reprogC,healthScore,healthLabel,healthClass,avgAging};
+      const reprogRatio=ca.length?reprogC/ca.length:0;
+      const latePct=ca.length?Math.round(lateRatio*100):0;
+      const reprogPct=ca.length?Math.round(reprogRatio*100):0;
+      const score=calcScore(avancePct,lateRatio,reprogRatio);
+      const scoreClass=score>=70?'health-green':score>=40?'health-yellow':'health-red';
+      return {c,ct,ca,cd,cl,avancePct,latePct,reprogPct,reprogC,score,scoreClass,isInternal:INTERNAL.includes(c)};
     }).filter(Boolean);
 
-    // Carga por responsable
-    const byResp={};
-    active.forEach(t=>{const r=t.responsable||'Sin asignar';if(!byResp[r])byResp[r]={total:0,late:0};byResp[r].total++;if(late.find(x=>x.id===t.id))byResp[r].late++;});
+    // External totals (excl. internal)
+    const extStats=clientStats.filter(s=>!s.isInternal);
+    const extCT=extStats.reduce((s,x)=>s+x.ct.length,0);
+    const extCD=extStats.reduce((s,x)=>s+x.cd.length,0);
+    const extCL=extStats.reduce((s,x)=>s+x.cl.length,0);
+    const extCA=extStats.reduce((s,x)=>s+x.ca.length,0);
+    const extRC=extStats.reduce((s,x)=>s+x.reprogC,0);
+    const extAvance=extCT?Math.round(extCD/extCT*100):0;
+    const extLate=extCA?Math.round(extCL/extCA*100):0;
+    const extReprog=extCA?Math.round(extRC/extCA*100):0;
+    const extScore=calcScore(extAvance,extCA?extCL/extCA:0,extCA?extRC/extCA:0);
+    const extScoreClass=extScore>=70?'health-green':extScore>=40?'health-yellow':'health-red';
 
-    // ── Alertas ──
     const alertasHtml=buildAlertas(all,today);
 
     el.innerHTML=`
+      <!-- KPIs globales -->
       <div class="kpi-grid">
-        <div class="kpi-card"><div class="kpi-num kpi-total">${all.length}</div><div class="kpi-label">Total histórico</div></div>
-        <div class="kpi-card"><div class="kpi-num kpi-vig">${vig.length}</div><div class="kpi-label">Vigentes</div></div>
-        <div class="kpi-card"><div class="kpi-num kpi-late">${late.length}</div><div class="kpi-label">Vencidas</div></div>
-        <div class="kpi-card"><div class="kpi-num kpi-done">${done.length}</div><div class="kpi-label">Realizadas (${all.length?Math.round(done.length/all.length*100):0}%)</div></div>
+        <div class="kpi-card">
+          <div class="kpi-num kpi-done">${avanceTotalPct}%</div>
+          <div class="kpi-label">Avance total</div>
+          <div style="font-size:10px;color:#475569;margin-top:3px">${done.length} realizadas / ${all.length} total</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-num kpi-vig">${active.length}</div>
+          <div class="kpi-label">Tareas activas</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-num kpi-late">${lateRatioTotal}%</div>
+          <div class="kpi-label">% Vencidas</div>
+          <div style="font-size:10px;color:#475569;margin-top:3px">${late.length} de ${active.length} activas</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-num" style="color:#a78bfa">${reprogRatioTotal}%</div>
+          <div class="kpi-label">% Reprogramadas</div>
+          <div style="font-size:10px;color:#475569;margin-top:3px">${totalReprogTasks} tareas registradas</div>
+        </div>
       </div>
 
       ${alertasHtml}
 
-      <div class="chart-grid">
-        <div class="chart-box">
-          <div class="chart-box-title">Estado por empresa</div>
-          <div class="chart-canvas-wrap"><canvas id="chart-status"></canvas></div>
+      <!-- Evolución mensual -->
+      <div class="chart-box" style="margin-bottom:14px">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:6px">
+          <div class="chart-box-title" style="margin-bottom:0">Evolución mensual</div>
+          <div style="font-size:11px;color:#64748b">
+            YTD ${curYear}: <strong style="color:#10b981">${ytdReal} real.</strong> &nbsp;·&nbsp;
+            <strong style="color:#f87171">${ytdLate} venc.</strong> &nbsp;·&nbsp;
+            <strong style="color:#a78bfa">${ytdTotal?Math.round(ytdReal/ytdTotal*100):0}% avance</strong>
+          </div>
         </div>
-        <div class="chart-box">
-          <div class="chart-box-title">Avance por empresa (realizadas / total)</div>
-          <div class="chart-canvas-wrap"><canvas id="chart-avance"></canvas></div>
-        </div>
+        <div style="position:relative;height:200px"><canvas id="chart-monthly"></canvas></div>
+        <div style="font-size:9px;color:#334155;margin-top:6px">Tareas agrupadas por fecha de vencimiento (fin). Barra verde = realizadas, roja = vencidas sin completar. Línea lila = % avance, línea amarilla punteada = % reprogramación.</div>
       </div>
 
-      <div class="mini-grid">
-        <div class="mini-box">
-          <div class="mini-box-title">Carga por responsable</div>
-          ${Object.entries(byResp).map(([r,v])=>`<div class="mini-row"><span>${r}</span><span style="display:flex;gap:12px"><span class="ckt-vig">${v.total} activas</span><span class="ckt-late">${v.late} venc.</span></span></div>`).join('')||'<div style="color:#334155;font-size:13px">Sin datos</div>'}
-        </div>
-        <div class="mini-box">
-          <div class="mini-box-title">Reprogramaciones totales</div>
-          ${clientStats.filter(s=>s.reprogC>0).map(s=>`<div class="mini-row"><span style="color:${CLIENT_COLORS[s.c]||'#64748b'}">${s.c}</span><span class="ckt-reprog">${s.reprogC}x</span></div>`).join('')||'<div style="color:#334155;font-size:13px">Sin reprogramaciones registradas</div>'}
-        </div>
+      <!-- Tabla por empresa -->
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:4px">
+        <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.06em">KPIs por empresa</div>
+        <div style="font-size:10px;color:#475569">Score = %avance×40 + (1−%venc.)×40 + (1−%reprog.)×20</div>
       </div>
-
-      <div class="client-kpi-table">
-        <div class="ckt-header">
-          <span>Cliente</span>
-          <span style="text-align:center">Total</span>
-          <span style="text-align:center">Avance</span>
-          <span style="text-align:center">Vigentes</span>
-          <span style="text-align:center">Vencidas</span>
-          <span style="text-align:center">Reprog.</span>
-          <span style="text-align:center">Salud</span>
+      <div class="client-kpi-table" style="margin-bottom:16px">
+        <div style="display:grid;grid-template-columns:1.5fr 42px 72px 74px 70px 62px;padding:7px 12px;font-size:10px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid #334155">
+          <span>Empresa</span><span style="text-align:center">Tot.</span><span style="text-align:center">%Avance</span><span style="text-align:center">%Vencidas</span><span style="text-align:center">%Reprog.</span><span style="text-align:center">Score</span>
         </div>
-        ${clientStats.map(s=>`<div class="ckt-row">
-          <span style="display:flex;align-items:center;gap:7px">
-            <span style="width:7px;height:7px;border-radius:50%;background:${CLIENT_COLORS[s.c]||'#64748b'};flex-shrink:0;display:inline-block"></span>${s.c}
+        ${clientStats.map(s=>`<div style="display:grid;grid-template-columns:1.5fr 42px 72px 74px 70px 62px;padding:7px 12px;font-size:12px;border-bottom:1px solid #1e293b;align-items:center${s.isInternal?';opacity:.45':''}">
+          <span style="display:flex;align-items:center;gap:6px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">
+            <span style="width:7px;height:7px;border-radius:50%;background:${CLIENT_COLORS[s.c]||'#64748b'};flex-shrink:0"></span>${esc(s.c)}
           </span>
-          <span class="ckt-c">${s.ct.length}</span>
-          <span class="ckt-done">${s.avancePct}%</span>
-          <span class="ckt-vig">${s.cv.length}</span>
-          <span class="ckt-late">${s.cl.length}</span>
-          <span class="ckt-reprog">${s.reprogC||'—'}</span>
-          <span><span class="health-pill ${s.healthClass}">${s.healthLabel} ${Math.round(s.healthScore)}</span></span>
+          <span style="text-align:center;color:#64748b">${s.ct.length}</span>
+          <span style="text-align:center;color:#10b981;font-weight:600">${s.avancePct}%</span>
+          <span style="text-align:center;color:${s.latePct>20?'#f87171':s.latePct>5?'#f59e0b':'#64748b'};font-weight:${s.latePct>5?'600':'400'}">${s.latePct}%</span>
+          <span style="text-align:center;color:${s.reprogPct>20?'#a78bfa':'#64748b'}">${s.reprogPct}%</span>
+          <span style="text-align:center"><span class="health-pill ${s.scoreClass}">${s.score}</span></span>
         </div>`).join('')}
-      </div>`;
+        <div style="display:grid;grid-template-columns:1.5fr 42px 72px 74px 70px 62px;padding:9px 12px;font-size:12px;font-weight:700;border-top:2px solid #475569;background:#1a2535;align-items:center">
+          <span style="color:#94a3b8">TOTAL EMPRESAS</span>
+          <span style="text-align:center;color:#94a3b8">${extCT}</span>
+          <span style="text-align:center;color:#10b981">${extAvance}%</span>
+          <span style="text-align:center;color:${extLate>20?'#f87171':extLate>5?'#f59e0b':'#64748b'}">${extLate}%</span>
+          <span style="text-align:center;color:#a78bfa">${extReprog}%</span>
+          <span style="text-align:center"><span class="health-pill ${extScoreClass}">${extScore}</span></span>
+        </div>
+      </div>
+
+      <!-- Reprogramaciones breakdown -->
+      ${clientStats.filter(s=>s.reprogC>0).length?`<div class="chart-box" style="margin-bottom:14px">
+        <div class="chart-box-title" style="margin-bottom:8px">Reprogramaciones registradas</div>
+        <div style="display:flex;flex-wrap:wrap;gap:8px">
+          ${clientStats.filter(s=>s.reprogC>0).sort((a,b)=>b.reprogC-a.reprogC).map(s=>`
+            <div style="background:#1a1035;border:1px solid #4c1d95;border-radius:8px;padding:6px 14px;font-size:12px;display:flex;align-items:center;gap:10px">
+              <span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${CLIENT_COLORS[s.c]||'#64748b'}"></span>
+              <span>${esc(s.c)}</span>
+              <span style="color:#a78bfa;font-weight:700">${s.reprogC}x</span>
+              <span style="color:#475569;font-size:10px">(${s.reprogPct}% de activas)</span>
+            </div>`).join('')}
+        </div>
+      </div>`:''}
+    `;
 
     setTimeout(()=>{
-      createStatusChart(clientStats);
-      createAvanceChart(clientStats);
+      const ctxM=document.getElementById('chart-monthly');
+      if(ctxM&&window.Chart){
+        destroyDashChart('monthly');
+        dashCharts['monthly']=new Chart(ctxM,{
+          type:'bar',
+          data:{labels:mLabels,datasets:[
+            {label:'Realizadas',data:mReal,backgroundColor:'rgba(16,185,129,0.35)',borderColor:'#10b981',borderWidth:1.5,order:2},
+            {label:'Vencidas sin completar',data:mLate,backgroundColor:'rgba(239,68,68,0.35)',borderColor:'#f87171',borderWidth:1.5,order:3},
+            {label:'% Avance',data:mAvPct,type:'line',borderColor:'#a78bfa',backgroundColor:'transparent',tension:0.35,yAxisID:'y2',pointRadius:3,borderWidth:2,order:1},
+            {label:'% Reprog.',data:mRepPct,type:'line',borderColor:'#fbbf24',backgroundColor:'transparent',tension:0.35,yAxisID:'y2',pointRadius:3,borderWidth:1.5,borderDash:[5,4],order:1},
+          ]},
+          options:{responsive:true,maintainAspectRatio:false,
+            interaction:{mode:'index',intersect:false},
+            plugins:{legend:{labels:{color:'#64748b',font:{size:10},boxWidth:10},position:'bottom'}},
+            scales:{
+              x:{ticks:{color:'#64748b',font:{size:10},maxRotation:35},grid:{color:'#1e293b'}},
+              y:{ticks:{color:'#64748b',font:{size:10},stepSize:1},grid:{color:'#1e2940'},beginAtZero:true,position:'left',title:{display:true,text:'Tareas',color:'#334155',font:{size:9}}},
+              y2:{ticks:{color:'#64748b',font:{size:10},callback:v=>v+'%'},grid:{display:false},beginAtZero:true,max:100,position:'right',title:{display:true,text:'%',color:'#334155',font:{size:9}}}
+            }}
+        });
+      }
     },0);
   }).catch(e=>{el.innerHTML='<div class="empty">Error: '+e.message+'</div>';});
 }
@@ -1182,6 +1313,42 @@ const COACHING_METRICS = {
   cal_ind:       [0,0,0.56,0.417,0.586,0.68,0.833,0.889,0.938,0.815,0.556,0.625,0.737,0.688,0.85,0.917,0.842,0.8,0.9,0.818,0.714,0.8,0.9,0.929,0.8,0.75,0.7,1,1,null,null,null],
   cal_gen:       [0.8,0.778,0.72,0.917,0.897,0.84,0.944,0.815,1,0.889,0.963,0.875,0.684,0.938,0.9,0.917,0.789,0.95,0.95,0.773,0.929,0.867,1,0.929,0.9,0.875,0.7,1,1,null,null,null]
 };
+const HISTORICAL_COACHEES = [
+  {nombre:"Eliana Plou",pilar:"CI",sesiones:13,monto:156000,coach:0.862,coachee:1},
+  {nombre:"Nico Spinelli",pilar:"CI",sesiones:5,monto:60000,coach:0.72,coachee:0.5},
+  {nombre:"Nathaly Vinueza",pilar:"CI",sesiones:6,monto:24000,coach:0.933,coachee:0.833},
+  {nombre:"Emma Loza",pilar:"CI",sesiones:10,monto:180000,coach:0.86,coachee:0.967},
+  {nombre:"Tomi Gonzalez",pilar:"CI",sesiones:11,monto:220000,coach:0.8,coachee:0.806},
+  {nombre:"Cote Lopez Silva",pilar:"CI",sesiones:10,monto:210000,coach:0.98,coachee:0.933},
+  {nombre:"Gian Fontana",pilar:"CI",sesiones:10,monto:120000,coach:0.911,coachee:0.878},
+  {nombre:"Maxi Zema",pilar:"CO",sesiones:4,monto:80000,coach:0.85,coachee:0.917},
+  {nombre:"Alexis Camurri",pilar:"CO",sesiones:4,monto:80000,coach:0.9,coachee:1},
+  {nombre:"Martin Scoufalos",pilar:"CI",sesiones:10,monto:260000,coach:0.92,coachee:0.833},
+  {nombre:"Seba Garcia Balcarce",pilar:"CI",sesiones:9,monto:231000,coach:0.925,coachee:0.778},
+  {nombre:"Diego Lemiña",pilar:"CI",sesiones:10,monto:265000,coach:0.92,coachee:0.926},
+  {nombre:"Felicitas Aranda",pilar:"CI",sesiones:9,monto:228000,coach:0.9,coachee:0.817},
+  {nombre:"Silvestre Piñero",pilar:"CI",sesiones:1,monto:25000,coach:1,coachee:1},
+  {nombre:"Sebastian Fontana",pilar:"CO",sesiones:10,monto:300000,coach:0.956,coachee:0.744},
+  {nombre:"Martin Dehner",pilar:"CO",sesiones:10,monto:300000,coach:0.913,coachee:0.773},
+  {nombre:"Jose Acuña",pilar:"CO",sesiones:10,monto:300000,coach:0.891,coachee:0.78},
+  {nombre:"Gian Fontana",pilar:"CO",sesiones:9,monto:270000,coach:0.903,coachee:0.683},
+  {nombre:"Cinthia Quiroga",pilar:"CI",sesiones:3,monto:105000,coach:1,coachee:0.733},
+  {nombre:"Maju Bacigalupo",pilar:"CI",sesiones:8,monto:240000,coach:0.925,coachee:0.75},
+  {nombre:"Meli Halavacs",pilar:"CI",sesiones:6,monto:168000,coach:0.96,coachee:0.944},
+  {nombre:"Pili O'Gorman",pilar:"CI",sesiones:10,monto:300000,coach:0.911,coachee:0.878},
+  {nombre:"Santi Evans",pilar:"CI",sesiones:1,monto:30000,coach:1,coachee:0.75},
+  {nombre:"Joachim Murdoch",pilar:"CI",sesiones:12,monto:420000,coach:0.88,coachee:0.738},
+  {nombre:"Silvestre Piñero",pilar:"CI",sesiones:7,monto:245000,coach:0.9,coachee:0.933},
+  {nombre:"Marina Ramos",pilar:"CI",sesiones:10,monto:320000,coach:0.889,coachee:0.847},
+  {nombre:"Cristian Perea",pilar:"CI",sesiones:10,monto:600000,coach:0.849,coachee:0.88},
+  {nombre:"Mauro Buratti",pilar:"CI",sesiones:10,monto:400000,coach:0.94,coachee:0.911},
+  {nombre:"Ceci Cosiansi",pilar:"CI",sesiones:10,monto:500000,coach:0.92,coachee:0.711},
+  {nombre:"Zechi Guzman",pilar:"CI",sesiones:5,monto:225000,coach:0.95,coachee:0.893},
+  {nombre:"Valeria Prosini",pilar:"CO",sesiones:10,monto:0,coach:0.844,coachee:0.816},
+  {nombre:"Paz Peralta",pilar:"CI",sesiones:1,monto:0,coach:1,coachee:1},
+  {nombre:"Silvestre Piñero",pilar:"CI",sesiones:9,monto:405000,coach:0.95,coachee:0.653},
+];
+
 const ACTIVE_COACHEES = [
   {nombre:'Leandro Nicolas',sesiones:12,monto:540000,coach:0.925,coachee:0.825},
   {nombre:'Silvestre Piñero',sesiones:9,monto:405000,coach:0.971,coachee:0.661},
@@ -1390,6 +1557,42 @@ function renderCoachingContent() {
       <div class="fact-insight-row"><div class="fact-insight-icon">💡</div><div class="fact-insight-text">La base de mentoría tiene estructura para escalar. Con más procesos, el Dashboard cobrará más valor.</div></div>
     </div>`;
   }
+
+  // ─── HISTORIAL: siempre al final, independiente del tab ───
+  const histFmt = n => n>=1000000?'$'+(n/1000000).toFixed(1)+'M':n>0?'$'+Math.round(n/1000)+'K':'—';
+  const histPct = v => v!=null ? Math.round(v*100)+'%' : '—';
+  const histColor = v => v==null?'#475569':v>=0.8?'#10b981':v>=0.6?'#f59e0b':'#ef4444';
+  const histTotalSes = HISTORICAL_COACHEES.reduce((s,c)=>s+c.sesiones,0);
+  const histTotalMonto = HISTORICAL_COACHEES.reduce((s,c)=>s+c.monto,0);
+  const histAvgCoach = HISTORICAL_COACHEES.filter(c=>c.coach!=null).reduce((s,c)=>s+c.coach,0)/HISTORICAL_COACHEES.filter(c=>c.coach!=null).length;
+  const histAvgCoachee = HISTORICAL_COACHEES.filter(c=>c.coachee!=null).reduce((s,c)=>s+c.coachee,0)/HISTORICAL_COACHEES.filter(c=>c.coachee!=null).length;
+
+  el.innerHTML += `
+  <div style="margin-top:24px;padding-top:20px;border-top:2px solid #334155">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:6px">
+      <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.06em">📚 Historial de procesos finalizados</div>
+      <div style="display:flex;gap:14px;font-size:11px;color:#64748b">
+        <span><strong style="color:#10b981">${HISTORICAL_COACHEES.length}</strong> procesos</span>
+        <span><strong style="color:#60a5fa">${histTotalSes}</strong> sesiones</span>
+        <span><strong style="color:#a78bfa">${histFmt(histTotalMonto)}</strong> facturado</span>
+        <span>coach promedio: <strong style="color:${histColor(histAvgCoach)}">${histPct(histAvgCoach)}</strong></span>
+        <span>coachee promedio: <strong style="color:${histColor(histAvgCoachee)}">${histPct(histAvgCoachee)}</strong></span>
+      </div>
+    </div>
+    <div class="coach-table">
+      <div style="display:grid;grid-template-columns:1.8fr 50px 70px 65px 70px 70px;padding:7px 12px;font-size:10px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid #334155">
+        <span>Coachee</span><span style="text-align:center">Pilar</span><span style="text-align:center">Ses.</span><span style="text-align:center">Monto</span><span style="text-align:center">Coach</span><span style="text-align:center">Coachee</span>
+      </div>
+      ${HISTORICAL_COACHEES.map(c=>`<div style="display:grid;grid-template-columns:1.8fr 50px 70px 65px 70px 70px;padding:7px 12px;font-size:12px;border-bottom:1px solid #1e293b40;align-items:center;opacity:.8">
+        <span style="color:#94a3b8">${esc(c.nombre)}</span>
+        <span style="text-align:center;font-size:10px;color:#475569;background:#1e293b;border-radius:4px;padding:1px 4px">${c.pilar}</span>
+        <span style="text-align:center;color:#64748b">${c.sesiones}</span>
+        <span style="text-align:center;color:#64748b">${histFmt(c.monto)}</span>
+        <span style="text-align:center;color:${histColor(c.coach)}">${histPct(c.coach)}</span>
+        <span style="text-align:center;color:${histColor(c.coachee)}">${histPct(c.coachee)}</span>
+      </div>`).join('')}
+    </div>
+  </div>`;
 }
 
 // ═══ PAGOS DATA ═══
