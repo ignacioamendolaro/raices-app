@@ -223,16 +223,38 @@ body{background:#0f172a;color:#e2e8f0;font-family:-apple-system,BlinkMacSystemFo
 .mini-row:last-child{border-bottom:none}
 
 /* Agenda */
+.agenda-layout{display:flex;gap:14px;align-items:flex-start}
+.agenda-list-col{flex:1;min-width:0}
 .agenda-day{margin-bottom:16px}
 .agenda-day-header{font-size:12px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.07em;padding:4px 2px;margin-bottom:6px;border-bottom:1px solid #1e293b}
 .agenda-day-header.today{color:#818cf8}
-.agenda-item{background:#1e293b;border:1px solid #334155;border-left:3px solid transparent;border-radius:9px;padding:9px 12px;margin-bottom:5px;transition:border-color .15s}
+.agenda-item{background:#1e293b;border:1px solid #334155;border-left:3px solid transparent;border-radius:9px;padding:9px 12px;margin-bottom:5px;transition:border-color .15s,opacity .15s}
 .agenda-item:hover{border-color:#475569}
+.agenda-item.dragging{opacity:.4}
+.agenda-item[draggable="true"]{cursor:grab}
 .agenda-item-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
 .agenda-item-name{font-size:13px;font-weight:500;color:#e2e8f0}
 .agenda-item-meta{font-size:11px;color:#64748b;margin-top:3px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .agenda-edit{margin-top:9px;padding-top:9px;border-top:1px solid #334155}
 .agenda-edit-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:7px}
+/* Panel Mi Día */
+.myday-panel{width:260px;flex-shrink:0;background:#0f172a;border:1px solid #334155;border-radius:12px;padding:12px;position:sticky;top:70px}
+.myday-title{font-size:12px;font-weight:700;color:#818cf8;text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
+.myday-drop-zone{min-height:80px;border:2px dashed #334155;border-radius:8px;padding:8px;transition:border-color .2s,background .2s}
+.myday-drop-zone.drag-over{border-color:#818cf8;background:#818cf810}
+.myday-item{background:#1e293b;border:1px solid #334155;border-left:3px solid transparent;border-radius:7px;padding:7px 10px;margin-bottom:5px;display:flex;align-items:center;gap:6px;cursor:grab;transition:opacity .15s}
+.myday-item.dragging{opacity:.35}
+.myday-item-drag{color:#475569;font-size:14px;cursor:grab;flex-shrink:0}
+.myday-item-body{flex:1;min-width:0}
+.myday-item-name{font-size:12px;font-weight:500;color:#e2e8f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.myday-item-meta{font-size:10px;color:#64748b;margin-top:2px}
+.myday-item-remove{background:none;border:none;color:#475569;cursor:pointer;padding:0 2px;font-size:13px;line-height:1;flex-shrink:0}
+.myday-item-remove:hover{color:#f87171}
+.myday-empty{color:#475569;font-size:11px;text-align:center;padding:18px 0}
+.myday-hint{font-size:10px;color:#475569;margin-top:10px;text-align:center;line-height:1.4}
+.add-to-day-btn{background:none;border:none;color:#475569;cursor:pointer;font-size:14px;padding:0 2px;line-height:1;flex-shrink:0}
+.add-to-day-btn:hover{color:#818cf8}
+.add-to-day-btn.added{color:#34d399}
 
 /* Gantt */
 .gantt-wrap{background:#1e293b;border:1px solid #334155;border-radius:11px;overflow:auto}
@@ -447,6 +469,7 @@ let notesOpenId = null;
 let deletePending = null;
 let agendaEditId = null;
 let dashCharts = {};
+let dayPlan = []; // [{id, nombre, cliente, color}] — plan del día (en memoria)
 let ganttClientFilter = 'all';
 
 // ═══ REPROGRAMACIONES (localStorage) ═══
@@ -1024,14 +1047,93 @@ function renderAgenda(el) {
     if(!byDay[t.fin])byDay[t.fin]=[];
     byDay[t.fin].push(t);
   });
-  let html='';
-  if(overdue.length)html+='<div class="agenda-day"><div class="agenda-day-header" style="color:#f87171">Vencidas ('+overdue.length+')</div>'+overdue.map(t=>agendaItemHTML(t,today)).join('')+'</div>';
+  let listHTML='';
+  if(overdue.length)listHTML+='<div class="agenda-day"><div class="agenda-day-header" style="color:#f87171">Vencidas ('+overdue.length+')</div>'+overdue.map(t=>agendaItemHTML(t,today)).join('')+'</div>';
   Object.keys(byDay).sort().forEach(k=>{
     const isToday=k===todayISO();
-    html+='<div class="agenda-day"><div class="agenda-day-header'+(isToday?' today':'')+'">'+fmtDateFull(k)+(isToday?' · HOY':'')+'</div>'+byDay[k].map(t=>agendaItemHTML(t,today)).join('')+'</div>';
+    listHTML+='<div class="agenda-day"><div class="agenda-day-header'+(isToday?' today':'')+'">'+fmtDateFull(k)+(isToday?' · HOY':'')+'</div>'+byDay[k].map(t=>agendaItemHTML(t,today)).join('')+'</div>';
   });
-  if(!html)html='<div class="empty">Sin tareas con fecha en los próximos 30 días 🎉</div>';
-  el.innerHTML=html;
+  if(!listHTML)listHTML='<div class="empty">Sin tareas con fecha en los próximos 30 días 🎉</div>';
+  el.innerHTML=`<div class="agenda-layout">
+    <div class="agenda-list-col">${listHTML}</div>
+    ${renderMydayPanel()}
+  </div>`;
+  initAgendaDrag();
+  initMydayDrop();
+}
+
+function renderMydayPanel(){
+  const itemsHTML=dayPlan.length
+    ? dayPlan.map((p,i)=>`
+      <div class="myday-item" draggable="true" data-myday-idx="${i}" ondragstart="mdyDragStart(event,${i})" ondragover="mdyDragOver(event)" ondrop="mdyDrop(event,${i})" ondragend="mdyDragEnd(event)">
+        <span class="myday-item-drag">⠿</span>
+        <div class="myday-item-body">
+          <div class="myday-item-name" title="${esc(p.nombre)}">${esc(p.nombre)}</div>
+          <div class="myday-item-meta" style="color:${p.color}">${esc(p.cliente)}</div>
+        </div>
+        <button class="myday-item-remove" onclick="removeFromDayPlan(${i})" title="Quitar">✕</button>
+      </div>`).join('')
+    : '<div class="myday-empty">Arrastrá tareas aquí<br>para planificar tu día</div>';
+  const clearBtn=dayPlan.length?`<button onclick="clearDayPlan()" style="background:none;border:none;color:#475569;font-size:10px;cursor:pointer;padding:0" title="Limpiar plan">✕ limpiar</button>`:'';
+  return `<div class="myday-panel">
+    <div class="myday-title">
+      <span>📋 Mi día</span>
+      ${clearBtn}
+    </div>
+    <div class="myday-drop-zone" id="myday-drop" ondragover="mdyZoneDragOver(event)" ondragleave="mdyZoneDragLeave(event)" ondrop="mdyZoneDrop(event)">
+      ${itemsHTML}
+    </div>
+    <div class="myday-hint">Arrastrá tareas vencidas o de hoy aquí · Reordená con drag</div>
+  </div>`;
+}
+
+// ═══ DRAG desde agenda → Mi día ═══
+let _agDragId=null;
+function initAgendaDrag(){
+  document.querySelectorAll('.agenda-item[data-task-id]').forEach(el=>{
+    el.addEventListener('dragstart',e=>{
+      _agDragId=el.dataset.taskId;
+      e.dataTransfer.effectAllowed='copy';
+      setTimeout(()=>el.classList.add('dragging'),0);
+    });
+    el.addEventListener('dragend',()=>el.classList.remove('dragging'));
+  });
+}
+function initMydayDrop(){
+  // handled via inline handlers on .myday-drop-zone
+}
+function mdyZoneDragOver(e){e.preventDefault();e.dataTransfer.dropEffect='copy';document.getElementById('myday-drop')?.classList.add('drag-over');}
+function mdyZoneDragLeave(e){if(!e.currentTarget.contains(e.relatedTarget))document.getElementById('myday-drop')?.classList.remove('drag-over');}
+function mdyZoneDrop(e){
+  e.preventDefault();
+  document.getElementById('myday-drop')?.classList.remove('drag-over');
+  if(_agDragId){addToDayPlan(_agDragId);_agDragId=null;}
+}
+function addToDayPlan(id){
+  if(dayPlan.find(p=>p.id===id))return; // ya está
+  const t=allTasks.find(x=>x.id===id);
+  if(!t)return;
+  dayPlan.push({id,nombre:t.nombre,cliente:t.cliente,color:CLIENT_COLORS[t.cliente]||'#64748b'});
+  renderAgenda(document.getElementById('tasklist'));
+}
+function removeFromDayPlan(idx){
+  dayPlan.splice(idx,1);
+  renderAgenda(document.getElementById('tasklist'));
+}
+function clearDayPlan(){dayPlan=[];renderAgenda(document.getElementById('tasklist'));}
+
+// ═══ DRAG dentro de Mi día (reordenar) ═══
+let _mdyDragIdx=null;
+function mdyDragStart(e,idx){_mdyDragIdx=idx;e.dataTransfer.effectAllowed='move';setTimeout(()=>e.currentTarget.classList.add('dragging'),0);}
+function mdyDragEnd(e){e.currentTarget.classList.remove('dragging');_mdyDragIdx=null;}
+function mdyDragOver(e){e.preventDefault();e.dataTransfer.dropEffect='move';}
+function mdyDrop(e,targetIdx){
+  e.preventDefault();e.stopPropagation();
+  if(_mdyDragIdx===null||_mdyDragIdx===targetIdx)return;
+  const moved=dayPlan.splice(_mdyDragIdx,1)[0];
+  dayPlan.splice(targetIdx,0,moved);
+  _mdyDragIdx=null;
+  renderAgenda(document.getElementById('tasklist'));
 }
 
 function agendaItemHTML(t, today) {
@@ -1061,7 +1163,8 @@ function agendaItemHTML(t, today) {
     </div>
   </div>`:'';
 
-  return `<div class="agenda-item" style="border-left-color:${col}">
+  const inDay=dayPlan.some(p=>p.id===t.id);
+  return `<div class="agenda-item" draggable="true" data-task-id="${t.id}" style="border-left-color:${col}">
     <div class="agenda-item-top">
       <div>
         <div class="agenda-item-name">${esc(t.nombre)}</div>
@@ -1073,7 +1176,10 @@ function agendaItemHTML(t, today) {
           ${reprogCount?`<span style="color:#a78bfa;font-size:10px">↺ ${reprogCount}x reprog.</span>`:''}
         </div>
       </div>
-      <button class="icobtn" onclick="startAgendaEdit('${t.id}')" title="Editar" style="font-size:11px">✏</button>
+      <div style="display:flex;gap:4px;align-items:center">
+        <button class="add-to-day-btn${inDay?' added':''}" onclick="addToDayPlan('${t.id}')" title="${inDay?'Ya en Mi día':'Agregar a Mi día'}" style="font-size:15px">${inDay?'✓':'＋'}</button>
+        <button class="icobtn" onclick="startAgendaEdit('${t.id}')" title="Editar" style="font-size:11px">✏</button>
+      </div>
     </div>
     ${editHTML}
   </div>`;
