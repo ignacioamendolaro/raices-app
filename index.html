@@ -236,9 +236,9 @@ body{background:#0f172a;color:#e2e8f0;font-family:-apple-system,BlinkMacSystemFo
 .agenda-edit{margin-top:9px;padding-top:9px;border-top:1px solid #334155}
 .agenda-edit-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:7px}
 /* Panel Mi Día */
-.myday-panel{width:250px;flex-shrink:0;background:#0f172a;border:1px solid #334155;border-radius:12px;padding:12px;position:sticky;top:70px}
-.myday-title{font-size:12px;font-weight:700;color:#818cf8;text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
-.myday-list{min-height:60px}
+.myday-panel{width:250px;flex-shrink:0;background:#0f172a;border:1px solid #334155;border-radius:12px;padding:12px;position:sticky;top:70px;max-height:calc(100vh - 90px);display:flex;flex-direction:column}
+.myday-title{font-size:12px;font-weight:700;color:#818cf8;text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.myday-list{min-height:60px;overflow-y:auto;flex:1}
 .myday-item{background:#1e293b;border:1px solid #334155;border-left:3px solid transparent;border-radius:7px;padding:7px 9px;margin-bottom:5px;display:flex;align-items:center;gap:5px}
 .myday-item-arrows{display:flex;flex-direction:column;gap:1px;flex-shrink:0}
 .myday-arrow{background:none;border:none;color:#475569;cursor:pointer;padding:0;font-size:11px;line-height:1}
@@ -250,7 +250,7 @@ body{background:#0f172a;color:#e2e8f0;font-family:-apple-system,BlinkMacSystemFo
 .myday-item-remove{background:none;border:none;color:#475569;cursor:pointer;padding:0 2px;font-size:12px;line-height:1;flex-shrink:0}
 .myday-item-remove:hover{color:#f87171}
 .myday-empty{color:#475569;font-size:11px;text-align:center;padding:18px 0}
-.myday-hint{font-size:10px;color:#475569;margin-top:10px;text-align:center;line-height:1.4}
+.myday-hint{font-size:10px;color:#475569;margin-top:10px;text-align:center;line-height:1.4;flex-shrink:0}
 .add-to-day-btn{background:none;border:none;color:#475569;cursor:pointer;font-size:14px;padding:0 2px;line-height:1;flex-shrink:0}
 .add-to-day-btn:hover{color:#818cf8}
 .add-to-day-btn.added{color:#34d399}
