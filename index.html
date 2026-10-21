@@ -228,27 +228,26 @@ body{background:#0f172a;color:#e2e8f0;font-family:-apple-system,BlinkMacSystemFo
 .agenda-day{margin-bottom:16px}
 .agenda-day-header{font-size:12px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.07em;padding:4px 2px;margin-bottom:6px;border-bottom:1px solid #1e293b}
 .agenda-day-header.today{color:#818cf8}
-.agenda-item{background:#1e293b;border:1px solid #334155;border-left:3px solid transparent;border-radius:9px;padding:9px 12px;margin-bottom:5px;transition:border-color .15s,opacity .15s}
+.agenda-item{background:#1e293b;border:1px solid #334155;border-left:3px solid transparent;border-radius:9px;padding:9px 12px;margin-bottom:5px;transition:border-color .15s}
 .agenda-item:hover{border-color:#475569}
-.agenda-item.dragging{opacity:.4}
-.agenda-item[draggable="true"]{cursor:grab}
 .agenda-item-top{display:flex;align-items:flex-start;justify-content:space-between;gap:8px}
 .agenda-item-name{font-size:13px;font-weight:500;color:#e2e8f0}
 .agenda-item-meta{font-size:11px;color:#64748b;margin-top:3px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .agenda-edit{margin-top:9px;padding-top:9px;border-top:1px solid #334155}
 .agenda-edit-row{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:7px}
 /* Panel Mi Día */
-.myday-panel{width:260px;flex-shrink:0;background:#0f172a;border:1px solid #334155;border-radius:12px;padding:12px;position:sticky;top:70px}
+.myday-panel{width:250px;flex-shrink:0;background:#0f172a;border:1px solid #334155;border-radius:12px;padding:12px;position:sticky;top:70px}
 .myday-title{font-size:12px;font-weight:700;color:#818cf8;text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between}
-.myday-drop-zone{min-height:80px;border:2px dashed #334155;border-radius:8px;padding:8px;transition:border-color .2s,background .2s}
-.myday-drop-zone.drag-over{border-color:#818cf8;background:#818cf810}
-.myday-item{background:#1e293b;border:1px solid #334155;border-left:3px solid transparent;border-radius:7px;padding:7px 10px;margin-bottom:5px;display:flex;align-items:center;gap:6px;cursor:grab;transition:opacity .15s}
-.myday-item.dragging{opacity:.35}
-.myday-item-drag{color:#475569;font-size:14px;cursor:grab;flex-shrink:0}
+.myday-list{min-height:60px}
+.myday-item{background:#1e293b;border:1px solid #334155;border-left:3px solid transparent;border-radius:7px;padding:7px 9px;margin-bottom:5px;display:flex;align-items:center;gap:5px}
+.myday-item-arrows{display:flex;flex-direction:column;gap:1px;flex-shrink:0}
+.myday-arrow{background:none;border:none;color:#475569;cursor:pointer;padding:0;font-size:11px;line-height:1}
+.myday-arrow:hover{color:#818cf8}
+.myday-arrow:disabled{color:#1e293b;cursor:default}
 .myday-item-body{flex:1;min-width:0}
 .myday-item-name{font-size:12px;font-weight:500;color:#e2e8f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .myday-item-meta{font-size:10px;color:#64748b;margin-top:2px}
-.myday-item-remove{background:none;border:none;color:#475569;cursor:pointer;padding:0 2px;font-size:13px;line-height:1;flex-shrink:0}
+.myday-item-remove{background:none;border:none;color:#475569;cursor:pointer;padding:0 2px;font-size:12px;line-height:1;flex-shrink:0}
 .myday-item-remove:hover{color:#f87171}
 .myday-empty{color:#475569;font-size:11px;text-align:center;padding:18px 0}
 .myday-hint{font-size:10px;color:#475569;margin-top:10px;text-align:center;line-height:1.4}
@@ -1063,54 +1062,31 @@ function renderAgenda(el) {
 }
 
 function renderMydayPanel(){
-  const itemsHTML=dayPlan.length
+  const n=dayPlan.length;
+  const itemsHTML=n
     ? dayPlan.map((p,i)=>`
-      <div class="myday-item" draggable="true" data-myday-idx="${i}" ondragstart="mdyDragStart(event,${i})" ondragover="mdyDragOver(event)" ondrop="mdyDrop(event,${i})" ondragend="mdyDragEnd(event)">
-        <span class="myday-item-drag">⠿</span>
+      <div class="myday-item" style="border-left-color:${p.color}">
+        <div class="myday-item-arrows">
+          <button class="myday-arrow" onclick="mdyMove(${i},-1)" ${i===0?'disabled':''} title="Subir">▲</button>
+          <button class="myday-arrow" onclick="mdyMove(${i},1)" ${i===n-1?'disabled':''} title="Bajar">▼</button>
+        </div>
         <div class="myday-item-body">
           <div class="myday-item-name" title="${esc(p.nombre)}">${esc(p.nombre)}</div>
           <div class="myday-item-meta" style="color:${p.color}">${esc(p.cliente)}</div>
         </div>
         <button class="myday-item-remove" onclick="removeFromDayPlan(${i})" title="Quitar">✕</button>
       </div>`).join('')
-    : '<div class="myday-empty">Arrastrá tareas aquí<br>para planificar tu día</div>';
-  const clearBtn=dayPlan.length?`<button onclick="clearDayPlan()" style="background:none;border:none;color:#475569;font-size:10px;cursor:pointer;padding:0" title="Limpiar plan">✕ limpiar</button>`:'';
+    : '<div class="myday-empty">Usá ＋ en cada tarea<br>para planificar tu día</div>';
+  const clearBtn=n?`<button onclick="clearDayPlan()" style="background:none;border:none;color:#475569;font-size:10px;cursor:pointer;padding:0">✕ limpiar</button>`:'';
   return `<div class="myday-panel">
-    <div class="myday-title">
-      <span>📋 Mi día</span>
-      ${clearBtn}
-    </div>
-    <div class="myday-drop-zone" id="myday-drop" ondragover="mdyZoneDragOver(event)" ondragleave="mdyZoneDragLeave(event)" ondrop="mdyZoneDrop(event)">
-      ${itemsHTML}
-    </div>
-    <div class="myday-hint">Arrastrá tareas vencidas o de hoy aquí · Reordená con drag</div>
+    <div class="myday-title"><span>📋 Mi día (${n})</span>${clearBtn}</div>
+    <div class="myday-list">${itemsHTML}</div>
+    <div class="myday-hint">Presioná ＋ en las tareas de hoy o vencidas · Reordená con ▲▼</div>
   </div>`;
 }
 
-// ═══ DRAG desde agenda → Mi día ═══
-let _agDragId=null;
-function initAgendaDrag(){
-  document.querySelectorAll('.agenda-item[data-task-id]').forEach(el=>{
-    el.addEventListener('dragstart',e=>{
-      _agDragId=el.dataset.taskId;
-      e.dataTransfer.effectAllowed='copy';
-      setTimeout(()=>el.classList.add('dragging'),0);
-    });
-    el.addEventListener('dragend',()=>el.classList.remove('dragging'));
-  });
-}
-function initMydayDrop(){
-  // handled via inline handlers on .myday-drop-zone
-}
-function mdyZoneDragOver(e){e.preventDefault();e.dataTransfer.dropEffect='copy';document.getElementById('myday-drop')?.classList.add('drag-over');}
-function mdyZoneDragLeave(e){if(!e.currentTarget.contains(e.relatedTarget))document.getElementById('myday-drop')?.classList.remove('drag-over');}
-function mdyZoneDrop(e){
-  e.preventDefault();
-  document.getElementById('myday-drop')?.classList.remove('drag-over');
-  if(_agDragId){addToDayPlan(_agDragId);_agDragId=null;}
-}
 function addToDayPlan(id){
-  if(dayPlan.find(p=>p.id===id))return; // ya está
+  if(dayPlan.find(p=>p.id===id))return;
   const t=allTasks.find(x=>x.id===id);
   if(!t)return;
   dayPlan.push({id,nombre:t.nombre,cliente:t.cliente,color:CLIENT_COLORS[t.cliente]||'#64748b'});
@@ -1121,20 +1097,15 @@ function removeFromDayPlan(idx){
   renderAgenda(document.getElementById('tasklist'));
 }
 function clearDayPlan(){dayPlan=[];renderAgenda(document.getElementById('tasklist'));}
-
-// ═══ DRAG dentro de Mi día (reordenar) ═══
-let _mdyDragIdx=null;
-function mdyDragStart(e,idx){_mdyDragIdx=idx;e.dataTransfer.effectAllowed='move';setTimeout(()=>e.currentTarget.classList.add('dragging'),0);}
-function mdyDragEnd(e){e.currentTarget.classList.remove('dragging');_mdyDragIdx=null;}
-function mdyDragOver(e){e.preventDefault();e.dataTransfer.dropEffect='move';}
-function mdyDrop(e,targetIdx){
-  e.preventDefault();e.stopPropagation();
-  if(_mdyDragIdx===null||_mdyDragIdx===targetIdx)return;
-  const moved=dayPlan.splice(_mdyDragIdx,1)[0];
-  dayPlan.splice(targetIdx,0,moved);
-  _mdyDragIdx=null;
+function mdyMove(idx,dir){
+  const newIdx=idx+dir;
+  if(newIdx<0||newIdx>=dayPlan.length)return;
+  const tmp=dayPlan[idx];dayPlan[idx]=dayPlan[newIdx];dayPlan[newIdx]=tmp;
   renderAgenda(document.getElementById('tasklist'));
 }
+
+function initAgendaDrag(){}  // no-op (drag eliminado)
+function initMydayDrop(){}
 
 function agendaItemHTML(t, today) {
   const col=CLIENT_COLORS[t.cliente]||'#64748b';
@@ -1164,7 +1135,7 @@ function agendaItemHTML(t, today) {
   </div>`:'';
 
   const inDay=dayPlan.some(p=>p.id===t.id);
-  return `<div class="agenda-item" draggable="true" data-task-id="${t.id}" style="border-left-color:${col}">
+  return `<div class="agenda-item" style="border-left-color:${col}">
     <div class="agenda-item-top">
       <div>
         <div class="agenda-item-name">${esc(t.nombre)}</div>
