@@ -49,6 +49,40 @@ body{background:#0f172a;color:#e2e8f0;font-family:-apple-system,BlinkMacSystemFo
 .coach-pill-en{background:#3b82f620;color:#60a5fa;border:1px solid #3b82f640;display:inline-block;padding:2px 7px;border-radius:8px;font-size:10px;font-weight:600}
 .coach-pill-pau{background:#33415520;color:#64748b;border:1px solid #33415540;display:inline-block;padding:2px 7px;border-radius:8px;font-size:10px;font-weight:600}
 
+/* Proceso cards */
+.proc-cards-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px}
+@media(min-width:700px){.proc-cards-grid{grid-template-columns:repeat(3,1fr)}}
+@media(min-width:1000px){.proc-cards-grid{grid-template-columns:repeat(4,1fr)}}
+.proc-card{background:#1e293b;border:1.5px solid #334155;border-radius:11px;padding:13px;cursor:pointer;transition:border-color .15s,background .15s}
+.proc-card:hover{border-color:#7c3aed;background:#1a2540}
+.proc-card-selected{border-color:#7c3aed!important;background:#1a1a40!important}
+.proc-estado-pill{display:inline-block;padding:1px 7px;border-radius:7px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.proc-estado-en{background:#3b82f620;color:#60a5fa;border:1px solid #3b82f640}
+.proc-estado-pau{background:#33415520;color:#64748b;border:1px solid #33415540}
+.proc-estado-fin{background:#10b98120;color:#10b981;border:1px solid #10b98140}
+.proc-detail-panel{background:#1e293b;border:1.5px solid #7c3aed40;border-radius:11px;padding:16px;margin-bottom:14px}
+.proc-ses-table{width:100%;border-collapse:collapse;font-size:11px}
+.proc-ses-table th{padding:5px 7px;text-align:center;color:#475569;font-size:9px;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid #334155;font-weight:700;white-space:nowrap}
+.proc-ses-table th:first-child,.proc-ses-table th:nth-child(2){text-align:left}
+.proc-ses-table td{padding:5px 7px;text-align:center;border-bottom:1px solid #1e293b;color:#64748b}
+.proc-ses-table td:first-child,.proc-ses-table td:nth-child(2){text-align:left}
+.proc-ses-table tr:last-child td{border-bottom:none}
+.proc-ses-table tr:hover td{background:#263044}
+.proc-ses-pending td{opacity:.45}
+.proc-status-re{background:#10b98120;color:#10b981;border:1px solid #10b98130;display:inline-block;padding:1px 6px;border-radius:6px;font-size:9px;font-weight:700}
+.proc-status-no{background:#ef444420;color:#ef4444;border:1px solid #ef444430;display:inline-block;padding:1px 6px;border-radius:6px;font-size:9px;font-weight:700}
+.proc-status-pe{background:#33415520;color:#64748b;border:1px solid #33415540;display:inline-block;padding:1px 6px;border-radius:6px;font-size:9px;font-weight:700}
+.proc-dim-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;margin-top:10px}
+.proc-dim-item{background:#0f172a;border-radius:6px;padding:6px;text-align:center}
+.proc-dim-label{font-size:9px;color:#475569;text-transform:uppercase;letter-spacing:.03em;margin-bottom:3px}
+.proc-dim-val{font-size:13px;font-weight:700}
+
+/* Modal sesión */
+.ses-checklist{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px}
+.ses-check-item{display:flex;align-items:center;gap:7px;font-size:12px;color:#94a3b8}
+.ses-check-item select{background:#0f172a;border:1px solid #334155;color:#e2e8f0;border-radius:6px;padding:3px 6px;font-size:11px}
+.ses-section-title{font-size:10px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.05em;margin:10px 0 6px}
+
 /* Facturación */
 .fact-kpi-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:14px}
 @media(min-width:500px){.fact-kpi-grid{grid-template-columns:repeat(4,1fr)}}
@@ -255,23 +289,6 @@ body{background:#0f172a;color:#e2e8f0;font-family:-apple-system,BlinkMacSystemFo
 .add-to-day-btn:hover{color:#818cf8}
 .add-to-day-btn.added{color:#34d399}
 
-/* Gantt */
-.gantt-wrap{background:#1e293b;border:1px solid #334155;border-radius:11px;overflow:auto}
-.gantt-scale{display:flex;border-bottom:1px solid #334155;background:#0f172a;position:sticky;top:0;z-index:5}
-.gantt-label-col{width:200px;flex-shrink:0;font-size:10px;color:#475569;padding:6px 10px;border-right:1px solid #334155}
-.gantt-timeline{flex:1;position:relative;min-height:24px}
-.gantt-month{position:absolute;top:0;font-size:10px;color:#334155;padding:6px 4px;border-left:1px solid #1e293b}
-.gantt-today-vline{position:absolute;top:0;bottom:0;width:2px;background:#6366f180;z-index:3;pointer-events:none}
-.gantt-client-hdr{display:flex;background:#0f172a20;border-top:1px solid #334155;padding:5px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;align-items:center}
-.gantt-client-hdr-label{width:200px;flex-shrink:0;border-right:1px solid #1e293b;padding-right:8px}
-.gantt-row-wrap{display:flex;border-top:1px solid #1e293b30;min-height:26px;align-items:center}
-.gantt-row-wrap:hover{background:#263044}
-.gantt-task-label{width:200px;flex-shrink:0;padding:3px 10px;font-size:11px;color:#94a3b8;border-right:1px solid #1e293b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.gantt-chart-area{flex:1;position:relative;height:26px}
-.gantt-bar{position:absolute;top:4px;height:18px;border-radius:4px;cursor:pointer;transition:opacity .15s}
-.gantt-bar:hover{opacity:.7}
-.gantt-filter-row{padding:8px 14px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;border-bottom:1px solid #334155;background:#0f172a}
-.gantt-filter-row label{font-size:11px;color:#64748b}
 </style>
 </head>
 <body>
@@ -286,7 +303,6 @@ body{background:#0f172a;color:#e2e8f0;font-family:-apple-system,BlinkMacSystemFo
 
 <div class="fbar" id="fbar">
   <button class="fbtn active" data-f="dashboard" onclick="setFilter('dashboard')">📊 Dashboard</button>
-  <button class="fbtn" data-f="gantt" onclick="setFilter('gantt')">📅 Gantt</button>
   <button class="fbtn" data-f="facturacion" onclick="setFilter('facturacion')">💰 Facturación</button>
   <button class="fbtn" data-f="coaching" onclick="setFilter('coaching')">🎯 Coaching</button>
   <button class="fbtn" data-f="agenda" onclick="setFilter('agenda')">🗓 Agenda</button>
@@ -469,7 +485,7 @@ let deletePending = null;
 let agendaEditId = null;
 let dashCharts = {};
 let dayPlan = []; // [{id, nombre, cliente, color}] — plan del día (en memoria)
-let ganttClientFilter = 'all';
+
 
 // ═══ REPROGRAMACIONES (localStorage) ═══
 function getReprog() { try{return JSON.parse(localStorage.getItem('raices_reprog')||'{}');}catch(e){return {};} }
@@ -563,7 +579,7 @@ async function loadTasks() {
 function setFilter(f) {
   filter=f; editingId=null; notesOpenId=null; agendaEditId=null;
   document.querySelectorAll('.fbtn[data-f]').forEach(b=>b.classList.toggle('active',b.dataset.f===f));
-  const showTime=!['todos','dashboard','agenda','gantt','facturacion','coaching'].includes(f);
+  const showTime=!['todos','dashboard','agenda','facturacion','coaching'].includes(f);
   document.getElementById('tbar').style.display=showTime?'flex':'none';
   if(!showTime){timeFilter='todas';document.querySelectorAll('.tbtn').forEach(b=>b.classList.toggle('active',b.dataset.t==='todas'));}
   render();
@@ -575,7 +591,7 @@ function filtered() {
   const in7=new Date(today);in7.setDate(in7.getDate()+7);
   let list=[...allTasks];
   if(filter==='todos')return list;
-  if(!['dashboard','agenda','gantt','facturacion','coaching'].includes(filter)){
+  if(!['dashboard','agenda','facturacion','coaching'].includes(filter)){
     list=list.filter(t=>t.cliente===filter);
     if(timeFilter==='vigentes')list=list.filter(t=>{const i=parseDate(t.inicio);return!i||i<=in7;});
   }
@@ -588,7 +604,6 @@ function render() {
   const el=document.getElementById('tasklist');
   if(filter==='dashboard'){renderDashboard(el);return;}
   if(filter==='agenda'){renderAgenda(el);return;}
-  if(filter==='gantt'){renderGantt(el);return;}
   if(filter==='facturacion'){renderFact(el);return;}
   if(filter==='coaching'){renderCoaching(el);return;}
   const list=filtered();
@@ -701,52 +716,28 @@ function calcScore(avancePct, lateRatio, reprogRatio) {
 
 function renderDashboard(el) {
   Object.keys(dashCharts).forEach(k=>destroyDashChart(k));
-  el.innerHTML='<div class="loading">Calculando métricas...</div>';
+  el.innerHTML='<div class="loading">Calculando...</div>';
   fetch('/api/tasks?include_done=true').then(r=>r.json()).then(d=>{
     const all=d.tasks||[];
     const today=new Date();today.setHours(0,0,0,0);
     const active=all.filter(t=>t.estado!=='Realizado'&&t.estado!=='Cancelado');
     const done=all.filter(t=>t.estado==='Realizado');
     const late=active.filter(t=>{const f=parseDate(t.fin);return f&&f<today;});
-
     const reprogData=getReprog();
     const companyReprog=getCompanyReprog(all);
-    const totalReprogTasks=Object.keys(reprogData).length;
 
-    // Global KPIs
-    const avanceTotalPct=all.length?Math.round(done.length/all.length*100):0;
-    const lateRatioTotal=active.length?Math.round(late.length/active.length*100):0;
-    const reprogRatioTotal=active.length?Math.round(totalReprogTasks/active.length*100):0;
-    const globalScore=calcScore(avanceTotalPct, active.length?late.length/active.length:0, active.length?totalReprogTasks/active.length:0);
-    const globalScoreClass=globalScore>=70?'health-green':globalScore>=40?'health-yellow':'health-red';
-
-    // Monthly evolution: group tasks by fin month
-    const MESES_ES=['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
-    const monthMap={};
-    all.filter(t=>t.fin).forEach(t=>{
-      const f=parseDate(t.fin);
-      const key=`${f.getFullYear()}-${String(f.getMonth()+1).padStart(2,'0')}`;
-      if(!monthMap[key])monthMap[key]={label:MESES_ES[f.getMonth()]+' '+String(f.getFullYear()).slice(2),total:0,real:0,late:0,reprog:0};
-      monthMap[key].total++;
-      if(t.estado==='Realizado')monthMap[key].real++;
-      else if(parseDate(t.fin)<today)monthMap[key].late++;
-      if(reprogData[t.id]?.count)monthMap[key].reprog++;
-    });
-    const mKeys=Object.keys(monthMap).sort().slice(-9);
-    const mLabels=mKeys.map(k=>monthMap[k].label);
-    const mReal=mKeys.map(k=>monthMap[k].real);
-    const mLate=mKeys.map(k=>monthMap[k].late);
-    const mAvPct=mKeys.map(k=>monthMap[k].total?Math.round(monthMap[k].real/monthMap[k].total*100):0);
-    const mRepPct=mKeys.map(k=>monthMap[k].total?Math.round(monthMap[k].reprog/monthMap[k].total*100):0);
-
-    // YTD
+    // KPIs financieros (de PAGOS_DATA)
+    const allPagos=getAllPagos();
     const curYear=today.getFullYear();
-    const ytdKeys=mKeys.filter(k=>k.startsWith(String(curYear)));
-    const ytdReal=ytdKeys.reduce((s,k)=>s+monthMap[k].real,0);
-    const ytdTotal=ytdKeys.reduce((s,k)=>s+monthMap[k].total,0);
-    const ytdLate=ytdKeys.reduce((s,k)=>s+monthMap[k].late,0);
+    const cobradoYTD=allPagos.filter(r=>r.ok&&r.anio===curYear).reduce((s,r)=>s+r.raices,0);
+    const pendiente=allPagos.filter(r=>!r.ok).reduce((s,r)=>s+r.raices,0);
+    const todayKey=`${curYear}-${String(today.getMonth()+1).padStart(2,'0')}`;
+    const pastMonths=[...new Set(allPagos.filter(r=>r.ok).map(r=>`${r.anio}-${String(r.mes).padStart(2,'0')}`))].sort().filter(k=>k<=todayKey);
+    const last3m=pastMonths.slice(-3);
+    const mrr=last3m.length?Math.round(last3m.reduce((s,k)=>{const[y,m]=k.split('-');return s+allPagos.filter(r=>r.ok&&r.anio==+y&&r.mes==+m).reduce((a,r)=>a+r.raices,0);},0)/last3m.length):0;
+    const fmt=n=>n>=1000000?`$${(n/1000000).toFixed(1)}M`:`$${Math.round(n/1000)}K`;
 
-    // Client stats
+    // Client semáforo
     const co=CLIENT_ORDER();
     const INTERNAL=['Raíces','Marca Personal','General'];
     const clientStats=co.map(c=>{
@@ -759,134 +750,70 @@ function renderDashboard(el) {
       const lateRatio=ca.length?cl.length/ca.length:0;
       const reprogRatio=ca.length?reprogC/ca.length:0;
       const latePct=ca.length?Math.round(lateRatio*100):0;
-      const reprogPct=ca.length?Math.round(reprogRatio*100):0;
       const score=calcScore(avancePct,lateRatio,reprogRatio);
       const scoreClass=score>=70?'health-green':score>=40?'health-yellow':'health-red';
-      return {c,ct,ca,cd,cl,avancePct,latePct,reprogPct,reprogC,score,scoreClass,isInternal:INTERNAL.includes(c)};
+      const scoreBg=score>=70?'#052e16':score>=40?'#422006':'#2c0a0a';
+      const scoreBorder=score>=70?'#16a34a':score>=40?'#d97706':'#dc2626';
+      return {c,ct,ca,cd,cl,avancePct,latePct,reprogC,score,scoreClass,scoreBg,scoreBorder,isInternal:INTERNAL.includes(c)};
     }).filter(Boolean);
 
-    // External totals (excl. internal)
-    const extStats=clientStats.filter(s=>!s.isInternal);
-    const extCT=extStats.reduce((s,x)=>s+x.ct.length,0);
-    const extCD=extStats.reduce((s,x)=>s+x.cd.length,0);
-    const extCL=extStats.reduce((s,x)=>s+x.cl.length,0);
-    const extCA=extStats.reduce((s,x)=>s+x.ca.length,0);
-    const extRC=extStats.reduce((s,x)=>s+x.reprogC,0);
-    const extAvance=extCT?Math.round(extCD/extCT*100):0;
-    const extLate=extCA?Math.round(extCL/extCA*100):0;
-    const extReprog=extCA?Math.round(extRC/extCA*100):0;
-    const extScore=calcScore(extAvance,extCA?extCL/extCA:0,extCA?extRC/extCA:0);
-    const extScoreClass=extScore>=70?'health-green':extScore>=40?'health-yellow':'health-red';
-
     const alertasHtml=buildAlertas(all,today);
+    const ext=clientStats.filter(s=>!s.isInternal);
 
     el.innerHTML=`
-      <!-- KPIs globales -->
-      <div class="kpi-grid">
-        <div class="kpi-card">
-          <div class="kpi-num kpi-done">${avanceTotalPct}%</div>
-          <div class="kpi-label">Avance total</div>
-          <div style="font-size:10px;color:#475569;margin-top:3px">${done.length} realizadas / ${all.length} total</div>
+      <!-- Finanzas -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:18px">
+        <div class="kpi-card" style="text-align:center">
+          <div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">💰 Cobrado ${curYear}</div>
+          <div style="font-size:26px;font-weight:800;color:#10b981">${fmt(cobradoYTD)}</div>
         </div>
-        <div class="kpi-card">
-          <div class="kpi-num kpi-vig">${active.length}</div>
-          <div class="kpi-label">Tareas activas</div>
+        <div class="kpi-card" style="text-align:center">
+          <div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">⏳ Pendiente</div>
+          <div style="font-size:26px;font-weight:800;color:#f59e0b">${fmt(pendiente)}</div>
         </div>
-        <div class="kpi-card">
-          <div class="kpi-num kpi-late">${lateRatioTotal}%</div>
-          <div class="kpi-label">% Vencidas</div>
-          <div style="font-size:10px;color:#475569;margin-top:3px">${late.length} de ${active.length} activas</div>
-        </div>
-        <div class="kpi-card">
-          <div class="kpi-num" style="color:#a78bfa">${reprogRatioTotal}%</div>
-          <div class="kpi-label">% Reprogramadas</div>
-          <div style="font-size:10px;color:#475569;margin-top:3px">${totalReprogTasks} tareas registradas</div>
+        <div class="kpi-card" style="text-align:center">
+          <div style="font-size:10px;color:#64748b;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px">📈 MRR (últ. 3m)</div>
+          <div style="font-size:26px;font-weight:800;color:#818cf8">${fmt(mrr)}</div>
         </div>
       </div>
 
+      <!-- Alertas -->
       ${alertasHtml}
 
-      <!-- Evolución mensual -->
-      <div class="chart-box" style="margin-bottom:14px">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:6px">
-          <div class="chart-box-title" style="margin-bottom:0">Evolución mensual</div>
-          <div style="font-size:11px;color:#64748b">
-            YTD ${curYear}: <strong style="color:#10b981">${ytdReal} real.</strong> &nbsp;·&nbsp;
-            <strong style="color:#f87171">${ytdLate} venc.</strong> &nbsp;·&nbsp;
-            <strong style="color:#a78bfa">${ytdTotal?Math.round(ytdReal/ytdTotal*100):0}% avance</strong>
-          </div>
-        </div>
-        <div style="position:relative;height:200px"><canvas id="chart-monthly"></canvas></div>
-        <div style="font-size:9px;color:#334155;margin-top:6px">Tareas agrupadas por fecha de vencimiento (fin). Barra verde = realizadas, roja = vencidas sin completar. Línea lila = % avance, línea amarilla punteada = % reprogramación.</div>
+      <!-- Semáforo clientes externos -->
+      <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.06em;margin-bottom:10px">Semáforo de clientes</div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-bottom:18px">
+        ${ext.map(s=>`
+          <div onclick="setFilter('${esc(s.c)}')" style="background:${s.scoreBg};border:1.5px solid ${s.scoreBorder};border-radius:12px;padding:14px 14px 12px;cursor:pointer;transition:opacity .15s" onmouseover="this.style.opacity='.8'" onmouseout="this.style.opacity='1'">
+            <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px">
+              <span style="width:8px;height:8px;border-radius:50%;background:${CLIENT_COLORS[s.c]||'#64748b'};flex-shrink:0"></span>
+              <span style="font-size:12px;font-weight:600;color:#e2e8f0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(s.c)}</span>
+            </div>
+            <div style="font-size:32px;font-weight:900;color:${s.scoreBorder};line-height:1">${s.score}</div>
+            <div style="font-size:10px;color:#64748b;margin-top:6px;display:flex;flex-direction:column;gap:2px">
+              <span>✅ ${s.avancePct}% avance</span>
+              ${s.cl.length?`<span style="color:#f87171">⚠ ${s.cl.length} vencida${s.cl.length>1?'s':''}</span>`:'<span style="color:#10b981">Sin vencidas</span>'}
+              <span style="color:#94a3b8">${s.ca.length} activas</span>
+            </div>
+          </div>`).join('')}
       </div>
 
-      <!-- Tabla por empresa -->
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:4px">
-        <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.06em">KPIs por empresa</div>
-        <div style="font-size:10px;color:#475569">Score = %avance×40 + (1−%venc.)×40 + (1−%reprog.)×20</div>
-      </div>
-      <div class="client-kpi-table" style="margin-bottom:16px">
-        <div style="display:grid;grid-template-columns:1.5fr 42px 72px 74px 70px 62px;padding:7px 12px;font-size:10px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid #334155">
-          <span>Empresa</span><span style="text-align:center">Tot.</span><span style="text-align:center">%Avance</span><span style="text-align:center">%Vencidas</span><span style="text-align:center">%Reprog.</span><span style="text-align:center">Score</span>
+      <!-- Resumen tareas -->
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px">
+        <div class="kpi-card" style="text-align:center">
+          <div style="font-size:22px;font-weight:700;color:#10b981">${all.length?Math.round(done.length/all.length*100):0}%</div>
+          <div style="font-size:10px;color:#64748b;margin-top:2px">Avance total · ${done.length}/${all.length}</div>
         </div>
-        ${clientStats.map(s=>`<div style="display:grid;grid-template-columns:1.5fr 42px 72px 74px 70px 62px;padding:7px 12px;font-size:12px;border-bottom:1px solid #1e293b;align-items:center${s.isInternal?';opacity:.45':''}">
-          <span style="display:flex;align-items:center;gap:6px;overflow:hidden;white-space:nowrap;text-overflow:ellipsis">
-            <span style="width:7px;height:7px;border-radius:50%;background:${CLIENT_COLORS[s.c]||'#64748b'};flex-shrink:0"></span>${esc(s.c)}
-          </span>
-          <span style="text-align:center;color:#64748b">${s.ct.length}</span>
-          <span style="text-align:center;color:#10b981;font-weight:600">${s.avancePct}%</span>
-          <span style="text-align:center;color:${s.latePct>20?'#f87171':s.latePct>5?'#f59e0b':'#64748b'};font-weight:${s.latePct>5?'600':'400'}">${s.latePct}%</span>
-          <span style="text-align:center;color:${s.reprogPct>20?'#a78bfa':'#64748b'}">${s.reprogPct}%</span>
-          <span style="text-align:center"><span class="health-pill ${s.scoreClass}">${s.score}</span></span>
-        </div>`).join('')}
-        <div style="display:grid;grid-template-columns:1.5fr 42px 72px 74px 70px 62px;padding:9px 12px;font-size:12px;font-weight:700;border-top:2px solid #475569;background:#1a2535;align-items:center">
-          <span style="color:#94a3b8">TOTAL EMPRESAS</span>
-          <span style="text-align:center;color:#94a3b8">${extCT}</span>
-          <span style="text-align:center;color:#10b981">${extAvance}%</span>
-          <span style="text-align:center;color:${extLate>20?'#f87171':extLate>5?'#f59e0b':'#64748b'}">${extLate}%</span>
-          <span style="text-align:center;color:#a78bfa">${extReprog}%</span>
-          <span style="text-align:center"><span class="health-pill ${extScoreClass}">${extScore}</span></span>
+        <div class="kpi-card" style="text-align:center">
+          <div style="font-size:22px;font-weight:700;color:#f87171">${late.length}</div>
+          <div style="font-size:10px;color:#64748b;margin-top:2px">Tareas vencidas</div>
+        </div>
+        <div class="kpi-card" style="text-align:center">
+          <div style="font-size:22px;font-weight:700;color:#64748b">${active.length}</div>
+          <div style="font-size:10px;color:#64748b;margin-top:2px">Tareas activas</div>
         </div>
       </div>
-
-      <!-- Reprogramaciones breakdown -->
-      ${clientStats.filter(s=>s.reprogC>0).length?`<div class="chart-box" style="margin-bottom:14px">
-        <div class="chart-box-title" style="margin-bottom:8px">Reprogramaciones registradas</div>
-        <div style="display:flex;flex-wrap:wrap;gap:8px">
-          ${clientStats.filter(s=>s.reprogC>0).sort((a,b)=>b.reprogC-a.reprogC).map(s=>`
-            <div style="background:#1a1035;border:1px solid #4c1d95;border-radius:8px;padding:6px 14px;font-size:12px;display:flex;align-items:center;gap:10px">
-              <span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:${CLIENT_COLORS[s.c]||'#64748b'}"></span>
-              <span>${esc(s.c)}</span>
-              <span style="color:#a78bfa;font-weight:700">${s.reprogC}x</span>
-              <span style="color:#475569;font-size:10px">(${s.reprogPct}% de activas)</span>
-            </div>`).join('')}
-        </div>
-      </div>`:''}
     `;
-
-    setTimeout(()=>{
-      const ctxM=document.getElementById('chart-monthly');
-      if(ctxM&&window.Chart){
-        destroyDashChart('monthly');
-        dashCharts['monthly']=new Chart(ctxM,{
-          type:'bar',
-          data:{labels:mLabels,datasets:[
-            {label:'Realizadas',data:mReal,backgroundColor:'rgba(16,185,129,0.35)',borderColor:'#10b981',borderWidth:1.5,order:2},
-            {label:'Vencidas sin completar',data:mLate,backgroundColor:'rgba(239,68,68,0.35)',borderColor:'#f87171',borderWidth:1.5,order:3},
-            {label:'% Avance',data:mAvPct,type:'line',borderColor:'#a78bfa',backgroundColor:'transparent',tension:0.35,yAxisID:'y2',pointRadius:3,borderWidth:2,order:1},
-            {label:'% Reprog.',data:mRepPct,type:'line',borderColor:'#fbbf24',backgroundColor:'transparent',tension:0.35,yAxisID:'y2',pointRadius:3,borderWidth:1.5,borderDash:[5,4],order:1},
-          ]},
-          options:{responsive:true,maintainAspectRatio:false,
-            interaction:{mode:'index',intersect:false},
-            plugins:{legend:{labels:{color:'#64748b',font:{size:10},boxWidth:10},position:'bottom'}},
-            scales:{
-              x:{ticks:{color:'#64748b',font:{size:10},maxRotation:35},grid:{color:'#1e293b'}},
-              y:{ticks:{color:'#64748b',font:{size:10},stepSize:1},grid:{color:'#1e2940'},beginAtZero:true,position:'left',title:{display:true,text:'Tareas',color:'#334155',font:{size:9}}},
-              y2:{ticks:{color:'#64748b',font:{size:10},callback:v=>v+'%'},grid:{display:false},beginAtZero:true,max:100,position:'right',title:{display:true,text:'%',color:'#334155',font:{size:9}}}
-            }}
-        });
-      }
-    },0);
   }).catch(e=>{el.innerHTML='<div class="empty">Error: '+e.message+'</div>';});
 }
 
@@ -964,75 +891,7 @@ function createAvanceChart(stats){
   });
 }
 
-// ═══ GANTT ═══
-function renderGantt(el) {
-  const today=new Date();today.setHours(0,0,0,0);
-  const winStart=new Date(today);winStart.setMonth(winStart.getMonth()-1);
-  const winEnd=new Date(today);winEnd.setMonth(winEnd.getMonth()+3);
-  const totalMs=winEnd-winStart;
 
-  const co=CLIENT_ORDER();
-  let tasks=allTasks.filter(t=>t.fin||t.inicio);
-  if(ganttClientFilter!=='all') tasks=tasks.filter(t=>t.cliente===ganttClientFilter);
-
-  const byClient={};
-  co.forEach(c=>{byClient[c]=[];});
-  tasks.forEach(t=>{if(byClient[t.cliente])byClient[t.cliente].push(t);});
-
-  function pct(d){return Math.max(0,Math.min(100,Math.round((d-winStart)/totalMs*100)));}
-  const todayPct=pct(today);
-
-  // Month labels
-  let months=[];
-  let mCur=new Date(winStart.getFullYear(),winStart.getMonth(),1);
-  while(mCur<=winEnd){months.push({label:mCur.toLocaleDateString('es-AR',{month:'short',year:'2-digit'}),pct:pct(mCur)});mCur=new Date(mCur.getFullYear(),mCur.getMonth()+1,1);}
-
-  // Filter options
-  const filterOpts='<option value="all">Todas las empresas</option>'+co.map(c=>`<option value="${esc(c)}"${ganttClientFilter===c?' selected':''}>${esc(c)}</option>`).join('');
-
-  let html=`<div class="gantt-wrap">
-    <div class="gantt-filter-row">
-      <label>Empresa:</label>
-      <select class="date-inp" onchange="ganttClientFilter=this.value;renderGantt(document.getElementById('tasklist'))" style="width:180px">${filterOpts}</select>
-      <span style="font-size:11px;color:#334155;margin-left:auto">Ventana: ${fmtDate(toISO(winStart))} → ${fmtDate(toISO(winEnd))}</span>
-    </div>
-    <div class="gantt-scale">
-      <div class="gantt-label-col">Tarea</div>
-      <div class="gantt-timeline">
-        ${months.map(m=>`<span class="gantt-month" style="left:${m.pct}%">${m.label}</span>`).join('')}
-        <div class="gantt-today-vline" style="left:${todayPct}%;height:100%"></div>
-      </div>
-    </div>`;
-
-  co.filter(c=>byClient[c]?.length).forEach(c=>{
-    const color=CLIENT_COLORS[c]||'#64748b';
-    html+=`<div class="gantt-client-hdr" style="border-left:3px solid ${color}">
-      <div class="gantt-client-hdr-label" style="color:${color}">${c}</div>
-      <div style="flex:1"></div>
-    </div>`;
-    byClient[c].sort((a,b)=>(a.fin||'9999').localeCompare(b.fin||'9999')).forEach(t=>{
-      const tS=t.inicio?parseDate(t.inicio):(t.fin?parseDate(t.fin):null);
-      const tE=t.fin?parseDate(t.fin):(tS?tS:null);
-      if(!tS||!tE)return;
-      const left=pct(tS),right=pct(tE);
-      const width=Math.max(0.5,right-left);
-      const isLate=tE<today&&t.estado!=='Realizado';
-      const isDone=t.estado==='Realizado';
-      const barColor=isDone?'#10b981':isLate?'#f87171':color;
-      html+=`<div class="gantt-row-wrap">
-        <div class="gantt-task-label" title="${esc(t.nombre)}">${esc(t.nombre.length>28?t.nombre.slice(0,28)+'…':t.nombre)}</div>
-        <div class="gantt-chart-area">
-          <div class="gantt-today-vline" style="left:${todayPct}%"></div>
-          <div class="gantt-bar" style="left:${left}%;width:${width}%;background:${barColor}99;border:1.5px solid ${barColor}" title="${esc(t.nombre)}: ${fmtDate(t.inicio)||'?'} → ${fmtDate(t.fin)||'?'}"></div>
-        </div>
-      </div>`;
-    });
-  });
-
-  if(!co.some(c=>byClient[c]?.length))html+='<div class="empty">Sin tareas con fechas para mostrar</div>';
-  html+='</div>';
-  el.innerHTML=html;
-}
 
 // ═══ AGENDA ═══
 function renderAgenda(el) {
@@ -1389,6 +1248,164 @@ const COACHING_METRICS = {
   cal_ind:       [0,0,0.56,0.417,0.586,0.68,0.833,0.889,0.938,0.815,0.556,0.625,0.737,0.688,0.85,0.917,0.842,0.8,0.9,0.818,0.714,0.8,0.9,0.929,0.8,0.75,0.7,1,1,null,null,null],
   cal_gen:       [0.8,0.778,0.72,0.917,0.897,0.84,0.944,0.815,1,0.889,0.963,0.875,0.684,0.938,0.9,0.917,0.789,0.95,0.95,0.773,0.929,0.867,1,0.929,0.9,0.875,0.7,1,1,null,null,null]
 };
+// ═══ COACHING PROCESS SEED (from Excel BASE COACHING + BASE MENTORIA) ═══
+const COACHING_SEED = [{"id":60,"tipo":"coaching","pilar":"Coaching Individual","coachee":"Maju Bacigalupo","estado":"En curso","meta":null,"quiebre":null,"dominio":null,"fuente":"Ex Coachee","sesiones":[{"nro":1,"fecha":"2026-02-24","status":"REALIZADA","pago":"OK","monto":0,"coach":{"puntualidad":"OK","conexion":"OK","centrado":"OK","bitacora":"OK","acompanamiento":"OK"},"coachee":{"puntualidad":"OK","conexion":"OK","bitacora":null,"accion_declarada":"OK"},"conv":{"generar_relacion":"OK","art_quiebre":"OK","indagacion":"OK","acciones":"OK"},"desc_accion":"3 puntos de dolor industria gastro + validar con alguien + CRM"},{"nro":2,"fecha":"2026-03-31","status":"REALIZADA","pago":"OK","monto":0,"coach":{"puntualidad":"OK","conexion":"OK","centrado":"OK","bitacora":"OK","acompanamiento":"OK"},"coachee":{"puntualidad":"OK","conexion":"OK","bitacora":null,"accion_declarada":"OK"},"conv":{"generar_relacion":"OK","art_quiebre":"OK","indagacion":"OK","acciones":"OK"},"desc_accion":"Propuesta para Mostrador + Presentar"},{"nro":3,"fecha":"2026-04-17","status":"REALIZADA","pago":"OK","monto":0,"coach":{"puntualidad":"OK","conexion":"OK","centrado":"OK","bitacora":"OK","acompanamiento":"OK"},"coachee":{"puntualidad":"OK","conexion":"OK","bitacora":null,"accion_declarada":"NO OK"},"conv":{"generar_relacion":"OK","art_quiebre":"OK","indagacion":"OK","acciones":"OK"},"desc_accion":"Contactos CRM + Flyer 3 propuestas"},{"nro":4,"fecha":"2026-05-13","status":"REALIZADA","pago":"OK","monto":0,"coach":{"puntualidad":"OK","conexion":"OK","centrado":"OK","bitacora":"OK","acompanamiento":null},"coachee":{"puntualidad":"OK","conexion":"OK","bitacora":null,"accion_declarada":null},"conv":{"generar_relacion":"OK","art_quiebre":"OK","indagacion":"OK","acciones":"OK"},"desc_accion":"Armar One Pager y envio"},{"nro":5,"fecha":null,"status":"REALIZADA","pago":"OK","monto":0,"coach":{"puntualidad":null,"conexion":null,"centrado":null,"bitacora":null,"acompanamiento":null},"coachee":{"puntualidad":null,"conexion":null,"bitacora":null,"accion_declarada":null},"conv":{"generar_relacion":null,"art_quiebre":null,"indagacion":null,"acciones":null},"desc_accion":null},{"nro":6,"fecha":null,"status":"REALIZADA","pago":"OK","monto":0,"coach":{"puntualidad":null,"conexion":null,"centrado":null,"bitacora":null,"acompanamiento":null},"coachee":{"puntualidad":null,"conexion":null,"bitacora":null,"accion_declarada":null},"conv":{"generar_relacion":null,"art_quiebre":null,"indagacion":null,"acciones":null},"desc_accion":null},{"nro":7,"fecha":"2026-10-10","status":null,"pago":null,"monto":0,"coach":{"puntualidad":null,"conexion":null,"centrado":null,"bitacora":null,"acompanamiento":null},"coachee":{"puntualidad":null,"conexion":null,"bitacora":null,"accion_declarada":null},"conv":{"generar_relacion":null,"art_quiebre":null,"indagacion":null,"acciones":null},"desc_accion":null},{"nro":8,"fecha":null,"status":null,"pago":null,"monto":0,"coach":{"puntualidad":null,"conexion":null,"centrado":null,"bitacora":null,"acompanamiento":null},"coachee":{"puntualidad":null,"conexion":null,"bitacora":null,"accion_declarada":null},"conv":{"generar_relacion":null,"art_quiebre":null,"indagacion":null,"acciones":null},"desc_accion":null},{"nro":9,"fecha":null,"status":null,"pago":null,"monto":0,"coach":{"puntualidad":null,"conexion":null,"centrado":null,"bitacora":null,"acompanamiento":null},"coachee":{"puntualidad":null,"conexion":null,"bitacora":null,"accion_declarada":null},"conv":{"generar_relacion":null,"art_quiebre":null,"indagacion":null,"acciones":null},"desc_accion":null},{"nro":10,"fecha":null,"status":null,"pago":null,"monto":0,"coach":{"puntualidad":null,"conexion":null,"centrado":null,"bitacora":null,"acompanamiento":null},"coachee":{"puntualidad":null,"conexion":null,"bitacora":null,"accion_declarada":null},"conv":{"generar_relacion":null,"art_quiebre":null,"indagacion":null,"acciones":null},"desc_accion":null}]},{"id":64,"tipo":"coaching","pilar":"Coaching Individual","coachee":"Juani Marquez","estado":"En curso","meta":"Gestión del tiempo + Decidir autónomamente","quiebre":null,"dominio":"Organización y orden","fuente":"Recomendado Coachee","sesiones":[{"nro":1,"fecha":"2026-05-21","status":"REALIZADA","pago":"OK","monto":45000,"coach":{"puntualidad":"OK","conexion":"OK","centrado":"OK","bitacora":"OK","acompanamiento":"NO OK"},"coachee":{"puntualidad":"OK","conexion":"OK","bitacora":"NO OK","accion_declarada":0.5},"conv":{"generar_relacion":"OK","art_quiebre":"OK","indagacion":"OK","acciones":"OK"},"desc_accion":"Arrancar a puntear sus indicadores + lista de cosas que lo relajan"},{"nro":2,"fecha":"2026-06-02","status":"REALIZADA","pago":"OK","monto":45000,"coach":{"puntualidad":"OK","conexion":"OK","centrado":"OK","bitacora":"OK","acompanamiento":"NO OK"},"coachee":{"puntualidad":"OK","conexion":"OK","bitacora":"NO OK","accion_declarada":0},"conv":{"generar_relacion":"OK","art_quiebre":"OK","indagacion":"OK","acciones":"OK"},"desc_accion":"Arrancar a puntear sus indicadores + charla con Lele"},{"nro":3,"fecha":"2026-06-24","status":"REALIZADA","pago":"OK","monto":45000,"coach":{"puntualidad":"OK","conexion":"OK","centrado":"OK","bitacora":"OK","acompanamiento":"OK"},"coachee":{"puntualidad":"OK","conexion":"OK","bitacora":null,"accion_declarada":0.66},"conv":{"generar_relacion":"OK","art_quiebre":"OK","indagacion":"OK","acciones":"OK"},"desc_accion":"Feedback con lean + registro de kpis diario"},{"nro":4,"fecha":"2026-07-15","status":"REALIZADA","pago":null,"monto":45000,"coach":{"puntualidad":"OK","conexion":"OK","centrado":"OK","bitacora":"OK","acompanamiento":"NO OK"},"coachee":{"puntualidad":"OK","conexion":"OK","bitacora":null,"accion_declarada":1},"conv":{"generar_relacion":"OK","art_quiebre":"OK","indagacion":"OK","acciones":"OK"},"desc_accion":"Registro de kpis semanalmente + charla con Lele"},{"nro":5,"fecha":null,"status":"REALIZADA","pago":"OK","monto":45000,"coach":{"puntualidad":"OK","conexion":"OK","centrado":"OK","bitacora":"OK","acompanamiento":"NO OK"},"coachee":{"puntualidad":"OK","conexion":"OK","bitacora":null,"accion_declarada":0.5},"conv":{"generar_relacion":"OK","art_quiebre":"OK","indagacion":"OK","acciones":"OK"},"desc_accion":"Registro de kpis semanalmente + foto de tareas"},{"nro":6,"fecha":null,"status":"REALIZADA","pago":null,"monto":45000,"coach":{"puntualidad":"OK","conexion":"OK","centrado":"OK","bitacora":"OK","acompanamiento":"NO OK"},"coachee":{"puntualidad":"OK","conexion":"OK","bitacora":null,"accion_declarada":0.5},"conv":{"generar_relacion":"OK","art_quiebre":"OK","indagacion":"OK","acciones":"OK"},"desc_accion":"Listado de categorías de tareas + cierre del día diario"},{"nro":7,"fecha":"2026-09-02","status":"REALIZADA","pago":null,"monto":45000,"coach":{"puntualidad":"OK","conexion":"OK","centrado":"OK","bitacora":"OK","acompanamiento":"OK"},"coachee":{"puntualidad":"OK","conexion":"OK","bitacora":null,"accion_declarada":1},"conv":{"generar_relacion":"OK","art_quiebre":"OK","indagacion":"OK","acciones":"OK"},"desc_accion":"Hablar con Lele sobre tiempos"},{"nro":8,"fecha":null,"status":"REALIZADA","pago":null,"monto":45000,"coach":{"puntualidad":"OK","conexion":"OK","centrado":"OK","bitacora":"OK","acompanamiento":"OK"},"coachee":{"puntualidad":"OK","conexion":"OK","bitacora":null,"accion_declarada":1},"conv":{"generar_relacion":"OK","art_quiebre":"OK","indagacion":"OK","acciones":"OK"},"desc_accion":null},{"nro":9,"fecha":null,"status":"REALIZADA","pago":null,"monto":45000,"coach":{"puntualidad":"OK","conexion":"OK","centrado":"OK","bitacora":"OK","acompanamiento":null},"coachee":{"puntualidad":"OK","conexion":"OK","bitacora":null,"accion_declarada":null},"conv":{"generar_relacion":"OK","art_quiebre":"OK","indagacion":"OK","acciones":"OK"},"desc_accion":null},{"nro":10,"fecha":null,"status":null,"pago":null,"monto":45000,"coach":{"puntualidad":null,"conexion":null,"centrado":null,"bitacora":null,"acompanamiento":null},"coachee":{"puntualidad":null,"conexion":null,"bitacora":null,"accion_declarada":null},"conv":{"generar_relacion":null,"art_quiebre":null,"indagacion":null,"acciones":null},"desc_accion":null}]},{"id":66,"tipo":"coaching","pilar":"Coaching Organizacional","coachee":"Karen Martinez","estado":"En curso","meta":"Comprensión y ejecución efectiva del rol de Líder NABS","quiebre":null,"dominio":"Organización y orden","fuente":"Recomendado Coachee","sesiones":[{"nro":1,"fecha":"2026-08-07","status":"REALIZADA","pago":"OK","monto":0,"coach":{"puntualidad":"OK","conexion":"OK","centrado":"OK","bitacora":"OK","acompanamiento":"OK"},"coachee":{"puntualidad":"OK","conexion":"OK","bitacora":null,"accion_declarada":1},"conv":{"generar_relacion":"OK","art_quiebre":"OK","indagacion":"OK","acciones":"OK"},"desc_accion":"Excel de seguimiento de focos + compartir agenda con Sarita"},{"nro":2,"fecha":null,"status":"REALIZADA","pago":"OK","monto":0,"coach":{"puntualidad":"OK","conexion":"OK","centrado":"OK","bitacora":"OK","acompanamiento":"NO OK"},"coachee":{"puntualidad":"OK","conexion":"OK","bitacora":null,"accion_declarada":1},"conv":{"generar_relacion":"OK","art_quiebre":"OK","indagacion":"OK","acciones":"OK"},"desc_accion":"Resolver formulario + variables programa de mercado + TACO semanal"},{"nro":3,"fecha":null,"status":"REALIZADA","pago":"OK","monto":0,"coach":{"puntualidad":"OK","conexion":"OK","centrado":"OK","bitacora":"OK","acompanamiento":"OK"},"coachee":{"puntualidad":"OK","conexion":"OK","bitacora":null,"accion_declarada":1},"conv":{"generar_relacion":"OK","art_quiebre":"OK","indagacion":"OK","acciones":"OK"},"desc_accion":"Mensaje a Sarita"},{"nro":4,"fecha":"2026-10-14","status":"REALIZADA","pago":"OK","monto":0,"coach":{"puntualidad":"OK","conexion":"OK","centrado":"OK","bitacora":"OK","acompanamiento":null},"coachee":{"puntualidad":"OK","conexion":"OK","bitacora":null,"accion_declarada":null},"conv":{"generar_relacion":"OK","art_quiebre":"OK","indagacion":"OK","acciones":"OK"},"desc_accion":null},{"nro":5,"fecha":null,"status":null,"pago":null,"monto":0,"coach":{"puntualidad":null,"conexion":null,"centrado":null,"bitacora":null,"acompanamiento":null},"coachee":{"puntualidad":null,"conexion":null,"bitacora":null,"accion_declarada":null},"conv":{"generar_relacion":null,"art_quiebre":null,"indagacion":null,"acciones":null},"desc_accion":null},{"nro":6,"fecha":null,"status":null,"pago":null,"monto":0,"coach":{"puntualidad":null,"conexion":null,"centrado":null,"bitacora":null,"acompanamiento":null},"coachee":{"puntualidad":null,"conexion":null,"bitacora":null,"accion_declarada":null},"conv":{"generar_relacion":null,"art_quiebre":null,"indagacion":null,"acciones":null},"desc_accion":null},{"nro":7,"fecha":null,"status":null,"pago":null,"monto":0,"coach":{"puntualidad":null,"conexion":null,"centrado":null,"bitacora":null,"acompanamiento":null},"coachee":{"puntualidad":null,"conexion":null,"bitacora":null,"accion_declarada":null},"conv":{"generar_relacion":null,"art_quiebre":null,"indagacion":null,"acciones":null},"desc_accion":null},{"nro":8,"fecha":null,"status":null,"pago":null,"monto":0,"coach":{"puntualidad":null,"conexion":null,"centrado":null,"bitacora":null,"acompanamiento":null},"coachee":{"puntualidad":null,"conexion":null,"bitacora":null,"accion_declarada":null},"conv":{"generar_relacion":null,"art_quiebre":null,"indagacion":null,"acciones":null},"desc_accion":null},{"nro":9,"fecha":null,"status":null,"pago":null,"monto":0,"coach":{"puntualidad":null,"conexion":null,"centrado":null,"bitacora":null,"acompanamiento":null},"coachee":{"puntualidad":null,"conexion":null,"bitacora":null,"accion_declarada":null},"conv":{"generar_relacion":null,"art_quiebre":null,"indagacion":null,"acciones":null},"desc_accion":null},{"nro":10,"fecha":null,"status":null,"pago":null,"monto":0,"coach":{"puntualidad":null,"conexion":null,"centrado":null,"bitacora":null,"acompanamiento":null},"coachee":{"puntualidad":null,"conexion":null,"bitacora":null,"accion_declarada":null},"conv":{"generar_relacion":null,"art_quiebre":null,"indagacion":null,"acciones":null},"desc_accion":null}]},{"id":67,"tipo":"coaching","pilar":"Coaching Organizacional","coachee":"Nicolas Cafaratti","estado":"En curso","meta":"Organización del equipo, orden, autonomia, previsibilidad","quiebre":null,"dominio":"Organización y Automatizacion","fuente":"Trabajo","sesiones":[{"nro":1,"fecha":"2026-08-11","status":"REALIZADA","pago":"OK","monto":0,"coach":{"puntualidad":"OK","conexion":"OK","centrado":"OK","bitacora":"OK","acompanamiento":"NO OK"},"coachee":{"puntualidad":"OK","conexion":"OK","bitacora":null,"accion_declarada":1},"conv":{"generar_relacion":"OK","art_quiebre":"OK","indagacion":"OK","acciones":"OK"},"desc_accion":"Mapear tareas"},{"nro":2,"fecha":"2026-09-01","status":"REALIZADA","pago":"OK","monto":0,"coach":{"puntualidad":"OK","conexion":"OK","centrado":"OK","bitacora":"OK","acompanamiento":"NO OK"},"coachee":{"puntualidad":"OK","conexion":"OK","bitacora":null,"accion_declarada":0.25},"conv":{"generar_relacion":"OK","art_quiebre":"OK","indagacion":"OK","acciones":"OK"},"desc_accion":"Revisar tareas con el equipo, boceto de job description"},{"nro":3,"fecha":null,"status":"REALIZADA","pago":"OK","monto":0,"coach":{"puntualidad":"OK","conexion":"OK","centrado":"OK","bitacora":"OK","acompanamiento":"NO OK"},"coachee":{"puntualidad":"OK","conexion":"OK","bitacora":null,"accion_declarada":1},"conv":{"generar_relacion":"OK","art_quiebre":"OK","indagacion":"OK","acciones":"OK"},"desc_accion":null},{"nro":4,"fecha":null,"status":"REALIZADA","pago":"OK","monto":0,"coach":{"puntualidad":"OK","conexion":"OK","centrado":"OK","bitacora":"OK","acompanamiento":"NO OK"},"coachee":{"puntualidad":"OK","conexion":"OK","bitacora":null,"accion_declarada":1},"conv":{"generar_relacion":"OK","art_quiebre":"OK","indagacion":"OK","acciones":"OK"},"desc_accion":null},{"nro":5,"fecha":null,"status":"REALIZADA","pago":null,"monto":0,"coach":{"puntualidad":"OK","conexion":"OK","centrado":"OK","bitacora":"OK","acompanamiento":null},"coachee":{"puntualidad":"OK","conexion":"OK","bitacora":null,"accion_declarada":null},"conv":{"generar_relacion":"OK","art_quiebre":"OK","indagacion":"OK","acciones":"OK"},"desc_accion":null},{"nro":6,"fecha":null,"status":null,"pago":null,"monto":0,"coach":{"puntualidad":null,"conexion":null,"centrado":null,"bitacora":null,"acompanamiento":null},"coachee":{"puntualidad":null,"conexion":null,"bitacora":null,"accion_declarada":null},"conv":{"generar_relacion":null,"art_quiebre":null,"indagacion":null,"acciones":null},"desc_accion":null},{"nro":7,"fecha":null,"status":null,"pago":null,"monto":0,"coach":{"puntualidad":null,"conexion":null,"centrado":null,"bitacora":null,"acompanamiento":null},"coachee":{"puntualidad":null,"conexion":null,"bitacora":null,"accion_declarada":null},"conv":{"generar_relacion":null,"art_quiebre":null,"indagacion":null,"acciones":null},"desc_accion":null},{"nro":8,"fecha":null,"status":null,"pago":null,"monto":0,"coach":{"puntualidad":null,"conexion":null,"centrado":null,"bitacora":null,"acompanamiento":null},"coachee":{"puntualidad":null,"conexion":null,"bitacora":null,"accion_declarada":null},"conv":{"generar_relacion":null,"art_quiebre":null,"indagacion":null,"acciones":null},"desc_accion":null},{"nro":9,"fecha":null,"status":null,"pago":null,"monto":0,"coach":{"puntualidad":null,"conexion":null,"centrado":null,"bitacora":null,"acompanamiento":null},"coachee":{"puntualidad":null,"conexion":null,"bitacora":null,"accion_declarada":null},"conv":{"generar_relacion":null,"art_quiebre":null,"indagacion":null,"acciones":null},"desc_accion":null},{"nro":10,"fecha":null,"status":null,"pago":null,"monto":0,"coach":{"puntualidad":null,"conexion":null,"centrado":null,"bitacora":null,"acompanamiento":null},"coachee":{"puntualidad":null,"conexion":null,"bitacora":null,"accion_declarada":null},"conv":{"generar_relacion":null,"art_quiebre":null,"indagacion":null,"acciones":null},"desc_accion":null}]},{"id":68,"tipo":"coaching","pilar":"Coaching Organizacional","coachee":"Ezequiel Patrignani","estado":"En curso","meta":"Gestión del tiempo + Decidir autónomamente","quiebre":null,"dominio":"Delegación","fuente":"Trabajo","sesiones":[{"nro":1,"fecha":"2026-08-21","status":"REALIZADA","pago":"OK","monto":0,"coach":{"puntualidad":"OK","conexion":"OK","centrado":"OK","bitacora":"OK","acompanamiento":"NO OK"},"coachee":{"puntualidad":"OK","conexion":"OK","bitacora":null,"accion_declarada":1},"conv":{"generar_relacion":"OK","art_quiebre":"OK","indagacion":"OK","acciones":"OK"},"desc_accion":"Mapear tareas, y tareas a delegar"},{"nro":2,"fecha":"2026-08-28","status":"REALIZADA","pago":"OK","monto":0,"coach":{"puntualidad":"OK","conexion":"OK","centrado":"OK","bitacora":"OK","acompanamiento":"NO OK"},"coachee":{"puntualidad":"OK","conexion":"OK","bitacora":null,"accion_declarada":0.75},"conv":{"generar_relacion":"OK","art_quiebre":"OK","indagacion":"OK","acciones":"OK"},"desc_accion":"Pedidos efectivos"},{"nro":3,"fecha":"2026-09-18","status":"REALIZADA","pago":"OK","monto":0,"coach":{"puntualidad":"OK","conexion":"OK","centrado":"OK","bitacora":"OK","acompanamiento":"NO OK"},"coachee":{"puntualidad":"OK","conexion":"OK","bitacora":null,"accion_declarada":1},"conv":{"generar_relacion":"OK","art_quiebre":"OK","indagacion":"OK","acciones":"OK"},"desc_accion":null},{"nro":4,"fecha":null,"status":"REALIZADA","pago":"OK","monto":0,"coach":{"puntualidad":"OK","conexion":"OK","centrado":"OK","bitacora":"OK","acompanamiento":null},"coachee":{"puntualidad":"OK","conexion":"OK","bitacora":null,"accion_declarada":null},"conv":{"generar_relacion":"OK","art_quiebre":"OK","indagacion":"OK","acciones":"OK"},"desc_accion":null},{"nro":5,"fecha":null,"status":null,"pago":null,"monto":0,"coach":{"puntualidad":null,"conexion":null,"centrado":null,"bitacora":null,"acompanamiento":null},"coachee":{"puntualidad":null,"conexion":null,"bitacora":null,"accion_declarada":null},"conv":{"generar_relacion":null,"art_quiebre":null,"indagacion":null,"acciones":null},"desc_accion":null},{"nro":6,"fecha":null,"status":null,"pago":null,"monto":0,"coach":{"puntualidad":null,"conexion":null,"centrado":null,"bitacora":null,"acompanamiento":null},"coachee":{"puntualidad":null,"conexion":null,"bitacora":null,"accion_declarada":null},"conv":{"generar_relacion":null,"art_quiebre":null,"indagacion":null,"acciones":null},"desc_accion":null},{"nro":7,"fecha":null,"status":null,"pago":null,"monto":0,"coach":{"puntualidad":null,"conexion":null,"centrado":null,"bitacora":null,"acompanamiento":null},"coachee":{"puntualidad":null,"conexion":null,"bitacora":null,"accion_declarada":null},"conv":{"generar_relacion":null,"art_quiebre":null,"indagacion":null,"acciones":null},"desc_accion":null},{"nro":8,"fecha":null,"status":null,"pago":null,"monto":0,"coach":{"puntualidad":null,"conexion":null,"centrado":null,"bitacora":null,"acompanamiento":null},"coachee":{"puntualidad":null,"conexion":null,"bitacora":null,"accion_declarada":null},"conv":{"generar_relacion":null,"art_quiebre":null,"indagacion":null,"acciones":null},"desc_accion":null},{"nro":9,"fecha":null,"status":null,"pago":null,"monto":0,"coach":{"puntualidad":null,"conexion":null,"centrado":null,"bitacora":null,"acompanamiento":null},"coachee":{"puntualidad":null,"conexion":null,"bitacora":null,"accion_declarada":null},"conv":{"generar_relacion":null,"art_quiebre":null,"indagacion":null,"acciones":null},"desc_accion":null},{"nro":10,"fecha":null,"status":null,"pago":null,"monto":0,"coach":{"puntualidad":null,"conexion":null,"centrado":null,"bitacora":null,"acompanamiento":null},"coachee":{"puntualidad":null,"conexion":null,"bitacora":null,"accion_declarada":null},"conv":{"generar_relacion":null,"art_quiebre":null,"indagacion":null,"acciones":null},"desc_accion":null}]},{"id":69,"tipo":"coaching","pilar":"Coaching Organizacional","coachee":"Sebastián Gimenez","estado":"En curso","meta":"Gestión del tiempo + Decidir autónomamente","quiebre":null,"dominio":"Organización y Relaciones","fuente":"Trabajo","sesiones":[{"nro":1,"fecha":"2026-08-28","status":"REALIZADA","pago":"OK","monto":0,"coach":{"puntualidad":"OK","conexion":"OK","centrado":"OK","bitacora":"OK","acompanamiento":"NO OK"},"coachee":{"puntualidad":"NO OK","conexion":"OK","bitacora":null,"accion_declarada":"OK"},"conv":{"generar_relacion":"OK","art_quiebre":"OK","indagacion":"OK","acciones":"OK"},"desc_accion":null},{"nro":2,"fecha":null,"status":"REALIZADA","pago":"OK","monto":0,"coach":{"puntualidad":"OK","conexion":"OK","centrado":"OK","bitacora":"OK","acompanamiento":"NO OK"},"coachee":{"puntualidad":"OK","conexion":"OK","bitacora":null,"accion_declarada":"OK"},"conv":{"generar_relacion":"OK","art_quiebre":"OK","indagacion":"OK","acciones":"OK"},"desc_accion":null},{"nro":3,"fecha":"2026-09-29","status":"REALIZADA","pago":"OK","monto":0,"coach":{"puntualidad":"OK","conexion":"OK","centrado":"OK","bitacora":"OK","acompanamiento":"NO OK"},"coachee":{"puntualidad":"OK","conexion":"OK","bitacora":null,"accion_declarada":"OK"},"conv":{"generar_relacion":"OK","art_quiebre":"OK","indagacion":"OK","acciones":"OK"},"desc_accion":null},{"nro":4,"fecha":"2026-10-08","status":"REALIZADA","pago":"OK","monto":0,"coach":{"puntualidad":"OK","conexion":"OK","centrado":"OK","bitacora":"OK","acompanamiento":"NO OK"},"coachee":{"puntualidad":"OK","conexion":"OK","bitacora":null,"accion_declarada":"OK"},"conv":{"generar_relacion":"OK","art_quiebre":"OK","indagacion":"OK","acciones":"OK"},"desc_accion":null},{"nro":5,"fecha":null,"status":null,"pago":null,"monto":0,"coach":{"puntualidad":null,"conexion":null,"centrado":null,"bitacora":null,"acompanamiento":null},"coachee":{"puntualidad":null,"conexion":null,"bitacora":null,"accion_declarada":null},"conv":{"generar_relacion":null,"art_quiebre":null,"indagacion":null,"acciones":null},"desc_accion":null},{"nro":6,"fecha":null,"status":null,"pago":null,"monto":0,"coach":{"puntualidad":null,"conexion":null,"centrado":null,"bitacora":null,"acompanamiento":null},"coachee":{"puntualidad":null,"conexion":null,"bitacora":null,"accion_declarada":null},"conv":{"generar_relacion":null,"art_quiebre":null,"indagacion":null,"acciones":null},"desc_accion":null},{"nro":7,"fecha":null,"status":null,"pago":null,"monto":0,"coach":{"puntualidad":null,"conexion":null,"centrado":null,"bitacora":null,"acompanamiento":null},"coachee":{"puntualidad":null,"conexion":null,"bitacora":null,"accion_declarada":null},"conv":{"generar_relacion":null,"art_quiebre":null,"indagacion":null,"acciones":null},"desc_accion":null},{"nro":8,"fecha":null,"status":null,"pago":null,"monto":0,"coach":{"puntualidad":null,"conexion":null,"centrado":null,"bitacora":null,"acompanamiento":null},"coachee":{"puntualidad":null,"conexion":null,"bitacora":null,"accion_declarada":null},"conv":{"generar_relacion":null,"art_quiebre":null,"indagacion":null,"acciones":null},"desc_accion":null},{"nro":9,"fecha":null,"status":null,"pago":null,"monto":0,"coach":{"puntualidad":null,"conexion":null,"centrado":null,"bitacora":null,"acompanamiento":null},"coachee":{"puntualidad":null,"conexion":null,"bitacora":null,"accion_declarada":null},"conv":{"generar_relacion":null,"art_quiebre":null,"indagacion":null,"acciones":null},"desc_accion":null},{"nro":10,"fecha":null,"status":null,"pago":null,"monto":0,"coach":{"puntualidad":null,"conexion":null,"centrado":null,"bitacora":null,"acompanamiento":null},"coachee":{"puntualidad":null,"conexion":null,"bitacora":null,"accion_declarada":null},"conv":{"generar_relacion":null,"art_quiebre":null,"indagacion":null,"acciones":null},"desc_accion":null}]},{"id":70,"tipo":"coaching","pilar":"Coaching Organizacional","coachee":"Orlando Caceres","estado":"En curso","meta":"Gestión del tiempo + Decidir autónomamente","quiebre":null,"dominio":"Organización y Relaciones","fuente":"Trabajo","sesiones":[{"nro":1,"fecha":"2026-10-17","status":null,"pago":null,"monto":0,"coach":{"puntualidad":"OK","conexion":"OK","centrado":"OK","bitacora":"OK","acompanamiento":"NO OK"},"coachee":{"puntualidad":"NO OK","conexion":"OK","bitacora":null,"accion_declarada":"OK"},"conv":{"generar_relacion":"OK","art_quiebre":"OK","indagacion":"OK","acciones":"OK"},"desc_accion":null},{"nro":2,"fecha":null,"status":null,"pago":null,"monto":0,"coach":{"puntualidad":null,"conexion":null,"centrado":null,"bitacora":null,"acompanamiento":null},"coachee":{"puntualidad":null,"conexion":null,"bitacora":null,"accion_declarada":null},"conv":{"generar_relacion":null,"art_quiebre":null,"indagacion":null,"acciones":null},"desc_accion":null},{"nro":3,"fecha":null,"status":null,"pago":null,"monto":0,"coach":{"puntualidad":null,"conexion":null,"centrado":null,"bitacora":null,"acompanamiento":null},"coachee":{"puntualidad":null,"conexion":null,"bitacora":null,"accion_declarada":null},"conv":{"generar_relacion":null,"art_quiebre":null,"indagacion":null,"acciones":null},"desc_accion":null},{"nro":4,"fecha":null,"status":null,"pago":null,"monto":0,"coach":{"puntualidad":null,"conexion":null,"centrado":null,"bitacora":null,"acompanamiento":null},"coachee":{"puntualidad":null,"conexion":null,"bitacora":null,"accion_declarada":null},"conv":{"generar_relacion":null,"art_quiebre":null,"indagacion":null,"acciones":null},"desc_accion":null},{"nro":5,"fecha":null,"status":null,"pago":null,"monto":0,"coach":{"puntualidad":null,"conexion":null,"centrado":null,"bitacora":null,"acompanamiento":null},"coachee":{"puntualidad":null,"conexion":null,"bitacora":null,"accion_declarada":null},"conv":{"generar_relacion":null,"art_quiebre":null,"indagacion":null,"acciones":null},"desc_accion":null},{"nro":6,"fecha":null,"status":null,"pago":null,"monto":0,"coach":{"puntualidad":null,"conexion":null,"centrado":null,"bitacora":null,"acompanamiento":null},"coachee":{"puntualidad":null,"conexion":null,"bitacora":null,"accion_declarada":null},"conv":{"generar_relacion":null,"art_quiebre":null,"indagacion":null,"acciones":null},"desc_accion":null}]},{"id":71,"tipo":"coaching","pilar":"Coaching Organizacional","coachee":"Santiago Cuello","estado":"En curso","meta":null,"quiebre":null,"dominio":"Organización y Relaciones","fuente":"Trabajo","sesiones":[{"nro":1,"fecha":"2026-10-17","status":null,"pago":null,"monto":0,"coach":{"puntualidad":null,"conexion":null,"centrado":null,"bitacora":null,"acompanamiento":null},"coachee":{"puntualidad":null,"conexion":null,"bitacora":null,"accion_declarada":null},"conv":{"generar_relacion":null,"art_quiebre":null,"indagacion":null,"acciones":null},"desc_accion":null},{"nro":2,"fecha":null,"status":null,"pago":null,"monto":0,"coach":{"puntualidad":null,"conexion":null,"centrado":null,"bitacora":null,"acompanamiento":null},"coachee":{"puntualidad":null,"conexion":null,"bitacora":null,"accion_declarada":null},"conv":{"generar_relacion":null,"art_quiebre":null,"indagacion":null,"acciones":null},"desc_accion":null},{"nro":3,"fecha":null,"status":null,"pago":null,"monto":0,"coach":{"puntualidad":null,"conexion":null,"centrado":null,"bitacora":null,"acompanamiento":null},"coachee":{"puntualidad":null,"conexion":null,"bitacora":null,"accion_declarada":null},"conv":{"generar_relacion":null,"art_quiebre":null,"indagacion":null,"acciones":null},"desc_accion":null},{"nro":4,"fecha":null,"status":null,"pago":null,"monto":0,"coach":{"puntualidad":null,"conexion":null,"centrado":null,"bitacora":null,"acompanamiento":null},"coachee":{"puntualidad":null,"conexion":null,"bitacora":null,"accion_declarada":null},"conv":{"generar_relacion":null,"art_quiebre":null,"indagacion":null,"acciones":null},"desc_accion":null},{"nro":5,"fecha":null,"status":null,"pago":null,"monto":0,"coach":{"puntualidad":null,"conexion":null,"centrado":null,"bitacora":null,"acompanamiento":null},"coachee":{"puntualidad":null,"conexion":null,"bitacora":null,"accion_declarada":null},"conv":{"generar_relacion":null,"art_quiebre":null,"indagacion":null,"acciones":null},"desc_accion":null},{"nro":6,"fecha":null,"status":null,"pago":null,"monto":0,"coach":{"puntualidad":null,"conexion":null,"centrado":null,"bitacora":null,"acompanamiento":null},"coachee":{"puntualidad":null,"conexion":null,"bitacora":null,"accion_declarada":null},"conv":{"generar_relacion":null,"art_quiebre":null,"indagacion":null,"acciones":null},"desc_accion":null}]},{"id":"m1","tipo":"mentoria","pilar":"Mentoria","coachee":"Ana Garreton","estado":"Pausado","meta":null,"quiebre":null,"dominio":"Liderazgo","fuente":"Redes Sociales","sesiones":[{"nro":1,"fecha":"2026-01-13","status":"REALIZADA","pago":"OK","monto":75000,"coach":{"puntualidad":"OK","conexion":"OK","centrado":"OK","material":"OK","acompanamiento":"OK"},"coachee":{"puntualidad":"OK","conexion":"NO OK","desafio":"OK","bitacora":"OK","accion_declarada":1},"conv":{"generar_relacion":"OK","repaso_acciones":"OK","art_quiebre":"OK","herramienta":"OK","acciones":"OK"},"desc_accion":"Tomar 3 habilidades de liderazgo + priorizar"},{"nro":2,"fecha":"2026-02-02","status":"REALIZADA","pago":"OK","monto":75000,"coach":{"puntualidad":"OK","conexion":"OK","centrado":"OK","material":"NO OK","acompanamiento":"OK"},"coachee":{"puntualidad":"OK","conexion":"OK","desafio":"OK","bitacora":"NO OK","accion_declarada":1},"conv":{"generar_relacion":"OK","repaso_acciones":"OK","art_quiebre":"OK","herramienta":"OK","acciones":"OK"},"desc_accion":"Tomar 3 habilidades de liderazgo + priorizar"},{"nro":3,"fecha":"2026-02-23","status":"REALIZADA","pago":"OK","monto":75000,"coach":{"puntualidad":"OK","conexion":"OK","centrado":"OK","material":"OK","acompanamiento":null},"coachee":{"puntualidad":"OK","conexion":"OK","desafio":"OK","bitacora":null,"accion_declarada":null},"conv":{"generar_relacion":"OK","repaso_acciones":"OK","art_quiebre":"OK","herramienta":"OK","acciones":"OK"},"desc_accion":"Listado de tareas"},{"nro":4,"fecha":null,"status":null,"pago":"OK","monto":75000,"coach":{"puntualidad":null,"conexion":null,"centrado":null,"material":null,"acompanamiento":null},"coachee":{"puntualidad":null,"conexion":null,"desafio":null,"bitacora":null,"accion_declarada":null},"conv":{"generar_relacion":null,"repaso_acciones":null,"art_quiebre":null,"herramienta":null,"acciones":null},"desc_accion":null},{"nro":5,"fecha":null,"status":null,"pago":null,"monto":0,"coach":{"puntualidad":null,"conexion":null,"centrado":null,"material":null,"acompanamiento":null},"coachee":{"puntualidad":null,"conexion":null,"desafio":null,"bitacora":null,"accion_declarada":null},"conv":{"generar_relacion":null,"repaso_acciones":null,"art_quiebre":null,"herramienta":null,"acciones":null},"desc_accion":null},{"nro":6,"fecha":null,"status":null,"pago":null,"monto":0,"coach":{"puntualidad":null,"conexion":null,"centrado":null,"material":null,"acompanamiento":null},"coachee":{"puntualidad":null,"conexion":null,"desafio":null,"bitacora":null,"accion_declarada":null},"conv":{"generar_relacion":null,"repaso_acciones":null,"art_quiebre":null,"herramienta":null,"acciones":null},"desc_accion":null},{"nro":7,"fecha":null,"status":null,"pago":null,"monto":0,"coach":{"puntualidad":null,"conexion":null,"centrado":null,"material":null,"acompanamiento":null},"coachee":{"puntualidad":null,"conexion":null,"desafio":null,"bitacora":null,"accion_declarada":null},"conv":{"generar_relacion":null,"repaso_acciones":null,"art_quiebre":null,"herramienta":null,"acciones":null},"desc_accion":null},{"nro":8,"fecha":null,"status":null,"pago":null,"monto":0,"coach":{"puntualidad":null,"conexion":null,"centrado":null,"material":null,"acompanamiento":null},"coachee":{"puntualidad":null,"conexion":null,"desafio":null,"bitacora":null,"accion_declarada":null},"conv":{"generar_relacion":null,"repaso_acciones":null,"art_quiebre":null,"herramienta":null,"acciones":null},"desc_accion":null},{"nro":9,"fecha":null,"status":null,"pago":null,"monto":0,"coach":{"puntualidad":null,"conexion":null,"centrado":null,"material":null,"acompanamiento":null},"coachee":{"puntualidad":null,"conexion":null,"desafio":null,"bitacora":null,"accion_declarada":null},"conv":{"generar_relacion":null,"repaso_acciones":null,"art_quiebre":null,"herramienta":null,"acciones":null},"desc_accion":null},{"nro":10,"fecha":null,"status":null,"pago":null,"monto":0,"coach":{"puntualidad":null,"conexion":null,"centrado":null,"material":null,"acompanamiento":null},"coachee":{"puntualidad":null,"conexion":null,"desafio":null,"bitacora":null,"accion_declarada":null},"conv":{"generar_relacion":null,"repaso_acciones":null,"art_quiebre":null,"herramienta":null,"acciones":null},"desc_accion":null},{"nro":11,"fecha":null,"status":null,"pago":null,"monto":0,"coach":{"puntualidad":null,"conexion":null,"centrado":null,"material":null,"acompanamiento":null},"coachee":{"puntualidad":null,"conexion":null,"desafio":null,"bitacora":null,"accion_declarada":null},"conv":{"generar_relacion":null,"repaso_acciones":null,"art_quiebre":null,"herramienta":null,"acciones":null},"desc_accion":null},{"nro":12,"fecha":null,"status":null,"pago":null,"monto":0,"coach":{"puntualidad":null,"conexion":null,"centrado":null,"material":null,"acompanamiento":null},"coachee":{"puntualidad":null,"conexion":null,"desafio":null,"bitacora":null,"accion_declarada":null},"conv":{"generar_relacion":null,"repaso_acciones":null,"art_quiebre":null,"herramienta":null,"acciones":null},"desc_accion":null}]},{"id":"m2","tipo":"mentoria","pilar":"Mentoria","coachee":"Zechi Guzman","estado":"Finalizado","meta":null,"quiebre":null,"dominio":"Liderazgo","fuente":"Ex Coachee","sesiones":[{"nro":1,"fecha":"2026-03-04","status":"REALIZADA","pago":"OK","monto":65000,"coach":{"puntualidad":"OK","conexion":"OK","centrado":"OK","material":"NO OK","acompanamiento":"OK"},"coachee":{"puntualidad":"OK","conexion":"OK","desafio":"OK","bitacora":null,"accion_declarada":"OK"},"conv":{"generar_relacion":"OK","repaso_acciones":"OK","art_quiebre":"OK","herramienta":"OK","acciones":"OK"},"desc_accion":"1 decision x dia"},{"nro":2,"fecha":"2026-03-26","status":"REALIZADA","pago":"OK","monto":65000,"coach":{"puntualidad":"OK","conexion":"OK","centrado":"OK","material":"OK","acompanamiento":"NO OK"},"coachee":{"puntualidad":"OK","conexion":"OK","desafio":"OK","bitacora":null,"accion_declarada":"OK"},"conv":{"generar_relacion":"OK","repaso_acciones":"OK","art_quiebre":"OK","herramienta":"OK","acciones":"OK"},"desc_accion":"1 decision x dia"},{"nro":3,"fecha":null,"status":"REALIZADA","pago":"OK","monto":65000,"coach":{"puntualidad":"OK","conexion":"OK","centrado":"OK","material":"NO OK","acompanamiento":"NO OK"},"coachee":{"puntualidad":"OK","conexion":"OK","desafio":"OK","bitacora":null,"accion_declarada":"OK"},"conv":{"generar_relacion":"OK","repaso_acciones":"OK","art_quiebre":"OK","herramienta":"OK","acciones":"OK"},"desc_accion":"Cortar horario / charla con papá"},{"nro":4,"fecha":"2026-04-28","status":"REALIZADA","pago":"OK","monto":65000,"coach":{"puntualidad":"OK","conexion":"OK","centrado":"OK","material":"OK","acompanamiento":"NO OK"},"coachee":{"puntualidad":"OK","conexion":"OK","desafio":"OK","bitacora":null,"accion_declarada":"OK"},"conv":{"generar_relacion":"OK","repaso_acciones":"OK","art_quiebre":"OK","herramienta":"OK","acciones":"OK"},"desc_accion":"ChatGPT Diario de noticias"},{"nro":5,"fecha":null,"status":"REALIZADA","pago":"OK","monto":65000,"coach":{"puntualidad":"OK","conexion":"OK","centrado":"OK","material":"NO OK","acompanamiento":"NO OK"},"coachee":{"puntualidad":"OK","conexion":"OK","desafio":"OK","bitacora":null,"accion_declarada":"OK"},"conv":{"generar_relacion":"OK","repaso_acciones":"OK","art_quiebre":"OK","herramienta":"OK","acciones":"OK"},"desc_accion":"KPIs por persona + pedido de info"},{"nro":6,"fecha":null,"status":"REALIZADA","pago":"OK","monto":65000,"coach":{"puntualidad":"OK","conexion":"OK","centrado":"OK","material":"NO OK","acompanamiento":"NO OK"},"coachee":{"puntualidad":"OK","conexion":"OK","desafio":"OK","bitacora":null,"accion_declarada":"OK"},"conv":{"generar_relacion":"OK","repaso_acciones":"OK","art_quiebre":"OK","herramienta":"OK","acciones":"OK"},"desc_accion":"Armar visita"},{"nro":7,"fecha":null,"status":"REALIZADA","pago":"OK","monto":65000,"coach":{"puntualidad":"OK","conexion":"OK","centrado":"OK","material":"NO OK","acompanamiento":"NO OK"},"coachee":{"puntualidad":"OK","conexion":"OK","desafio":"OK","bitacora":null,"accion_declarada":"OK"},"conv":{"generar_relacion":"OK","repaso_acciones":"OK","art_quiebre":"OK","herramienta":"OK","acciones":"OK"},"desc_accion":"Pedir JD + reuniones ventas"},{"nro":8,"fecha":"2026-06-24","status":"REALIZADA","pago":null,"monto":65000,"coach":{"puntualidad":"OK","conexion":"OK","centrado":"OK","material":"NO OK","acompanamiento":"NO OK"},"coachee":{"puntualidad":"OK","conexion":"OK","desafio":"OK","bitacora":null,"accion_declarada":"OK"},"conv":{"generar_relacion":"OK","repaso_acciones":"OK","art_quiebre":"OK","herramienta":"OK","acciones":"OK"},"desc_accion":"Plan comprador"},{"nro":9,"fecha":"2026-07-14","status":"REALIZADA","pago":null,"monto":65000,"coach":{"puntualidad":"OK","conexion":"OK","centrado":"OK","material":null,"acompanamiento":"OK"},"coachee":{"puntualidad":"OK","conexion":"OK","desafio":"OK","bitacora":null,"accion_declarada":"OK"},"conv":{"generar_relacion":"OK","repaso_acciones":"OK","art_quiebre":"OK","herramienta":"OK","acciones":"OK"},"desc_accion":"Trabajar su forma de ser confiable"},{"nro":10,"fecha":null,"status":"REALIZADA","pago":null,"monto":65000,"coach":{"puntualidad":"OK","conexion":"OK","centrado":"OK","material":null,"acompanamiento":"OK"},"coachee":{"puntualidad":"OK","conexion":"OK","desafio":"OK","bitacora":null,"accion_declarada":"OK"},"conv":{"generar_relacion":"OK","repaso_acciones":"OK","art_quiebre":"OK","herramienta":"OK","acciones":"NO OK"},"desc_accion":null},{"nro":11,"fecha":"2026-09-02","status":"REALIZADA","pago":null,"monto":65000,"coach":{"puntualidad":"OK","conexion":"OK","centrado":"OK","material":null,"acompanamiento":"OK"},"coachee":{"puntualidad":"OK","conexion":"OK","desafio":"OK","bitacora":null,"accion_declarada":"OK"},"conv":{"generar_relacion":"OK","repaso_acciones":"OK","art_quiebre":"OK","herramienta":"OK","acciones":"OK"},"desc_accion":null},{"nro":12,"fecha":null,"status":"REALIZADA","pago":null,"monto":65000,"coach":{"puntualidad":"OK","conexion":"OK","centrado":"OK","material":null,"acompanamiento":null},"coachee":{"puntualidad":"OK","conexion":"OK","desafio":"OK","bitacora":null,"accion_declarada":null},"conv":{"generar_relacion":"OK","repaso_acciones":"OK","art_quiebre":"OK","herramienta":"OK","acciones":"OK"},"desc_accion":null}]},{"id":"m3","tipo":"mentoria","pilar":"Mentoria","coachee":"Juan Farias","estado":"Finalizado","meta":null,"quiebre":null,"dominio":"Liderazgo","fuente":"Ex Coachee","sesiones":[{"nro":1,"fecha":"2026-04-09","status":"REALIZADA","pago":"OK","monto":0,"coach":{"puntualidad":"OK","conexion":"OK","centrado":"OK","material":"NO OK","acompanamiento":"OK"},"coachee":{"puntualidad":"OK","conexion":"OK","desafio":"OK","bitacora":null,"accion_declarada":1},"conv":{"generar_relacion":"OK","repaso_acciones":"OK","art_quiebre":"OK","herramienta":"OK","acciones":"OK"},"desc_accion":"Pensar que debe tener archivo madre + rutina ideal"},{"nro":2,"fecha":"2026-04-21","status":"REALIZADA","pago":"OK","monto":0,"coach":{"puntualidad":"OK","conexion":"OK","centrado":"OK","material":"OK","acompanamiento":"OK"},"coachee":{"puntualidad":"OK","conexion":"OK","desafio":"OK","bitacora":null,"accion_declarada":0.5},"conv":{"generar_relacion":"OK","repaso_acciones":"OK","art_quiebre":"OK","herramienta":"OK","acciones":"OK"},"desc_accion":"Medir cumplimiento rutina + charla seba"},{"nro":3,"fecha":null,"status":"REALIZADA","pago":"OK","monto":0,"coach":{"puntualidad":"OK","conexion":"OK","centrado":"OK","material":"NO OK","acompanamiento":"OK"},"coachee":{"puntualidad":"OK","conexion":"OK","desafio":"OK","bitacora":null,"accion_declarada":1},"conv":{"generar_relacion":"OK","repaso_acciones":"OK","art_quiebre":"OK","herramienta":"OK","acciones":"OK"},"desc_accion":"Medir cumplimiento rutina + charla seba"},{"nro":4,"fecha":null,"status":"REALIZADA","pago":"OK","monto":0,"coach":{"puntualidad":"OK","conexion":"OK","centrado":"OK","material":"NO OK","acompanamiento":"OK"},"coachee":{"puntualidad":"OK","conexion":"OK","desafio":"OK","bitacora":null,"accion_declarada":0},"conv":{"generar_relacion":"OK","repaso_acciones":"OK","art_quiebre":"OK","herramienta":"OK","acciones":"OK"},"desc_accion":"Deadline Seba archivo madre + charla Santi feedback"},{"nro":5,"fecha":"2026-06-09","status":"REALIZADA","pago":"OK","monto":0,"coach":{"puntualidad":"OK","conexion":"OK","centrado":"OK","material":"NO OK","acompanamiento":"OK"},"coachee":{"puntualidad":"OK","conexion":"OK","desafio":"OK","bitacora":null,"accion_declarada":1},"conv":{"generar_relacion":"OK","repaso_acciones":"OK","art_quiebre":"OK","herramienta":"OK","acciones":"OK"},"desc_accion":"Feedback Santi + Deadline Seba"},{"nro":6,"fecha":null,"status":"REALIZADA","pago":"OK","monto":0,"coach":{"puntualidad":"OK","conexion":"OK","centrado":"OK","material":null,"acompanamiento":null},"coachee":{"puntualidad":"OK","conexion":"OK","desafio":"OK","bitacora":null,"accion_declarada":null},"conv":{"generar_relacion":"OK","repaso_acciones":"OK","art_quiebre":"OK","herramienta":"OK","acciones":"OK"},"desc_accion":"Decision de reestructuracion + cerrar tablero"}]},{"id":"m4","tipo":"mentoria","pilar":"Mentoria","coachee":"Santi Pieraccini","estado":"En Proceso","meta":null,"quiebre":null,"dominio":"Liderazgo","fuente":"Trabajo","sesiones":[{"nro":1,"fecha":"2026-04-07","status":"REALIZADA","pago":"OK","monto":0,"coach":{"puntualidad":"OK","conexion":"OK","centrado":"OK","material":"NO OK","acompanamiento":"OK"},"coachee":{"puntualidad":"OK","conexion":"OK","desafio":"OK","bitacora":"OK","accion_declarada":1},"conv":{"generar_relacion":"OK","repaso_acciones":"OK","art_quiebre":"OK","herramienta":"OK","acciones":"OK"},"desc_accion":"Job Description propio"},{"nro":2,"fecha":null,"status":"REALIZADA","pago":"OK","monto":0,"coach":{"puntualidad":"OK","conexion":"OK","centrado":"OK","material":"NO OK","acompanamiento":"NO OK"},"coachee":{"puntualidad":"OK","conexion":"OK","desafio":"OK","bitacora":"NO OK","accion_declarada":0.8},"conv":{"generar_relacion":"OK","repaso_acciones":"OK","art_quiebre":"OK","herramienta":"OK","acciones":"OK"},"desc_accion":"J.D + limpiar planner"},{"nro":3,"fecha":null,"status":"REALIZADA","pago":"OK","monto":0,"coach":{"puntualidad":"OK","conexion":"OK","centrado":"OK","material":"OK","acompanamiento":"OK"},"coachee":{"puntualidad":"OK","conexion":"OK","desafio":"OK","bitacora":"NO OK","accion_declarada":1},"conv":{"generar_relacion":"OK","repaso_acciones":"OK","art_quiebre":"OK","herramienta":"OK","acciones":"OK"},"desc_accion":"Matriz eisenhower diaria + soltar 1 proceso"},{"nro":4,"fecha":null,"status":"REALIZADA","pago":"OK","monto":0,"coach":{"puntualidad":"OK","conexion":"OK","centrado":"OK","material":"NO OK","acompanamiento":"OK"},"coachee":{"puntualidad":"OK","conexion":"OK","desafio":"OK","bitacora":"NO OK","accion_declarada":0.5},"conv":{"generar_relacion":"OK","repaso_acciones":"OK","art_quiebre":"OK","herramienta":"OK","acciones":"OK"},"desc_accion":"Todo en un mismo lugar + KPI cumplimiento"},{"nro":5,"fecha":"2026-06-09","status":"REALIZADA","pago":"OK","monto":0,"coach":{"puntualidad":"OK","conexion":"OK","centrado":"OK","material":"NO OK","acompanamiento":"NO OK"},"coachee":{"puntualidad":"OK","conexion":"OK","desafio":"OK","bitacora":"NO OK","accion_declarada":1},"conv":{"generar_relacion":"OK","repaso_acciones":"OK","art_quiebre":"OK","herramienta":"OK","acciones":"OK"},"desc_accion":"Recalendarizar deadlines + 10 KPIs de RRHH"},{"nro":6,"fecha":null,"status":"REALIZADA","pago":"OK","monto":0,"coach":{"puntualidad":"OK","conexion":"OK","centrado":"OK","material":"NO OK","acompanamiento":"OK"},"coachee":{"puntualidad":"OK","conexion":"OK","desafio":"OK","bitacora":null,"accion_declarada":1},"conv":{"generar_relacion":"OK","repaso_acciones":"OK","art_quiebre":"OK","herramienta":"OK","acciones":"OK"},"desc_accion":"Completar tablero con objetivos + feedback juan"},{"nro":7,"fecha":"2026-07-21","status":"REALIZADA","pago":"OK","monto":0,"coach":{"puntualidad":"OK","conexion":"OK","centrado":"OK","material":"NO OK","acompanamiento":"OK"},"coachee":{"puntualidad":"OK","conexion":"OK","desafio":"OK","bitacora":null,"accion_declarada":0.5},"conv":{"generar_relacion":"OK","repaso_acciones":"OK","art_quiebre":"OK","herramienta":"OK","acciones":"OK"},"desc_accion":"KPIs verdes 11/8, rojos 25/8"},{"nro":8,"fecha":"2026-08-25","status":"REALIZADA","pago":"OK","monto":0,"coach":{"puntualidad":"OK","conexion":"OK","centrado":"OK","material":"NO OK","acompanamiento":"OK"},"coachee":{"puntualidad":"OK","conexion":"OK","desafio":"OK","bitacora":null,"accion_declarada":0.25},"conv":{"generar_relacion":"OK","repaso_acciones":"OK","art_quiebre":"OK","herramienta":"OK","acciones":"OK"},"desc_accion":"Tablero kpis automatizado"},{"nro":9,"fecha":"2026-09-15","status":"REALIZADA","pago":"OK","monto":0,"coach":{"puntualidad":"OK","conexion":"OK","centrado":"OK","material":null,"acompanamiento":null},"coachee":{"puntualidad":"OK","conexion":"OK","desafio":"OK","bitacora":null,"accion_declarada":null},"conv":{"generar_relacion":"OK","repaso_acciones":"OK","art_quiebre":"OK","herramienta":"OK","acciones":"OK"},"desc_accion":null},{"nro":10,"fecha":null,"status":null,"pago":"OK","monto":0,"coach":{"puntualidad":null,"conexion":null,"centrado":null,"material":null,"acompanamiento":null},"coachee":{"puntualidad":null,"conexion":null,"desafio":null,"bitacora":null,"accion_declarada":null},"conv":{"generar_relacion":null,"repaso_acciones":null,"art_quiebre":null,"herramienta":null,"acciones":null},"desc_accion":null},{"nro":11,"fecha":null,"status":null,"pago":null,"monto":0,"coach":{"puntualidad":null,"conexion":null,"centrado":null,"material":null,"acompanamiento":null},"coachee":{"puntualidad":null,"conexion":null,"desafio":null,"bitacora":null,"accion_declarada":null},"conv":{"generar_relacion":null,"repaso_acciones":null,"art_quiebre":null,"herramienta":null,"acciones":null},"desc_accion":null},{"nro":12,"fecha":null,"status":null,"pago":null,"monto":0,"coach":{"puntualidad":null,"conexion":null,"centrado":null,"material":null,"acompanamiento":null},"coachee":{"puntualidad":null,"conexion":null,"desafio":null,"bitacora":null,"accion_declarada":null},"conv":{"generar_relacion":null,"repaso_acciones":null,"art_quiebre":null,"herramienta":null,"acciones":null},"desc_accion":null}]}];
+
+// ─── Proceso helpers ───
+function getProcesos() {
+  try {
+    const s = localStorage.getItem('raices_procesos');
+    if (s) return JSON.parse(s);
+    localStorage.setItem('raices_procesos', JSON.stringify(COACHING_SEED));
+    return COACHING_SEED;
+  } catch(e) { return COACHING_SEED; }
+}
+function saveProcesos(p) {
+  try { localStorage.setItem('raices_procesos', JSON.stringify(p)); } catch(e) {}
+}
+function calcDimScore(items) {
+  if (!items) return null;
+  const vals = Object.values(items).filter(v => v !== null && v !== undefined);
+  if (!vals.length) return null;
+  let ok = 0;
+  for (const v of vals) {
+    if (v === 'OK') ok++;
+    else if (typeof v === 'number' && !isNaN(v)) ok += Math.min(1, Math.max(0, v));
+  }
+  return ok / vals.length;
+}
+function getProcesoScores(p) {
+  const real = p.sesiones.filter(s => s.status === 'REALIZADA');
+  if (!real.length) return {coach:null,coachee:null,conv:null};
+  const avg = arr => arr.length ? arr.reduce((a,b)=>a+b,0)/arr.length : null;
+  return {
+    coach: avg(real.map(s=>calcDimScore(s.coach)).filter(v=>v!==null)),
+    coachee: avg(real.map(s=>calcDimScore(s.coachee)).filter(v=>v!==null)),
+    conv: avg(real.map(s=>calcDimScore(s.conv)).filter(v=>v!==null))
+  };
+}
+function getSesRealizadas(p) { return p.sesiones.filter(s=>s.status==='REALIZADA').length; }
+function getLastFecha(p) {
+  const r = p.sesiones.filter(s=>s.status==='REALIZADA'&&s.fecha);
+  return r.length ? r[r.length-1].fecha : null;
+}
+function fmtDate(d) { return d ? d.replace(/^(\d{4})-(\d{2})-(\d{2})$/,'$3/$2/$1') : '—'; }
+
+let selectedProcesoId = null;
+
+function selectProceso(id) {
+  selectedProcesoId = (String(selectedProcesoId)===String(id)) ? null : id;
+  renderCoachingContent();
+}
+
+function renderProcesoCard(p) {
+  const scores = getProcesoScores(p);
+  const real = getSesRealizadas(p);
+  const total = p.sesiones.length;
+  const isSelected = String(selectedProcesoId)===String(p.id);
+  const pct = v => v!=null?Math.round(v*100)+'%':'—';
+  const sc = v => v==null?'#475569':v>=0.8?'#10b981':v>=0.6?'#f59e0b':'#ef4444';
+  const estadoKey = (p.estado==='En curso'||p.estado==='En Proceso')?'en':p.estado==='Finalizado'?'fin':'pau';
+  const progPct = total>0?Math.round(real/total*100):0;
+  const nextSes = p.sesiones.find(s=>!s.status);
+  const lastD = getLastFecha(p);
+  return `<div class="proc-card${isSelected?' proc-card-selected':''}" onclick="selectProceso('${p.id}')">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:5px">
+      <span style="color:#e2e8f0;font-weight:600;font-size:12px;line-height:1.3">${esc(p.coachee)}</span>
+      <span class="proc-estado-pill proc-estado-${estadoKey}">${p.estado}</span>
+    </div>
+    <div style="font-size:9px;color:#475569;margin-bottom:8px">${p.pilar||''}${p.dominio?(' · '+p.dominio):''}</div>
+    <div style="margin-bottom:7px">
+      <div style="display:flex;justify-content:space-between;font-size:10px;color:#64748b;margin-bottom:3px">
+        <span>Sesiones</span><span style="font-weight:600;color:#94a3b8">${real}/${total}</span>
+      </div>
+      <div style="height:3px;background:#0f172a;border-radius:2px">
+        <div style="height:3px;width:${progPct}%;background:#a78bfa;border-radius:2px"></div>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:space-between;font-size:10px;margin-bottom:4px">
+      <span style="color:#64748b">Coach: <strong style="color:${sc(scores.coach)}">${pct(scores.coach)}</strong></span>
+      <span style="color:#64748b">Coachee: <strong style="color:${sc(scores.coachee)}">${pct(scores.coachee)}</strong></span>
+    </div>
+    ${lastD?`<div style="font-size:9px;color:#334155">Última: ${fmtDate(lastD)}</div>`:''}
+    ${nextSes&&!nextSes.status?`<div style="font-size:9px;color:#7c3aed;margin-top:2px">Próxima: ses. #${nextSes.nro}${nextSes.fecha?' · '+fmtDate(nextSes.fecha):''}</div>`:''}
+  </div>`;
+}
+
+function renderProcesoDetail(p) {
+  if (!p) return '';
+  const sc = v=>v==null?'#475569':v>=0.8?'#10b981':v>=0.6?'#f59e0b':'#ef4444';
+  const pct = v=>v!=null?Math.round(v*100)+'%':'—';
+  const okIcon = v => {
+    if (v==='OK') return '<span style="color:#10b981">✓</span>';
+    if (v==='NO OK') return '<span style="color:#ef4444">✗</span>';
+    if (typeof v==='number'&&!isNaN(v)) return `<span style="color:${v>=0.5?'#10b981':'#f59e0b'}">${Math.round(v*100)}%</span>`;
+    return '<span style="color:#1e293b">·</span>';
+  };
+  const nextSes = p.sesiones.find(s=>!s.status);
+  const nextNro = nextSes ? nextSes.nro : p.sesiones.length+1;
+  const isMentoria = p.tipo==='mentoria';
+  return `<div class="proc-detail-panel">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+      <div>
+        <div style="font-size:14px;font-weight:700;color:#e2e8f0">${esc(p.coachee)}</div>
+        ${p.meta?`<div style="font-size:11px;color:#94a3b8;margin-top:3px;max-width:500px">Meta: ${esc(p.meta)}</div>`:''}
+        ${p.dominio?`<div style="font-size:10px;color:#475569;margin-top:2px">Dominio: ${esc(p.dominio)}</div>`:''}
+      </div>
+      <div style="display:flex;gap:7px;flex-shrink:0">
+        <button class="btn-primary" onclick="openSessionForm('${p.id}',${nextNro})" style="font-size:11px;padding:5px 12px">＋ Sesión #${nextNro}</button>
+        <button class="btn-secondary" onclick="selectProceso('${p.id}')" style="font-size:11px;padding:5px 10px">✕ Cerrar</button>
+      </div>
+    </div>
+    <div style="overflow-x:auto">
+    <table class="proc-ses-table">
+      <thead><tr>
+        <th style="text-align:left">#</th>
+        <th style="text-align:left">Fecha</th>
+        <th>Status</th>
+        <th title="Puntualidad coach">P</th>
+        <th title="Conexión coach">Cn</th>
+        <th title="${isMentoria?'Material':'Centrado'}">${isMentoria?'Mat':'Ce'}</th>
+        <th title="Bitácora / ${isMentoria?'Desafío':'Bitácora'}">${isMentoria?'Des':'Bit'}</th>
+        <th title="Acompañamiento">Ac</th>
+        <th>Coach</th>
+        <th title="Puntualidad coachee">P</th>
+        <th title="Conexión coachee">Cn</th>
+        <th title="${isMentoria?'Bitácora':'Bitácora'}">${isMentoria?'Bit':'Bit'}</th>
+        <th title="Acción declarada">AD</th>
+        <th>Coachee</th>
+        <th style="text-align:left;min-width:140px">Acción / Meta</th>
+      </tr></thead>
+      <tbody>
+      ${p.sesiones.map(s=>{
+        const coachScore = s.status==='REALIZADA'?calcDimScore(s.coach):null;
+        const coacheeScore = s.status==='REALIZADA'?calcDimScore(s.coachee):null;
+        const c = s.coach||{}; const ce = s.coachee||{};
+        const isPending = !s.status;
+        return `<tr class="${isPending?'proc-ses-pending':''}">
+          <td style="color:#64748b;font-weight:600">${s.nro}</td>
+          <td>${fmtDate(s.fecha)}</td>
+          <td><span class="proc-status-${s.status==='REALIZADA'?'re':s.status==='NO REALIZADA'?'no':'pe'}">${s.status||'Pend.'}</span></td>
+          <td>${okIcon(c.puntualidad)}</td>
+          <td>${okIcon(c.conexion)}</td>
+          <td>${okIcon(isMentoria?c.material:c.centrado)}</td>
+          <td>${okIcon(isMentoria?ce.desafio:c.bitacora)}</td>
+          <td>${okIcon(c.acompanamiento)}</td>
+          <td style="color:${sc(coachScore)};font-weight:700">${pct(coachScore)}</td>
+          <td>${okIcon(ce.puntualidad)}</td>
+          <td>${okIcon(ce.conexion)}</td>
+          <td>${okIcon(isMentoria?ce.bitacora:ce.bitacora)}</td>
+          <td>${okIcon(ce.accion_declarada)}</td>
+          <td style="color:${sc(coacheeScore)};font-weight:700">${pct(coacheeScore)}</td>
+          <td style="color:#94a3b8;font-size:10px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(s.desc_accion||'')}">${esc(s.desc_accion||'')}</td>
+        </tr>`;
+      }).join('')}
+      </tbody>
+    </table>
+    </div>
+  </div>`;
+}
+
 const HISTORICAL_COACHEES = [
   {nombre:"Eliana Plou",pilar:"CI",sesiones:13,monto:156000,coach:0.862,coachee:1},
   {nombre:"Nico Spinelli",pilar:"CI",sesiones:5,monto:60000,coach:0.72,coachee:0.5},
@@ -1488,15 +1505,20 @@ function renderCoachingContent() {
   if (coachingTab === 'coaching') {
     // KPIs
     const lastI = validIdxs[validIdxs.length-1];
-    const avgCoach = ACTIVE_COACHEES.filter(c=>c.coach!=null).reduce((s,c)=>s+c.coach,0)/ACTIVE_COACHEES.filter(c=>c.coach!=null).length;
-    const avgCoachee = ACTIVE_COACHEES.filter(c=>c.coachee!=null).reduce((s,c)=>s+c.coachee,0)/ACTIVE_COACHEES.filter(c=>c.coachee!=null).length;
+    const activeCoachees = getAllCoachees('active');
+    const avgCoach = activeCoachees.filter(c=>c.coach!=null).reduce((s,c)=>s+c.coach,0)/(activeCoachees.filter(c=>c.coach!=null).length||1);
+    const avgCoachee = activeCoachees.filter(c=>c.coachee!=null).reduce((s,c)=>s+c.coachee,0)/(activeCoachees.filter(c=>c.coachee!=null).length||1);
     const sesMes = COACHING_METRICS.sesiones_re[lastI]||0;
     const totalHist = COACHING_PERIODS.reduce((s,p,i)=>s+(COACHING_METRICS.sesiones_re[i]||0),0);
 
     el.innerHTML = `
+    <!-- Acción -->
+    <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
+      <button class="btn-primary" onclick="openCoacheeForm('activo')" style="font-size:12px;padding:6px 14px">＋ Agregar coachee</button>
+    </div>
     <!-- KPI -->
     <div class="coach-kpi-grid">
-      <div class="coach-kpi"><div class="coach-kpi-num" style="color:#a78bfa">9</div><div class="coach-kpi-label">Procesos activos</div></div>
+      <div class="coach-kpi"><div class="coach-kpi-num" style="color:#a78bfa">${activeCoachees.length}</div><div class="coach-kpi-label">Procesos activos</div></div>
       <div class="coach-kpi"><div class="coach-kpi-num" style="color:#60a5fa">${sesMes}</div><div class="coach-kpi-label">Sesiones último mes</div></div>
       <div class="coach-kpi"><div class="coach-kpi-num" style="color:#10b981">${Math.round(avgCoach*100)}%</div><div class="coach-kpi-label">Score coach promedio</div></div>
       <div class="coach-kpi"><div class="coach-kpi-num" style="color:#f59e0b">${Math.round(avgCoachee*100)}%</div><div class="coach-kpi-label">Score coachee promedio</div></div>
@@ -1530,18 +1552,16 @@ function renderCoachingContent() {
       </div>
     </div>
 
-    <!-- Tabla coachees activos -->
-    <div class="chart-box-title" style="margin-bottom:8px;font-size:11px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.05em">Coachees en curso</div>
-    <div class="coach-table">
-      <div class="coach-th"><span>Coachee</span><span style="text-align:center">Ses.</span><span style="text-align:center">Monto</span><span style="text-align:center">Coach</span><span style="text-align:center">Coachee</span></div>
-      ${ACTIVE_COACHEES.map(c=>`<div class="coach-tr">
-        <span style="color:#e2e8f0;font-weight:500">${esc(c.nombre)}</span>
-        <span class="coach-tc">${c.sesiones}</span>
-        <span class="coach-tc">${fmt(c.monto)}</span>
-        <span>${scoreBar(c.coach, scoreColor(c.coach))}</span>
-        <span>${scoreBar(c.coachee, scoreColor(c.coachee))}</span>
-      </div>`).join('')}
-    </div>`;
+    <!-- Procesos en curso: cards -->
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px">
+      <div class="chart-box-title" style="margin:0;font-size:11px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.05em">Procesos en curso</div>
+      <button class="btn-secondary" onclick="openNuevoProcesoForm('coaching')" style="font-size:11px;padding:4px 11px">＋ Nuevo proceso</button>
+    </div>
+    <div class="proc-cards-grid">
+      ${getProcesos().filter(p=>p.tipo==='coaching'&&(p.estado==='En curso'||p.estado==='En Proceso')).map(p=>renderProcesoCard(p)).join('')}
+    </div>
+    ${selectedProcesoId && getProcesos().find(p=>String(p.id)===String(selectedProcesoId)&&p.tipo==='coaching') ? renderProcesoDetail(getProcesos().find(p=>String(p.id)===String(selectedProcesoId))) : ''}
+    `;
 
     setTimeout(() => {
       const chartOpts = (title) => ({
@@ -1597,69 +1617,62 @@ function renderCoachingContent() {
     }, 50);
 
   } else {
-    // MENTORÍA
-    const totSes = MENTORING_PROCESSES.filter(p=>p.estado!=='Pausado').reduce((s,p)=>s+p.sesiones,0);
-    const activos = MENTORING_PROCESSES.filter(p=>p.estado==='En Proceso').length;
-    const avgCoachM = MENTORING_PROCESSES.filter(p=>p.coach!=null).reduce((s,p)=>s+p.coach,0)/MENTORING_PROCESSES.filter(p=>p.coach!=null).length;
+    // MENTORÍA — desde getProcesos()
+    const mentProcesos = getProcesos().filter(p=>p.tipo==='mentoria');
+    const mentActivos = mentProcesos.filter(p=>p.estado==='En Proceso'||p.estado==='En curso').length;
+    const mentPausados = mentProcesos.filter(p=>p.estado==='Pausado').length;
+    const mentTotSes = mentProcesos.reduce((s,p)=>s+getSesRealizadas(p),0);
+    const mentScores = mentProcesos.map(p=>getProcesoScores(p).coach).filter(v=>v!=null);
+    const mentAvgCoach = mentScores.length ? mentScores.reduce((a,b)=>a+b,0)/mentScores.length : 0;
 
     el.innerHTML = `
+    <div style="display:flex;justify-content:flex-end;margin-bottom:10px">
+      <button class="btn-secondary" onclick="openNuevoProcesoForm('mentoria')" style="font-size:11px;padding:4px 11px">＋ Nuevo proceso</button>
+    </div>
     <div class="coach-kpi-grid">
-      <div class="coach-kpi"><div class="coach-kpi-num" style="color:#a78bfa">${activos}</div><div class="coach-kpi-label">Procesos activos</div></div>
-      <div class="coach-kpi"><div class="coach-kpi-num" style="color:#60a5fa">${totSes}</div><div class="coach-kpi-label">Sesiones realizadas</div></div>
-      <div class="coach-kpi"><div class="coach-kpi-num" style="color:#10b981">${Math.round(avgCoachM*100)}%</div><div class="coach-kpi-label">Score coach promedio</div></div>
-      <div class="coach-kpi"><div class="coach-kpi-num" style="color:#64748b">1</div><div class="coach-kpi-label">Pausados</div></div>
+      <div class="coach-kpi"><div class="coach-kpi-num" style="color:#a78bfa">${mentActivos}</div><div class="coach-kpi-label">Procesos activos</div></div>
+      <div class="coach-kpi"><div class="coach-kpi-num" style="color:#60a5fa">${mentTotSes}</div><div class="coach-kpi-label">Sesiones realizadas</div></div>
+      <div class="coach-kpi"><div class="coach-kpi-num" style="color:#10b981">${mentScores.length?Math.round(mentAvgCoach*100)+'%':'—'}</div><div class="coach-kpi-label">Score coach promedio</div></div>
+      <div class="coach-kpi"><div class="coach-kpi-num" style="color:#64748b">${mentPausados}</div><div class="coach-kpi-label">Pausados</div></div>
     </div>
 
     <div class="chart-box-title" style="margin-bottom:8px;font-size:11px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.05em">Procesos de Mentoría</div>
-    <div class="coach-table">
-      <div style="display:grid;grid-template-columns:1.6fr 80px 80px 80px 80px 70px;padding:8px 12px;font-size:10px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid #334155">
-        <span>Mentorado</span><span style="text-align:center">Ses. hechas</span><span style="text-align:center">Ses. total</span><span style="text-align:center">Monto</span><span style="text-align:center">Coach</span><span style="text-align:center">Estado</span>
-      </div>
-      ${MENTORING_PROCESSES.map(p=>`<div style="display:grid;grid-template-columns:1.6fr 80px 80px 80px 80px 70px;padding:9px 12px;font-size:12px;border-bottom:1px solid #1e293b20;align-items:center">
-        <span style="color:#e2e8f0;font-weight:500">${esc(p.nombre)}</span>
-        <span style="text-align:center;color:#60a5fa">${p.sesiones}</span>
-        <span style="text-align:center;color:#64748b">${p.total}</span>
-        <span style="text-align:center;color:#64748b">${fmt(p.monto)}</span>
-        <span>${scoreBar(p.coach, scoreColor(p.coach))}</span>
-        <span style="text-align:center"><span class="${p.estado==='En Proceso'?'coach-pill-en':'coach-pill-pau'}">${p.estado}</span></span>
-      </div>`).join('')}
+    <div class="proc-cards-grid">
+      ${mentProcesos.map(p=>renderProcesoCard(p)).join('')}
     </div>
-
-    <div class="fact-insight" style="margin-top:14px">
-      <div class="fact-insight-title">💡 Estado mentoría</div>
-      <div class="fact-insight-row"><div class="fact-insight-icon">📈</div><div class="fact-insight-text"><strong>Zechi Guzman</strong> — 10 de 12 sesiones realizadas. Score coach del 71%: el más bajo del grupo. Vale revisar la dinámica.</div></div>
-      <div class="fact-insight-row"><div class="fact-insight-icon">⭐</div><div class="fact-insight-text"><strong>Juan Farias y Santi Pieraccini</strong> — procesos pro bono en marcha. El score coachee de Santi (79%) es sólido.</div></div>
-      <div class="fact-insight-row"><div class="fact-insight-icon">⏸️</div><div class="fact-insight-text"><strong>Ana Garretón</strong> — proceso pausado con 4 sesiones. Definir si se retoma o cierra formalmente.</div></div>
-      <div class="fact-insight-row"><div class="fact-insight-icon">💡</div><div class="fact-insight-text">La base de mentoría tiene estructura para escalar. Con más procesos, el Dashboard cobrará más valor.</div></div>
-    </div>`;
+    ${selectedProcesoId && getProcesos().find(p=>String(p.id)===String(selectedProcesoId)&&p.tipo==='mentoria') ? renderProcesoDetail(getProcesos().find(p=>String(p.id)===String(selectedProcesoId))) : ''}
+    `;
   }
 
   // ─── HISTORIAL: siempre al final, independiente del tab ───
   const histFmt = n => n>=1000000?'$'+(n/1000000).toFixed(1)+'M':n>0?'$'+Math.round(n/1000)+'K':'—';
   const histPct = v => v!=null ? Math.round(v*100)+'%' : '—';
   const histColor = v => v==null?'#475569':v>=0.8?'#10b981':v>=0.6?'#f59e0b':'#ef4444';
-  const histTotalSes = HISTORICAL_COACHEES.reduce((s,c)=>s+c.sesiones,0);
-  const histTotalMonto = HISTORICAL_COACHEES.reduce((s,c)=>s+c.monto,0);
-  const histAvgCoach = HISTORICAL_COACHEES.filter(c=>c.coach!=null).reduce((s,c)=>s+c.coach,0)/HISTORICAL_COACHEES.filter(c=>c.coach!=null).length;
-  const histAvgCoachee = HISTORICAL_COACHEES.filter(c=>c.coachee!=null).reduce((s,c)=>s+c.coachee,0)/HISTORICAL_COACHEES.filter(c=>c.coachee!=null).length;
+  const historicalCoachees = getAllCoachees('historical');
+  const histTotalSes = historicalCoachees.reduce((s,c)=>s+c.sesiones,0);
+  const histTotalMonto = historicalCoachees.reduce((s,c)=>s+c.monto,0);
+  const histAvgCoach = historicalCoachees.filter(c=>c.coach!=null).reduce((s,c)=>s+c.coach,0)/(historicalCoachees.filter(c=>c.coach!=null).length||1);
+  const histAvgCoachee = historicalCoachees.filter(c=>c.coachee!=null).reduce((s,c)=>s+c.coachee,0)/(historicalCoachees.filter(c=>c.coachee!=null).length||1);
 
   el.innerHTML += `
   <div style="margin-top:24px;padding-top:20px;border-top:2px solid #334155">
     <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:6px">
       <div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.06em">📚 Historial de procesos finalizados</div>
-      <div style="display:flex;gap:14px;font-size:11px;color:#64748b">
-        <span><strong style="color:#10b981">${HISTORICAL_COACHEES.length}</strong> procesos</span>
-        <span><strong style="color:#60a5fa">${histTotalSes}</strong> sesiones</span>
-        <span><strong style="color:#a78bfa">${histFmt(histTotalMonto)}</strong> facturado</span>
-        <span>coach promedio: <strong style="color:${histColor(histAvgCoach)}">${histPct(histAvgCoach)}</strong></span>
-        <span>coachee promedio: <strong style="color:${histColor(histAvgCoachee)}">${histPct(histAvgCoachee)}</strong></span>
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <button class="btn-secondary" onclick="openCoacheeForm('hist')" style="font-size:11px;padding:4px 10px">＋ Agregar al historial</button>
+        <div style="display:flex;gap:14px;font-size:11px;color:#64748b">
+          <span><strong style="color:#10b981">${historicalCoachees.length}</strong> procesos</span>
+          <span><strong style="color:#60a5fa">${histTotalSes}</strong> sesiones</span>
+          <span><strong style="color:#a78bfa">${histFmt(histTotalMonto)}</strong> facturado</span>
+          <span>coach promedio: <strong style="color:${histColor(histAvgCoach)}">${histPct(histAvgCoach)}</strong></span>
+        </div>
       </div>
     </div>
     <div class="coach-table">
       <div style="display:grid;grid-template-columns:1.8fr 50px 70px 65px 70px 70px;padding:7px 12px;font-size:10px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid #334155">
         <span>Coachee</span><span style="text-align:center">Pilar</span><span style="text-align:center">Ses.</span><span style="text-align:center">Monto</span><span style="text-align:center">Coach</span><span style="text-align:center">Coachee</span>
       </div>
-      ${HISTORICAL_COACHEES.map(c=>`<div style="display:grid;grid-template-columns:1.8fr 50px 70px 65px 70px 70px;padding:7px 12px;font-size:12px;border-bottom:1px solid #1e293b40;align-items:center;opacity:.8">
+      ${historicalCoachees.map(c=>`<div style="display:grid;grid-template-columns:1.8fr 50px 70px 65px 70px 70px;padding:7px 12px;font-size:12px;border-bottom:1px solid #1e293b40;align-items:center;opacity:.8">
         <span style="color:#94a3b8">${esc(c.nombre)}</span>
         <span style="text-align:center;font-size:10px;color:#475569;background:#1e293b;border-radius:4px;padding:1px 4px">${c.pilar}</span>
         <span style="text-align:center;color:#64748b">${c.sesiones}</span>
@@ -1799,6 +1812,26 @@ const PAGOS_DATA = [
 {"org":"Zubillaga","pilar":"Empresa","mes":1,"anio":2027,"raices":1800000,"mio":810000,"ok":false,"comentario":""}
 ];
 
+// ═══ HELPERS DATOS DINÁMICOS ═══
+function getAllPagos(){
+  try{const extra=JSON.parse(localStorage.getItem('raices_pagos_extra')||'[]');return [...PAGOS_DATA,...extra];}
+  catch(e){return PAGOS_DATA;}
+}
+function getAllCoachees(type){
+  try{
+    const extra=JSON.parse(localStorage.getItem('raices_coachees_extra')||'[]');
+    const histExtra=extra.filter(c=>c._tipo==='hist');
+    if(type==='active'){
+      // Derive from rich proceso data
+      return getProcesos().filter(p=>p.tipo==='coaching'&&(p.estado==='En curso'||p.estado==='En Proceso')).map(p=>{
+        const sc=getProcesoScores(p);
+        return {nombre:p.coachee,pilar:p.pilar,sesiones:getSesRealizadas(p),monto:p.sesiones.reduce((s,s2)=>s+(s2.monto||0),0),coach:sc.coach,coachee:sc.coachee};
+      });
+    }
+    return [...HISTORICAL_COACHEES,...histExtra.map(c=>({nombre:c.nombre,empresa:c.empresa,pilar:c.pilar,sesiones:c.sesiones,monto:c.monto,coach:c.coach,coachee:c.coachee}))];
+  }catch(e){return type==='active'?[]:HISTORICAL_COACHEES;}
+}
+
 // ═══ FACTURACIÓN ═══
 let factCharts = {};
 
@@ -1808,10 +1841,11 @@ function renderFact(el) {
   factCharts = {};
 
   const MESES_SHORT = ['Ene','Feb','Mar','Abr','May','Jun','Jul','Ago','Sep','Oct','Nov','Dic'];
+  const PAGOS_DATA_ALL = getAllPagos();
 
   // Build month map
   const monthMap = {};
-  PAGOS_DATA.forEach(r => {
+  PAGOS_DATA_ALL.forEach(r => {
     const key = `${r.anio}-${String(r.mes).padStart(2,'0')}`;
     if (!monthMap[key]) monthMap[key] = {raices_ok:0,mio_ok:0,raices_nok:0,mio_nok:0};
     if (r.ok) { monthMap[key].raices_ok += r.raices; monthMap[key].mio_ok += r.mio; }
@@ -1820,10 +1854,10 @@ function renderFact(el) {
   const monthKeys = Object.keys(monthMap).sort();
 
   // KPIs
-  const totalRaicesOk  = PAGOS_DATA.filter(r=>r.ok).reduce((s,r)=>s+r.raices,0);
-  const totalMioOk     = PAGOS_DATA.filter(r=>r.ok).reduce((s,r)=>s+r.mio,0);
-  const totalPendiente = PAGOS_DATA.filter(r=>!r.ok).reduce((s,r)=>s+r.raices,0);
-  const totalMioPend   = PAGOS_DATA.filter(r=>!r.ok).reduce((s,r)=>s+r.mio,0);
+  const totalRaicesOk  = PAGOS_DATA_ALL.filter(r=>r.ok).reduce((s,r)=>s+r.raices,0);
+  const totalMioOk     = PAGOS_DATA_ALL.filter(r=>r.ok).reduce((s,r)=>s+r.mio,0);
+  const totalPendiente = PAGOS_DATA_ALL.filter(r=>!r.ok).reduce((s,r)=>s+r.raices,0);
+  const totalMioPend   = PAGOS_DATA_ALL.filter(r=>!r.ok).reduce((s,r)=>s+r.mio,0);
 
   // MRR: avg last 3 months cobrado
   const todayKey = `${new Date().getFullYear()}-${String(new Date().getMonth()+1).padStart(2,'0')}`;
@@ -1832,13 +1866,13 @@ function renderFact(el) {
   const mrr      = last3.length ? Math.round(last3.reduce((s,k)=>s+monthMap[k].raices_ok,0)/last3.length) : 0;
 
   // 2025 vs 2026 YoY
-  const tot2025 = PAGOS_DATA.filter(r=>r.ok&&r.anio===2025).reduce((s,r)=>s+r.raices,0);
-  const tot2026 = PAGOS_DATA.filter(r=>r.ok&&r.anio===2026).reduce((s,r)=>s+r.raices,0);
+  const tot2025 = PAGOS_DATA_ALL.filter(r=>r.ok&&r.anio===2025).reduce((s,r)=>s+r.raices,0);
+  const tot2026 = PAGOS_DATA_ALL.filter(r=>r.ok&&r.anio===2026).reduce((s,r)=>s+r.raices,0);
   const yoy = tot2025>0 ? Math.round((tot2026-tot2025)/tot2025*100) : 0;
 
   // Client aggregates
   const clients = {};
-  PAGOS_DATA.forEach(r => {
+  PAGOS_DATA_ALL.forEach(r => {
     if (!clients[r.org]) clients[r.org]={org:r.org,pilar:r.pilar,total:0,cobrado:0,pendiente:0,mio_total:0,lastOkKey:''};
     clients[r.org].total    += r.raices;
     clients[r.org].mio_total+= r.mio;
@@ -1855,7 +1889,7 @@ function renderFact(el) {
   const conc = totalRaicesOk>0 ? Math.round(top3sum/totalRaicesOk*100) : 0;
 
   // IPC alerts
-  const ipcAlerts = [...new Set(PAGOS_DATA.filter(r=>r.comentario.toLowerCase().includes('ipc')).map(r=>r.org))];
+  const ipcAlerts = [...new Set(PAGOS_DATA_ALL.filter(r=>r.comentario&&r.comentario.toLowerCase().includes('ipc')).map(r=>r.org))];
 
   const fmt = n => n>=1000000 ? `$${(n/1000000).toFixed(1)}M` : `$${Math.round(n/1000)}K`;
   const fmtKey = k => { if(!k)return '—'; const [y,m]=k.split('-'); return MESES_SHORT[parseInt(m)-1]+' '+y; };
@@ -1869,6 +1903,11 @@ function renderFact(el) {
 
   el.innerHTML = `
 <div class="wrap" style="max-width:1000px">
+
+  <!-- Acciones -->
+  <div style="display:flex;justify-content:flex-end;margin-bottom:14px">
+    <button class="btn-primary" onclick="openPagoForm()" style="font-size:12px;padding:6px 14px">＋ Nuevo pago</button>
+  </div>
 
   <!-- KPI -->
   <div class="fact-kpi-grid">
@@ -1984,6 +2023,379 @@ function renderFact(el) {
     }
   }, 50);
 }
+
+// ═══ FORMULARIO NUEVO PAGO ═══
+function openPagoForm(){
+  const today=new Date();
+  document.getElementById('modal-pago').classList.add('open');
+  document.getElementById('fp-mes').value=today.getMonth()+1;
+  document.getElementById('fp-anio').value=today.getFullYear();
+  document.getElementById('fp-org').value='';
+  document.getElementById('fp-raices').value='';
+  document.getElementById('fp-mio').value='';
+  document.getElementById('fp-ok').value='true';
+  document.getElementById('fp-comentario').value='';
+}
+function closePagoForm(){document.getElementById('modal-pago').classList.remove('open');}
+function savePagoForm(){
+  const org=document.getElementById('fp-org').value.trim();
+  const mes=parseInt(document.getElementById('fp-mes').value);
+  const anio=parseInt(document.getElementById('fp-anio').value);
+  const raices=parseInt(document.getElementById('fp-raices').value)||0;
+  const mio=parseInt(document.getElementById('fp-mio').value)||0;
+  const ok=document.getElementById('fp-ok').value==='true';
+  const comentario=document.getElementById('fp-comentario').value.trim();
+  if(!org||!raices){toast('Completá organización e importe','#ef4444');return;}
+  const extra=JSON.parse(localStorage.getItem('raices_pagos_extra')||'[]');
+  extra.push({org,pilar:'',mes,anio,raices,mio,ok,comentario});
+  localStorage.setItem('raices_pagos_extra',JSON.stringify(extra));
+  closePagoForm();
+  renderFact(document.getElementById('tasklist'));
+  toast('Pago agregado ✅','#10b981');
+}
+
+// ═══ FORMULARIO DE SESIÓN ═══
+function openSessionForm(procesoId, sesNro) {
+  const procesos = getProcesos();
+  const p = procesos.find(x=>String(x.id)===String(procesoId));
+  if (!p) return;
+  const isMentoria = p.tipo === 'mentoria';
+  document.getElementById('fs-proceso-id').value = procesoId;
+  document.getElementById('fs-ses-nro').value = sesNro;
+  document.getElementById('fs-titulo').textContent = `Sesión #${sesNro} — ${p.coachee}`;
+
+  // Build dynamic dimension checkboxes
+  const coachDims = isMentoria
+    ? [['puntualidad','Puntualidad'],['conexion','Conexión'],['centrado','Centrado'],['material','Material'],['acompanamiento','Acompañamiento']]
+    : [['puntualidad','Puntualidad'],['conexion','Conexión'],['centrado','Centrado'],['bitacora','Bitácora'],['acompanamiento','Acompañamiento']];
+  const coacheeDims = isMentoria
+    ? [['puntualidad','Puntualidad'],['conexion','Conexión'],['desafio','Desafío'],['bitacora','Bitácora']]
+    : [['puntualidad','Puntualidad'],['conexion','Conexión'],['bitacora','Bitácora']];
+  const convDims = isMentoria
+    ? [['generar_relacion','Relación'],['repaso_acciones','Repaso'],['art_quiebre','Art. quiebre'],['herramienta','Herramienta'],['acciones','Acciones']]
+    : [['generar_relacion','Relación'],['art_quiebre','Art. quiebre'],['indagacion','Indagación'],['acciones','Acciones']];
+
+  const mkChecks = (dims, prefix) => dims.map(([key,label])=>`
+    <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:11px;color:#94a3b8">
+      <select id="${prefix}-${key}" style="background:#0f172a;color:#94a3b8;border:1px solid #334155;border-radius:5px;padding:2px 5px;font-size:10px">
+        <option value="">—</option><option value="OK">OK</option><option value="NO OK">NO OK</option>
+      </select>${label}
+    </label>`).join('');
+
+  document.getElementById('fs-coach-dims').innerHTML = mkChecks(coachDims,'fsc');
+  document.getElementById('fs-coachee-dims').innerHTML = mkChecks(coacheeDims,'fsce');
+  document.getElementById('fs-conv-dims').innerHTML = mkChecks(convDims,'fsv');
+
+  // Pre-fill from existing session data if any
+  const ses = p.sesiones.find(s=>s.nro===sesNro);
+  if (ses) {
+    document.getElementById('fs-fecha').value = ses.fecha||'';
+    document.getElementById('fs-status').value = ses.status||'REALIZADA';
+    document.getElementById('fs-accion').value = ses.desc_accion||'';
+    coachDims.forEach(([key])=>{ const el=document.getElementById('fsc-'+key); if(el&&ses.coach) el.value=ses.coach[key]||''; });
+    coacheeDims.forEach(([key])=>{ const el=document.getElementById('fsce-'+key); if(el&&ses.coachee) el.value=ses.coachee[key]||''; });
+    convDims.forEach(([key])=>{ const el=document.getElementById('fsv-'+key); if(el&&ses.conv) el.value=ses.conv[key]||''; });
+  } else {
+    document.getElementById('fs-fecha').value = new Date().toISOString().slice(0,10);
+    document.getElementById('fs-status').value = 'REALIZADA';
+    document.getElementById('fs-accion').value = '';
+  }
+
+  document.getElementById('modal-session').classList.add('open');
+}
+function closeSessionForm(){ document.getElementById('modal-session').classList.remove('open'); }
+function saveSessionForm(){
+  const procesoId = document.getElementById('fs-proceso-id').value;
+  const sesNro = parseInt(document.getElementById('fs-ses-nro').value);
+  const status = document.getElementById('fs-status').value;
+  const fecha = document.getElementById('fs-fecha').value||null;
+  const desc_accion = document.getElementById('fs-accion').value.trim()||null;
+
+  const procesos = getProcesos();
+  const p = procesos.find(x=>String(x.id)===String(procesoId));
+  if (!p) return;
+  const isMentoria = p.tipo==='mentoria';
+
+  const coachDims = isMentoria
+    ? ['puntualidad','conexion','centrado','material','acompanamiento']
+    : ['puntualidad','conexion','centrado','bitacora','acompanamiento'];
+  const coacheeDims = isMentoria
+    ? ['puntualidad','conexion','desafio','bitacora']
+    : ['puntualidad','conexion','bitacora'];
+  const convDims = isMentoria
+    ? ['generar_relacion','repaso_acciones','art_quiebre','herramienta','acciones']
+    : ['generar_relacion','art_quiebre','indagacion','acciones'];
+
+  const readDims = (dims, prefix) => {
+    const obj={};
+    dims.forEach(k=>{const el=document.getElementById(prefix+'-'+k);if(el&&el.value)obj[k]=el.value; else obj[k]=null;});
+    return obj;
+  };
+
+  // Find or create session
+  let ses = p.sesiones.find(s=>s.nro===sesNro);
+  if (!ses) {
+    ses = {nro:sesNro,fecha:null,status:null,pago:null,monto:0,coach:{},coachee:{},conv:{},desc_accion:null};
+    p.sesiones.push(ses);
+    p.sesiones.sort((a,b)=>a.nro-b.nro);
+  }
+  ses.fecha = fecha;
+  ses.status = status;
+  ses.desc_accion = desc_accion;
+  ses.coach = readDims(coachDims,'fsc');
+  ses.coachee = readDims(coacheeDims,'fsce');
+  ses.conv = readDims(convDims,'fsv');
+
+  saveProcesos(procesos);
+  closeSessionForm();
+  renderCoachingContent();
+  toast('Sesión guardada ✅','#10b981');
+}
+
+// ═══ FORMULARIO NUEVO PROCESO ═══
+function openNuevoProcesoForm(tipo){
+  document.getElementById('fn-tipo').value=tipo;
+  document.getElementById('fn-titulo').textContent=tipo==='mentoria'?'Nuevo proceso de mentoría':'Nuevo proceso de coaching';
+  ['fn-coachee','fn-pilar','fn-meta','fn-dominio','fn-fuente','fn-sesiones'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  document.getElementById('modal-nuevo-proceso').classList.add('open');
+}
+function closeNuevoProcesoForm(){ document.getElementById('modal-nuevo-proceso').classList.remove('open'); }
+function saveNuevoProcesoForm(){
+  const coachee=document.getElementById('fn-coachee').value.trim();
+  if(!coachee){toast('El nombre es obligatorio','#ef4444');return;}
+  const tipo=document.getElementById('fn-tipo').value;
+  const pilar=document.getElementById('fn-pilar').value.trim()||tipo==='mentoria'?'Mentoria':'Coaching Individual';
+  const meta=document.getElementById('fn-meta').value.trim()||null;
+  const dominio=document.getElementById('fn-dominio').value.trim()||null;
+  const fuente=document.getElementById('fn-fuente').value.trim()||null;
+  const nSes=parseInt(document.getElementById('fn-sesiones').value)||10;
+  const procesos=getProcesos();
+  const maxId=procesos.filter(p=>typeof p.id==='number').reduce((m,p)=>Math.max(m,p.id),0);
+  const newId=maxId+1;
+  const emptyCoach=tipo==='mentoria'
+    ?{puntualidad:null,conexion:null,centrado:null,material:null,acompanamiento:null}
+    :{puntualidad:null,conexion:null,centrado:null,bitacora:null,acompanamiento:null};
+  const emptyCoachee=tipo==='mentoria'
+    ?{puntualidad:null,conexion:null,desafio:null,bitacora:null,accion_declarada:null}
+    :{puntualidad:null,conexion:null,bitacora:null,accion_declarada:null};
+  const emptyConv=tipo==='mentoria'
+    ?{generar_relacion:null,repaso_acciones:null,art_quiebre:null,herramienta:null,acciones:null}
+    :{generar_relacion:null,art_quiebre:null,indagacion:null,acciones:null};
+  const sesiones=Array.from({length:nSes},(_,i)=>({nro:i+1,fecha:null,status:null,pago:null,monto:0,coach:{...emptyCoach},coachee:{...emptyCoachee},conv:{...emptyConv},desc_accion:null}));
+  procesos.push({id:newId,tipo,pilar,coachee,estado:tipo==='mentoria'?'En Proceso':'En curso',meta,quiebre:null,dominio,fuente,sesiones});
+  saveProcesos(procesos);
+  closeNuevoProcesoForm();
+  renderCoachingContent();
+  toast('Proceso creado ✅','#10b981');
+}
+
+// ═══ FORMULARIO NUEVO COACHEE ═══
+function openCoacheeForm(tipo){
+  document.getElementById('modal-coachee').classList.add('open');
+  document.getElementById('fc-tipo').value=tipo;
+  document.getElementById('fc-titulo').textContent=tipo==='activo'?'Agregar coachee activo':'Agregar al historial';
+  ['fc-nombre','fc-empresa','fc-pilar','fc-sesiones','fc-monto','fc-coach','fc-coachee'].forEach(id=>document.getElementById(id).value='');
+}
+function closeCoacheeForm(){document.getElementById('modal-coachee').classList.remove('open');}
+function saveCoacheeForm(){
+  const nombre=document.getElementById('fc-nombre').value.trim();
+  if(!nombre){toast('El nombre es obligatorio','#ef4444');return;}
+  const entry={
+    _tipo:document.getElementById('fc-tipo').value,
+    nombre,
+    empresa:document.getElementById('fc-empresa').value.trim(),
+    pilar:document.getElementById('fc-pilar').value.trim(),
+    sesiones:parseInt(document.getElementById('fc-sesiones').value)||0,
+    monto:parseInt(document.getElementById('fc-monto').value)||0,
+    coach:parseFloat(document.getElementById('fc-coach').value)||null,
+    coachee:parseFloat(document.getElementById('fc-coachee').value)||null,
+  };
+  const extra=JSON.parse(localStorage.getItem('raices_coachees_extra')||'[]');
+  extra.push(entry);
+  localStorage.setItem('raices_coachees_extra',JSON.stringify(extra));
+  closeCoacheeForm();
+  renderCoaching(document.getElementById('tasklist'));
+  toast('Coachee agregado ✅','#10b981');
+}
 </script>
+
+<!-- Modal Nuevo Pago -->
+<div class="modal-bg" id="modal-pago">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-title">＋ Nuevo pago</div>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div>
+          <label style="font-size:11px;color:#64748b;display:block;margin-bottom:3px">Mes</label>
+          <input type="number" id="fp-mes" class="date-inp" min="1" max="12" style="width:100%">
+        </div>
+        <div>
+          <label style="font-size:11px;color:#64748b;display:block;margin-bottom:3px">Año</label>
+          <input type="number" id="fp-anio" class="date-inp" style="width:100%">
+        </div>
+      </div>
+      <div>
+        <label style="font-size:11px;color:#64748b;display:block;margin-bottom:3px">Organización</label>
+        <input type="text" id="fp-org" class="date-inp" placeholder="Nombre empresa" style="width:100%">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div>
+          <label style="font-size:11px;color:#64748b;display:block;margin-bottom:3px">Importe Raíces ($)</label>
+          <input type="number" id="fp-raices" class="date-inp" style="width:100%">
+        </div>
+        <div>
+          <label style="font-size:11px;color:#64748b;display:block;margin-bottom:3px">Mi parte ($)</label>
+          <input type="number" id="fp-mio" class="date-inp" style="width:100%">
+        </div>
+      </div>
+      <div>
+        <label style="font-size:11px;color:#64748b;display:block;margin-bottom:3px">Estado</label>
+        <select id="fp-ok" class="date-inp" style="width:100%">
+          <option value="true">Cobrado ✅</option>
+          <option value="false">Pendiente ⏳</option>
+        </select>
+      </div>
+      <div>
+        <label style="font-size:11px;color:#64748b;display:block;margin-bottom:3px">Comentario (opcional)</label>
+        <input type="text" id="fp-comentario" class="date-inp" style="width:100%">
+      </div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn-primary" onclick="savePagoForm()">Guardar</button>
+      <button class="btn-secondary" onclick="closePagoForm()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Sesión -->
+<div class="modal-bg" id="modal-session">
+  <div class="modal" style="max-width:580px">
+    <div class="modal-title" id="fs-titulo">Registrar sesión</div>
+    <input type="hidden" id="fs-proceso-id">
+    <input type="hidden" id="fs-ses-nro">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px">
+      <div>
+        <label style="font-size:11px;color:#64748b;display:block;margin-bottom:3px">Fecha</label>
+        <input type="date" id="fs-fecha" class="date-inp" style="width:100%">
+      </div>
+      <div>
+        <label style="font-size:11px;color:#64748b;display:block;margin-bottom:3px">Status</label>
+        <select id="fs-status" style="background:#1e293b;color:#e2e8f0;border:1px solid #334155;border-radius:7px;padding:6px 8px;width:100%;font-size:12px">
+          <option value="REALIZADA">REALIZADA</option>
+          <option value="NO REALIZADA">NO REALIZADA</option>
+        </select>
+      </div>
+    </div>
+    <div style="margin-bottom:12px">
+      <label style="font-size:11px;color:#64748b;display:block;margin-bottom:4px;font-weight:700;text-transform:uppercase;letter-spacing:.05em">Coach</label>
+      <div id="fs-coach-dims" style="display:flex;flex-wrap:wrap;gap:8px"></div>
+    </div>
+    <div style="margin-bottom:12px">
+      <label style="font-size:11px;color:#64748b;display:block;margin-bottom:4px;font-weight:700;text-transform:uppercase;letter-spacing:.05em">Coachee</label>
+      <div id="fs-coachee-dims" style="display:flex;flex-wrap:wrap;gap:8px"></div>
+    </div>
+    <div style="margin-bottom:12px">
+      <label style="font-size:11px;color:#64748b;display:block;margin-bottom:4px;font-weight:700;text-transform:uppercase;letter-spacing:.05em">Conversación</label>
+      <div id="fs-conv-dims" style="display:flex;flex-wrap:wrap;gap:8px"></div>
+    </div>
+    <div style="margin-bottom:16px">
+      <label style="font-size:11px;color:#64748b;display:block;margin-bottom:3px">Acción / Compromiso</label>
+      <textarea id="fs-accion" style="background:#1e293b;color:#e2e8f0;border:1px solid #334155;border-radius:7px;padding:7px 9px;width:100%;font-size:12px;font-family:inherit;resize:vertical;min-height:52px;box-sizing:border-box"></textarea>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button class="btn-secondary" onclick="closeSessionForm()">Cancelar</button>
+      <button class="btn-primary" onclick="saveSessionForm()">Guardar sesión</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Nuevo Proceso -->
+<div class="modal-bg" id="modal-nuevo-proceso">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-title" id="fn-titulo">Nuevo proceso</div>
+    <input type="hidden" id="fn-tipo">
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">
+      <div>
+        <label style="font-size:11px;color:#64748b;display:block;margin-bottom:3px">Nombre / Coachee *</label>
+        <input type="text" id="fn-coachee" class="date-inp" placeholder="Nombre completo" style="width:100%">
+      </div>
+      <div>
+        <label style="font-size:11px;color:#64748b;display:block;margin-bottom:3px">Pilar</label>
+        <input type="text" id="fn-pilar" class="date-inp" placeholder="Ej: Coaching Individual" style="width:100%">
+      </div>
+      <div>
+        <label style="font-size:11px;color:#64748b;display:block;margin-bottom:3px">Meta</label>
+        <input type="text" id="fn-meta" class="date-inp" placeholder="Meta del proceso" style="width:100%">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div>
+          <label style="font-size:11px;color:#64748b;display:block;margin-bottom:3px">Dominio</label>
+          <input type="text" id="fn-dominio" class="date-inp" placeholder="Ej: Liderazgo" style="width:100%">
+        </div>
+        <div>
+          <label style="font-size:11px;color:#64748b;display:block;margin-bottom:3px">Fuente</label>
+          <input type="text" id="fn-fuente" class="date-inp" placeholder="Ej: Trabajo" style="width:100%">
+        </div>
+      </div>
+      <div>
+        <label style="font-size:11px;color:#64748b;display:block;margin-bottom:3px">Sesiones planificadas</label>
+        <input type="number" id="fn-sesiones" class="date-inp" value="10" min="1" max="24" style="width:100%">
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;justify-content:flex-end">
+      <button class="btn-secondary" onclick="closeNuevoProcesoForm()">Cancelar</button>
+      <button class="btn-primary" onclick="saveNuevoProcesoForm()">Crear proceso</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal Nuevo Coachee -->
+<div class="modal-bg" id="modal-coachee">
+  <div class="modal" style="max-width:400px">
+    <div class="modal-title" id="fc-titulo">Agregar coachee</div>
+    <input type="hidden" id="fc-tipo" value="activo">
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">
+      <div>
+        <label style="font-size:11px;color:#64748b;display:block;margin-bottom:3px">Nombre *</label>
+        <input type="text" id="fc-nombre" class="date-inp" style="width:100%">
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div>
+          <label style="font-size:11px;color:#64748b;display:block;margin-bottom:3px">Empresa</label>
+          <input type="text" id="fc-empresa" class="date-inp" style="width:100%">
+        </div>
+        <div>
+          <label style="font-size:11px;color:#64748b;display:block;margin-bottom:3px">Pilar</label>
+          <input type="text" id="fc-pilar" class="date-inp" placeholder="CI / CG / CE" style="width:100%">
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div>
+          <label style="font-size:11px;color:#64748b;display:block;margin-bottom:3px">Sesiones</label>
+          <input type="number" id="fc-sesiones" class="date-inp" style="width:100%">
+        </div>
+        <div>
+          <label style="font-size:11px;color:#64748b;display:block;margin-bottom:3px">Monto ($)</label>
+          <input type="number" id="fc-monto" class="date-inp" style="width:100%">
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <div>
+          <label style="font-size:11px;color:#64748b;display:block;margin-bottom:3px">Score Coach (0-1)</label>
+          <input type="number" id="fc-coach" class="date-inp" step="0.01" min="0" max="1" style="width:100%">
+        </div>
+        <div>
+          <label style="font-size:11px;color:#64748b;display:block;margin-bottom:3px">Score Coachee (0-1)</label>
+          <input type="number" id="fc-coachee" class="date-inp" step="0.01" min="0" max="1" style="width:100%">
+        </div>
+      </div>
+    </div>
+    <div style="display:flex;gap:8px">
+      <button class="btn-primary" onclick="saveCoacheeForm()">Guardar</button>
+      <button class="btn-secondary" onclick="closeCoacheeForm()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
 </body>
 </html>
