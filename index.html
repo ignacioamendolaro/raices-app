@@ -1375,6 +1375,7 @@ function renderProcesoDetail(p) {
         <th title="Acción declarada">AD</th>
         <th>Coachee</th>
         <th style="text-align:left;min-width:140px">Acción / Meta</th>
+        <th></th>
       </tr></thead>
       <tbody>
       ${p.sesiones.map(s=>{
@@ -1398,6 +1399,7 @@ function renderProcesoDetail(p) {
           <td>${okIcon(ce.accion_declarada)}</td>
           <td style="color:${sc(coacheeScore)};font-weight:700">${pct(coacheeScore)}</td>
           <td style="color:#94a3b8;font-size:10px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(s.desc_accion||'')}">${esc(s.desc_accion||'')}</td>
+          <td><button onclick="openSessionForm('${p.id}',${s.nro})" style="background:none;border:none;color:#475569;cursor:pointer;font-size:12px;padding:2px 4px" title="Editar sesión">✏</button></td>
         </tr>`;
       }).join('')}
       </tbody>
