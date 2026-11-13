@@ -289,6 +289,14 @@ body{background:#0f172a;color:#e2e8f0;font-family:-apple-system,BlinkMacSystemFo
 .add-to-day-btn:hover{color:#818cf8}
 .add-to-day-btn.added{color:#34d399}
 
+/* OK toggle buttons */
+.ok-btn{padding:3px 11px;border-radius:12px;border:1px solid #334155;background:transparent;color:#475569;font-size:11px;font-weight:600;cursor:pointer;transition:all .15s;min-width:56px;text-align:center}
+.ok-btn:hover{border-color:#64748b;color:#94a3b8}
+.ok-btn.is-ok{background:#10b98118;color:#10b981;border-color:#10b98140}
+.ok-btn.is-ok:hover{background:#10b98130}
+.ok-btn.is-nok{background:#ef444418;color:#ef4444;border-color:#ef444440}
+.ok-btn.is-nok:hover{background:#ef444430}
+
 </style>
 </head>
 <body>
@@ -1345,11 +1353,46 @@ function renderProcesoDetail(p) {
   const nextSes = p.sesiones.find(s=>!s.status);
   const nextNro = nextSes ? nextSes.nro : p.sesiones.length+1;
   const isMentoria = p.tipo==='mentoria';
+  // Meta panel (acuerdo, objetivo, indicadores, NPS, testimonio, referido)
+  const acuerdoCls = p.acuerdo==='firmado'?'is-ok':'';
+  const acuerdoTxt = p.acuerdo==='firmado'?'✓ Firmado':'Sin firmar';
+  const testCls = p.testimonio==='OK'?'is-ok':p.testimonio==='NO OK'?'is-nok':'';
+  const testTxt = p.testimonio==='OK'?'✓ OK':p.testimonio==='NO OK'?'✗ NO OK':'—';
+  const refCls = p.referido==='OK'?'is-ok':p.referido==='NO OK'?'is-nok':'';
+  const refTxt = p.referido==='OK'?'✓ OK':p.referido==='NO OK'?'✗ NO OK':'—';
+
+  const metaPanel = `<div style="background:#0f172a;border:1px solid #1e293b;border-radius:9px;padding:12px;margin-bottom:12px">
+    <div style="font-size:10px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px">Datos del proceso</div>
+    <div style="display:flex;flex-wrap:wrap;gap:12px;align-items:flex-start;margin-bottom:8px">
+      <div><div style="font-size:9px;color:#64748b;margin-bottom:3px">Acuerdo</div>
+        <button class="ok-btn ${acuerdoCls}" onclick="toggleProcesoField('${p.id}','acuerdo')">${acuerdoTxt}</button></div>
+      <div><div style="font-size:9px;color:#64748b;margin-bottom:3px">NPS Mitad</div>
+        <input type="number" id="pm-${p.id}-nps_mitad" min="0" max="10" value="${p.nps_mitad!=null?p.nps_mitad:''}" placeholder="—"
+          onblur="saveProcesoMeta('${p.id}')"
+          style="width:52px;background:#1e293b;border:1px solid #334155;color:#e2e8f0;border-radius:8px;padding:3px 7px;font-size:12px;text-align:center;outline:none"></div>
+      <div><div style="font-size:9px;color:#64748b;margin-bottom:3px">NPS Final</div>
+        <input type="number" id="pm-${p.id}-nps_final" min="0" max="10" value="${p.nps_final!=null?p.nps_final:''}" placeholder="—"
+          onblur="saveProcesoMeta('${p.id}')"
+          style="width:52px;background:#1e293b;border:1px solid #334155;color:#e2e8f0;border-radius:8px;padding:3px 7px;font-size:12px;text-align:center;outline:none"></div>
+      <div><div style="font-size:9px;color:#64748b;margin-bottom:3px">Testimonio</div>
+        <button class="ok-btn ${testCls}" onclick="cycleProcesoOkField('${p.id}','testimonio')">${testTxt}</button></div>
+      <div><div style="font-size:9px;color:#64748b;margin-bottom:3px">Referido</div>
+        <button class="ok-btn ${refCls}" onclick="cycleProcesoOkField('${p.id}','referido')">${refTxt}</button></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <div><div style="font-size:9px;color:#64748b;margin-bottom:3px">Objetivo</div>
+        <textarea id="pm-${p.id}-objetivo" rows="2" onblur="saveProcesoMeta('${p.id}')"
+          style="width:100%;background:#1e293b;border:1px solid #334155;color:#e2e8f0;border-radius:7px;padding:5px 8px;font-size:11px;font-family:inherit;resize:vertical;outline:none;box-sizing:border-box">${esc(p.objetivo||'')}</textarea></div>
+      <div><div style="font-size:9px;color:#64748b;margin-bottom:3px">Indicadores</div>
+        <textarea id="pm-${p.id}-indicadores" rows="2" onblur="saveProcesoMeta('${p.id}')"
+          style="width:100%;background:#1e293b;border:1px solid #334155;color:#e2e8f0;border-radius:7px;padding:5px 8px;font-size:11px;font-family:inherit;resize:vertical;outline:none;box-sizing:border-box">${esc(p.indicadores||'')}</textarea></div>
+    </div>
+  </div>`;
+
   return `<div class="proc-detail-panel">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:12px;flex-wrap:wrap;gap:8px">
       <div>
         <div style="font-size:14px;font-weight:700;color:#e2e8f0">${esc(p.coachee)}</div>
-        ${p.meta?`<div style="font-size:11px;color:#94a3b8;margin-top:3px;max-width:500px">Meta: ${esc(p.meta)}</div>`:''}
         ${p.dominio?`<div style="font-size:10px;color:#475569;margin-top:2px">Dominio: ${esc(p.dominio)}</div>`:''}
       </div>
       <div style="display:flex;gap:7px;flex-shrink:0">
@@ -1357,49 +1400,73 @@ function renderProcesoDetail(p) {
         <button class="btn-secondary" onclick="selectProceso('${p.id}')" style="font-size:11px;padding:5px 10px">✕ Cerrar</button>
       </div>
     </div>
+    ${metaPanel}
     <div style="overflow-x:auto">
     <table class="proc-ses-table">
       <thead><tr>
         <th style="text-align:left">#</th>
         <th style="text-align:left">Fecha</th>
         <th>Status</th>
+        ${isMentoria ? `
         <th title="Puntualidad coach">P</th>
         <th title="Conexión coach">Cn</th>
-        <th title="${isMentoria?'Material':'Centrado'}">${isMentoria?'Mat':'Ce'}</th>
-        <th title="Bitácora / ${isMentoria?'Desafío':'Bitácora'}">${isMentoria?'Des':'Bit'}</th>
+        <th title="Material">Mat</th>
         <th title="Acompañamiento">Ac</th>
         <th>Coach</th>
         <th title="Puntualidad coachee">P</th>
         <th title="Conexión coachee">Cn</th>
-        <th title="${isMentoria?'Bitácora':'Bitácora'}">${isMentoria?'Bit':'Bit'}</th>
-        <th title="Acción declarada">AD</th>
+        <th title="Desafío">Des</th>
+        <th title="Bitácora">Bit</th>
+        <th>Coachee</th>` : `
+        <th title="Programación coach">Prog</th>
+        <th title="Puntualidad coach">Punt</th>
+        <th title="Bitácora enviada">Bit</th>
+        <th>Coach</th>
+        <th title="Programación coachee">Prog</th>
+        <th title="Puntualidad coachee">Punt</th>
+        <th title="% Acciones declaradas">%Acc</th>
         <th>Coachee</th>
-        <th style="text-align:left;min-width:140px">Acción / Meta</th>
+        <th title="Art. quiebre">AQ</th>
+        <th title="Indagación">Ind</th>
+        <th title="Acciones">Acc</th>`}
+        <th style="text-align:left;min-width:120px">Acción</th>
         <th></th>
       </tr></thead>
       <tbody>
       ${p.sesiones.map(s=>{
         const coachScore = s.status==='REALIZADA'?calcDimScore(s.coach):null;
         const coacheeScore = s.status==='REALIZADA'?calcDimScore(s.coachee):null;
-        const c = s.coach||{}; const ce = s.coachee||{};
+        const c = s.coach||{}; const ce = s.coachee||{}; const cv = s.conv||{};
         const isPending = !s.status;
+        const accPct = ce.accion_declarada_pct != null ? ce.accion_declarada_pct : ce.accion_declarada;
         return `<tr class="${isPending?'proc-ses-pending':''}">
           <td style="color:#64748b;font-weight:600">${s.nro}</td>
           <td>${fmtDate(s.fecha)}</td>
           <td><span class="proc-status-${s.status==='REALIZADA'?'re':s.status==='NO REALIZADA'?'no':'pe'}">${s.status||'Pend.'}</span></td>
+          ${isMentoria ? `
           <td>${okIcon(c.puntualidad)}</td>
           <td>${okIcon(c.conexion)}</td>
-          <td>${okIcon(isMentoria?c.material:c.centrado)}</td>
-          <td>${okIcon(isMentoria?ce.desafio:c.bitacora)}</td>
+          <td>${okIcon(c.material)}</td>
           <td>${okIcon(c.acompanamiento)}</td>
           <td style="color:${sc(coachScore)};font-weight:700">${pct(coachScore)}</td>
           <td>${okIcon(ce.puntualidad)}</td>
           <td>${okIcon(ce.conexion)}</td>
-          <td>${okIcon(isMentoria?ce.bitacora:ce.bitacora)}</td>
-          <td>${okIcon(ce.accion_declarada)}</td>
+          <td>${okIcon(ce.desafio)}</td>
+          <td>${okIcon(ce.bitacora)}</td>
+          <td style="color:${sc(coacheeScore)};font-weight:700">${pct(coacheeScore)}</td>` : `
+          <td>${okIcon(c.programacion)}</td>
+          <td>${okIcon(c.puntualidad)}</td>
+          <td>${okIcon(c.bitacora_enviada)}</td>
+          <td style="color:${sc(coachScore)};font-weight:700">${pct(coachScore)}</td>
+          <td>${okIcon(ce.programacion)}</td>
+          <td>${okIcon(ce.puntualidad)}</td>
+          <td>${okIcon(accPct)}</td>
           <td style="color:${sc(coacheeScore)};font-weight:700">${pct(coacheeScore)}</td>
-          <td style="color:#94a3b8;font-size:10px;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(s.desc_accion||'')}">${esc(s.desc_accion||'')}</td>
-          <td><button onclick="openSessionForm('${p.id}',${s.nro})" style="background:none;border:none;color:#475569;cursor:pointer;font-size:12px;padding:2px 4px" title="Editar sesión">✏</button></td>
+          <td>${okIcon(cv.art_quiebre)}</td>
+          <td>${okIcon(cv.indagacion)}</td>
+          <td>${okIcon(cv.acciones)}</td>`}
+          <td style="color:#94a3b8;font-size:10px;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${esc(s.desc_accion||'')}">${esc(s.desc_accion||'')}</td>
+          <td><button onclick="openSessionForm('${p.id}',${s.nro})" style="background:none;border:none;color:#475569;cursor:pointer;font-size:12px;padding:2px 4px" title="Editar">✏</button></td>
         </tr>`;
       }).join('')}
       </tbody>
@@ -2057,6 +2124,30 @@ function savePagoForm(){
 }
 
 // ═══ FORMULARIO DE SESIÓN ═══
+function cycleOkBtn(id) {
+  const hidden = document.getElementById(id);
+  const btn = document.getElementById(id+'-btn');
+  if (!hidden||!btn) return;
+  const v = hidden.value;
+  let next, label, cls;
+  if (!v) { next='OK'; label='✓ OK'; cls=' is-ok'; }
+  else if (v==='OK') { next='NO OK'; label='✗ NO OK'; cls=' is-nok'; }
+  else { next=''; label='—'; cls=''; }
+  hidden.value = next;
+  btn.textContent = label;
+  btn.className = 'ok-btn'+cls;
+}
+function setOkBtn(id, val) {
+  const hidden = document.getElementById(id);
+  const btn = document.getElementById(id+'-btn');
+  const v = val||'';
+  if (hidden) hidden.value = v;
+  if (btn) {
+    btn.textContent = v==='OK'?'✓ OK':v==='NO OK'?'✗ NO OK':'—';
+    btn.className = 'ok-btn'+(v==='OK'?' is-ok':v==='NO OK'?' is-nok':'');
+  }
+}
+
 function openSessionForm(procesoId, sesNro) {
   const procesos = getProcesos();
   const p = procesos.find(x=>String(x.id)===String(procesoId));
@@ -2066,41 +2157,58 @@ function openSessionForm(procesoId, sesNro) {
   document.getElementById('fs-ses-nro').value = sesNro;
   document.getElementById('fs-titulo').textContent = `Sesión #${sesNro} — ${p.coachee}`;
 
-  // Build dynamic dimension checkboxes
   const coachDims = isMentoria
     ? [['puntualidad','Puntualidad'],['conexion','Conexión'],['centrado','Centrado'],['material','Material'],['acompanamiento','Acompañamiento']]
-    : [['puntualidad','Puntualidad'],['conexion','Conexión'],['centrado','Centrado'],['bitacora','Bitácora'],['acompanamiento','Acompañamiento']];
+    : [['programacion','Programación'],['puntualidad','Puntualidad'],['bitacora_enviada','Bitácora Env.']];
   const coacheeDims = isMentoria
     ? [['puntualidad','Puntualidad'],['conexion','Conexión'],['desafio','Desafío'],['bitacora','Bitácora']]
-    : [['puntualidad','Puntualidad'],['conexion','Conexión'],['bitacora','Bitácora']];
+    : [['programacion','Programación'],['puntualidad','Puntualidad']];
   const convDims = isMentoria
     ? [['generar_relacion','Relación'],['repaso_acciones','Repaso'],['art_quiebre','Art. quiebre'],['herramienta','Herramienta'],['acciones','Acciones']]
-    : [['generar_relacion','Relación'],['art_quiebre','Art. quiebre'],['indagacion','Indagación'],['acciones','Acciones']];
+    : [['art_quiebre','Art. quiebre'],['indagacion','Indagación'],['acciones','Acciones']];
 
   const mkChecks = (dims, prefix) => dims.map(([key,label])=>`
-    <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:11px;color:#94a3b8">
-      <select id="${prefix}-${key}" style="background:#0f172a;color:#94a3b8;border:1px solid #334155;border-radius:5px;padding:2px 5px;font-size:10px">
-        <option value="">—</option><option value="OK">OK</option><option value="NO OK">NO OK</option>
-      </select>${label}
-    </label>`).join('');
+    <div style="display:flex;flex-direction:column;align-items:center;gap:3px;margin-right:4px">
+      <span style="font-size:9px;color:#64748b;text-align:center">${label}</span>
+      <button type="button" id="${prefix}-${key}-btn" class="ok-btn" onclick="cycleOkBtn('${prefix}-${key}')">—</button>
+      <input type="hidden" id="${prefix}-${key}" value="">
+    </div>`).join('');
 
   document.getElementById('fs-coach-dims').innerHTML = mkChecks(coachDims,'fsc');
-  document.getElementById('fs-coachee-dims').innerHTML = mkChecks(coacheeDims,'fsce');
+  const coacheeDimsHtml = mkChecks(coacheeDims,'fsce') + (!isMentoria ? `
+    <div style="display:flex;flex-direction:column;align-items:center;gap:3px;margin-right:4px">
+      <span style="font-size:9px;color:#64748b;text-align:center">% Acciones</span>
+      <input type="number" id="fsce-accion-pct" min="0" max="100" placeholder="—"
+        style="width:52px;background:#0f172a;border:1px solid #334155;color:#e2e8f0;border-radius:12px;padding:3px 7px;font-size:11px;text-align:center;font-weight:600;outline:none">
+    </div>` : '');
+  document.getElementById('fs-coachee-dims').innerHTML = coacheeDimsHtml;
   document.getElementById('fs-conv-dims').innerHTML = mkChecks(convDims,'fsv');
 
-  // Pre-fill from existing session data if any
   const ses = p.sesiones.find(s=>s.nro===sesNro);
   if (ses) {
     document.getElementById('fs-fecha').value = ses.fecha||'';
     document.getElementById('fs-status').value = ses.status||'REALIZADA';
     document.getElementById('fs-accion').value = ses.desc_accion||'';
-    coachDims.forEach(([key])=>{ const el=document.getElementById('fsc-'+key); if(el&&ses.coach) el.value=ses.coach[key]||''; });
-    coacheeDims.forEach(([key])=>{ const el=document.getElementById('fsce-'+key); if(el&&ses.coachee) el.value=ses.coachee[key]||''; });
-    convDims.forEach(([key])=>{ const el=document.getElementById('fsv-'+key); if(el&&ses.conv) el.value=ses.conv[key]||''; });
+    document.getElementById('fs-insights').value = ses.insights||'';
+    coachDims.forEach(([key])=>setOkBtn('fsc-'+key, ses.coach?ses.coach[key]:null));
+    coacheeDims.forEach(([key])=>setOkBtn('fsce-'+key, ses.coachee?ses.coachee[key]:null));
+    convDims.forEach(([key])=>setOkBtn('fsv-'+key, ses.conv?ses.conv[key]:null));
+    if (!isMentoria) {
+      const pctEl = document.getElementById('fsce-accion-pct');
+      if (pctEl) {
+        const pct = ses.coachee?.accion_declarada_pct != null ? ses.coachee.accion_declarada_pct
+          : (typeof ses.coachee?.accion_declarada === 'number' ? ses.coachee.accion_declarada : null);
+        pctEl.value = pct != null ? Math.round(pct*100) : '';
+      }
+    }
   } else {
     document.getElementById('fs-fecha').value = new Date().toISOString().slice(0,10);
     document.getElementById('fs-status').value = 'REALIZADA';
     document.getElementById('fs-accion').value = '';
+    document.getElementById('fs-insights').value = '';
+    coachDims.forEach(([key])=>setOkBtn('fsc-'+key, null));
+    coacheeDims.forEach(([key])=>setOkBtn('fsce-'+key, null));
+    convDims.forEach(([key])=>setOkBtn('fsv-'+key, null));
   }
 
   document.getElementById('modal-session').classList.add('open');
@@ -2112,6 +2220,7 @@ function saveSessionForm(){
   const status = document.getElementById('fs-status').value;
   const fecha = document.getElementById('fs-fecha').value||null;
   const desc_accion = document.getElementById('fs-accion').value.trim()||null;
+  const insights = document.getElementById('fs-insights').value.trim()||null;
 
   const procesos = getProcesos();
   const p = procesos.find(x=>String(x.id)===String(procesoId));
@@ -2120,13 +2229,13 @@ function saveSessionForm(){
 
   const coachDims = isMentoria
     ? ['puntualidad','conexion','centrado','material','acompanamiento']
-    : ['puntualidad','conexion','centrado','bitacora','acompanamiento'];
+    : ['programacion','puntualidad','bitacora_enviada'];
   const coacheeDims = isMentoria
     ? ['puntualidad','conexion','desafio','bitacora']
-    : ['puntualidad','conexion','bitacora'];
+    : ['programacion','puntualidad'];
   const convDims = isMentoria
     ? ['generar_relacion','repaso_acciones','art_quiebre','herramienta','acciones']
-    : ['generar_relacion','art_quiebre','indagacion','acciones'];
+    : ['art_quiebre','indagacion','acciones'];
 
   const readDims = (dims, prefix) => {
     const obj={};
@@ -2134,19 +2243,23 @@ function saveSessionForm(){
     return obj;
   };
 
-  // Find or create session
   let ses = p.sesiones.find(s=>s.nro===sesNro);
   if (!ses) {
-    ses = {nro:sesNro,fecha:null,status:null,pago:null,monto:0,coach:{},coachee:{},conv:{},desc_accion:null};
+    ses = {nro:sesNro,fecha:null,status:null,pago:null,monto:0,coach:{},coachee:{},conv:{},desc_accion:null,insights:null};
     p.sesiones.push(ses);
     p.sesiones.sort((a,b)=>a.nro-b.nro);
   }
   ses.fecha = fecha;
   ses.status = status;
   ses.desc_accion = desc_accion;
+  ses.insights = insights;
   ses.coach = readDims(coachDims,'fsc');
   ses.coachee = readDims(coacheeDims,'fsce');
   ses.conv = readDims(convDims,'fsv');
+  if (!isMentoria) {
+    const pctEl = document.getElementById('fsce-accion-pct');
+    ses.coachee.accion_declarada_pct = pctEl&&pctEl.value!=='' ? parseInt(pctEl.value)/100 : null;
+  }
 
   saveProcesos(procesos);
   closeSessionForm();
@@ -2176,19 +2289,58 @@ function saveNuevoProcesoForm(){
   const newId=maxId+1;
   const emptyCoach=tipo==='mentoria'
     ?{puntualidad:null,conexion:null,centrado:null,material:null,acompanamiento:null}
-    :{puntualidad:null,conexion:null,centrado:null,bitacora:null,acompanamiento:null};
+    :{programacion:null,puntualidad:null,bitacora_enviada:null};
   const emptyCoachee=tipo==='mentoria'
     ?{puntualidad:null,conexion:null,desafio:null,bitacora:null,accion_declarada:null}
-    :{puntualidad:null,conexion:null,bitacora:null,accion_declarada:null};
+    :{programacion:null,puntualidad:null,accion_declarada_pct:null};
   const emptyConv=tipo==='mentoria'
     ?{generar_relacion:null,repaso_acciones:null,art_quiebre:null,herramienta:null,acciones:null}
-    :{generar_relacion:null,art_quiebre:null,indagacion:null,acciones:null};
-  const sesiones=Array.from({length:nSes},(_,i)=>({nro:i+1,fecha:null,status:null,pago:null,monto:0,coach:{...emptyCoach},coachee:{...emptyCoachee},conv:{...emptyConv},desc_accion:null}));
+    :{art_quiebre:null,indagacion:null,acciones:null};
+  const sesiones=Array.from({length:nSes},(_,i)=>({nro:i+1,fecha:null,status:null,pago:null,monto:0,coach:{...emptyCoach},coachee:{...emptyCoachee},conv:{...emptyConv},desc_accion:null,insights:null}));
   procesos.push({id:newId,tipo,pilar,coachee,estado:tipo==='mentoria'?'En Proceso':'En curso',meta,quiebre:null,dominio,fuente,sesiones});
   saveProcesos(procesos);
   closeNuevoProcesoForm();
   renderCoachingContent();
   toast('Proceso creado ✅','#10b981');
+}
+
+// ═══ PROCESO META HELPERS ═══
+function saveProcesoMeta(id) {
+  const procesos = getProcesos();
+  const p = procesos.find(x=>String(x.id)===String(id));
+  if (!p) return;
+  const g = field => { const el=document.getElementById('pm-'+id+'-'+field); return el?el.value:null; };
+  p.objetivo = g('objetivo')||null;
+  p.indicadores = g('indicadores')||null;
+  const nm = g('nps_mitad'); p.nps_mitad = nm!==''&&nm!=null ? parseInt(nm)||null : null;
+  const nf = g('nps_final'); p.nps_final = nf!==''&&nf!=null ? parseInt(nf)||null : null;
+  saveProcesos(procesos);
+  toast('Guardado ✓','#10b981');
+}
+function toggleProcesoField(id, field) {
+  const procesos = getProcesos();
+  const p = procesos.find(x=>String(x.id)===String(id));
+  if (!p) return;
+  if (field==='acuerdo') {
+    p.acuerdo = p.acuerdo==='firmado' ? null : 'firmado';
+    const btn = document.querySelector(`button[onclick="toggleProcesoField('${id}','acuerdo')"]`);
+    if (btn) { btn.textContent=p.acuerdo==='firmado'?'✓ Firmado':'Sin firmar'; btn.className='ok-btn'+(p.acuerdo==='firmado'?' is-ok':''); }
+  }
+  saveProcesos(procesos);
+}
+function cycleProcesoOkField(id, field) {
+  const procesos = getProcesos();
+  const p = procesos.find(x=>String(x.id)===String(id));
+  if (!p) return;
+  const val = p[field];
+  p[field] = !val ? 'OK' : val==='OK' ? 'NO OK' : null;
+  const btn = document.querySelector(`button[onclick="cycleProcesoOkField('${id}','${field}')"]`);
+  if (btn) {
+    const v = p[field];
+    btn.textContent = v==='OK'?'✓ OK':v==='NO OK'?'✗ NO OK':'—';
+    btn.className = 'ok-btn'+(v==='OK'?' is-ok':v==='NO OK'?' is-nok':'');
+  }
+  saveProcesos(procesos);
 }
 
 // ═══ FORMULARIO NUEVO COACHEE ═══
@@ -2300,9 +2452,13 @@ function saveCoacheeForm(){
       <label style="font-size:11px;color:#64748b;display:block;margin-bottom:4px;font-weight:700;text-transform:uppercase;letter-spacing:.05em">Conversación</label>
       <div id="fs-conv-dims" style="display:flex;flex-wrap:wrap;gap:8px"></div>
     </div>
-    <div style="margin-bottom:16px">
+    <div style="margin-bottom:10px">
       <label style="font-size:11px;color:#64748b;display:block;margin-bottom:3px">Acción / Compromiso</label>
       <textarea id="fs-accion" style="background:#1e293b;color:#e2e8f0;border:1px solid #334155;border-radius:7px;padding:7px 9px;width:100%;font-size:12px;font-family:inherit;resize:vertical;min-height:52px;box-sizing:border-box"></textarea>
+    </div>
+    <div style="margin-bottom:16px">
+      <label style="font-size:11px;color:#64748b;display:block;margin-bottom:3px">Insights de la sesión</label>
+      <textarea id="fs-insights" style="background:#1e293b;color:#e2e8f0;border:1px solid #334155;border-radius:7px;padding:7px 9px;width:100%;font-size:12px;font-family:inherit;resize:vertical;min-height:70px;box-sizing:border-box" placeholder="Observaciones, patrones, aprendizajes clave…"></textarea>
     </div>
     <div style="display:flex;gap:8px;justify-content:flex-end">
       <button class="btn-secondary" onclick="closeSessionForm()">Cancelar</button>
