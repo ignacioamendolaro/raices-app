@@ -570,6 +570,7 @@ function daysSince(iso) { if(!iso)return 0;const today=new Date();today.setHours
 
 // ═══ LOAD ═══
 loadTasks();
+initNotionSync();
 
 async function loadTasks() {
   document.getElementById('loading').style.display='block';
@@ -1270,6 +1271,43 @@ function getProcesos() {
 }
 function saveProcesos(p) {
   try { localStorage.setItem('raices_procesos', JSON.stringify(p)); } catch(e) {}
+  // Backup asíncrono a Notion (fire & forget — no bloquea la UI)
+  fetch('/api/coaching', {
+    method: 'PUT',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify(p)
+  }).catch(() => {});
+}
+
+// ─── Sincronización con Notion ───
+// Al iniciar: si localStorage vacío → cargar desde Notion
+// Si localStorage tiene datos → sincronizar a Notion en background
+async function initNotionSync() {
+  const local = localStorage.getItem('raices_procesos');
+  if (!local) {
+    // No hay datos locales → intentar cargar desde Notion
+    try {
+      const r = await fetch('/api/coaching');
+      if (r.ok) {
+        const data = await r.json();
+        if (data && data.length > 0) {
+          localStorage.setItem('raices_procesos', JSON.stringify(data));
+          renderCoachingContent();
+          toast('Datos restaurados desde Notion ✓', '#10b981');
+        }
+      }
+    } catch(e) {}
+  } else {
+    // Hay datos locales → sincronizar a Notion en background
+    try {
+      const procesos = JSON.parse(local);
+      fetch('/api/coaching', {
+        method: 'PUT',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify(procesos)
+      }).catch(() => {});
+    } catch(e) {}
+  }
 }
 function calcDimScore(items) {
   if (!items) return null;
